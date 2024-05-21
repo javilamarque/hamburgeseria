@@ -1,0 +1,59 @@
+{{> header}}
+
+<div class="container">
+    <h1>Lista de Productos</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Código de Barras</th>
+                <th>Descripción</th>
+                <th>Stock</th>
+                <th>Costo</th>
+                <th>Precio de Venta</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="productsTableBody">
+            {{#each products}}
+            <tr id="product-{{this.cod_barra}}">
+                <td>{{this.cod_barra}}</td>
+                <td>{{this.descripcion}}</td>
+                <td>{{this.stock}}</td>
+                <td>{{this.costo}}</td>
+                <td>{{this.precio_venta}}</td>
+                <td>{{this.fecha}}</td>
+                <td>
+                    <a href="/products/{{this.cod_barra}}/edit" class="btn btn-info">Editar</a>
+                    <button onclick="deleteProduct('{{this.cod_barra}}')" class="btn btn-danger">Eliminar</button>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    async function deleteProduct(codigoDeBarras) {
+        if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
+            try {
+                const response = await fetch(`/products/${codigoDeBarras}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    document.getElementById(`product-${codigoDeBarras}`).remove();
+                } else {
+                    alert('Error al eliminar el producto');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al eliminar el producto');
+            }
+        }
+    }
+</script>
+
+{{> footer}}

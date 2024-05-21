@@ -1,0 +1,115 @@
+const Product = require('../models/product');
+
+// Obtener todos los productos
+exports.getAllProducts = async (req, res) => {
+    try {
+        const products = await Product.find();
+        res.render('products', {products: products})
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener los productos' });
+    }
+};
+
+// Crear un nuevo producto
+exports.createProduct = async (req, res) => {
+    const { cod_barra, descripcion, stock, costo, precio_venta, fecha } = req.body;
+    try {
+        // Verificar si el código de barras ya existe
+        const existingProduct = await Product.findOne({ cod_barra });
+        if (existingProduct) {
+            return res.send(`
+                <script>
+                    alert('Ya Existe este codigo de Barras!!!');
+                    window.location.href = '/products';
+                </script>
+            `);
+        }
+
+        const newProduct = new Product({ cod_barra, descripcion, stock, costo, precio_venta, fecha });
+        await newProduct.save();
+
+        // Mostrar un alert y redirigir a la página de productos
+        res.send(`
+            <script>
+                alert('Producto creado exitosamente');
+                window.location.href = '/products';
+            </script>
+        `);
+    } catch (error) {
+        res.status(500).send(`
+            <script>
+                alert('Error al crear el producto');
+                window.location.href = '/newProduct'; // Redirigir a la página de creación de productos en caso de error
+            </script>
+        `);
+    }
+};
+
+// Obtener un producto por su código de barras
+exports.getProductByBarcode = async (req, res) => {
+    const codigoDeBarras = req.params.codigoDeBarras;
+    try {
+        const product = await Product.findOne({ cod_barra: codigoDeBarras });
+        if (!product) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+        res.json(product);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener el producto' });
+    }
+};
+
+
+// Obtener la página de edición de productos
+exports.getEditProductPage = async (req, res) => {
+    try {
+        const codigoDeBarras = req.params.codigoDeBarras;
+        const product = await Product.findOne({ cod_barra: codigoDeBarras });
+        if (!product) {
+            return res.status(400).json({ message: 'Producto no encontrado' });
+        }
+        res.render('editProduct', { product });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener producto para editar' });
+    }
+};
+
+
+// Actualizar un producto por su código de barras
+exports.updateProduct = async (req, res) => {
+    const codigoDeBarras = req.params.codigoDeBarras;
+    const updateData = {
+        cod_barra: req.body.cod_barra,
+        descripcion: req.body.descripcion,
+        stock: req.body.stock,
+        costo: req.body.costo,
+        precio_venta: req.body.precio_venta,
+        fecha: req.body.fecha || new Date()
+    };
+
+    try {
+        console.log('Actualizando producto con código de barras:', req.params.codigoDeBarras);
+        const updatedProduct = await Product.findOneAndUpdate({ cod_barra: codigoDeBarras }, updateData, { new: true });
+        if (!updatedProduct) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+        res.json(updatedProduct); // Devolver el producto actualizado como respuesta
+    } catch (error) {
+        console.error('Error al actualizar el producto:', error);
+        res.status(500).json({ message: 'Error al actualizar el producto' });
+    }
+};
+
+
+exports.deleteProductByBarcode = async (req, res) => {
+    const codigoDeBarras = req.params.codigoDeBarras;
+    try {
+        const deletedProduct = await Product.findOneAndDelete({ cod_barra: codigoDeBarras });
+        if (!deletedProduct) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+        res.status(200).end(); // Enviar una respuesta 200 sin contenido
+    } catch (error) {
+        res.status(500).json({ message: 'Error al eliminar el producto' });
+    }
+};
