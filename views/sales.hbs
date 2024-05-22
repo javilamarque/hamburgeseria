@@ -59,6 +59,10 @@
             <!-- Aquí se agregarán dinámicamente los productos -->
         </tbody>
     </table>
+    <!-- Total a cobrar -->
+    <div class="total-container">
+        <h3>Total a Cobrar: $<span id="totalCobrar">0.00</span></h3>
+    </div>
 </div>
 
 <!-- Modal para seleccionar productos -->
@@ -148,23 +152,40 @@
             `;
             tbody.append(row);
             $('#productModal').modal('hide');
+            actualizarTotal(); // Actualizar el total al añadir el producto
         });
-    });
 
-    function borrarArticulo(button) {
-        var row = $(button).closest('tr');
-        row.remove();
-    }
-
-    function editarCantidad(cod_barra) {
-        var cantidad = prompt('Ingrese la nueva cantidad:');
-        if (cantidad !== null && cantidad > 0) {
-            var row = $(`tr[data-cod_barra='${cod_barra}']`);
-            var precio = parseFloat(row.find('.precio').text());
-            row.find('.cantidad').text(cantidad);
-            row.find('.total').text(precio * cantidad);
+        // Función para editar la cantidad de un producto
+        window.editarCantidad = function (cod_barra) {
+            var cantidad = prompt('Ingrese la nueva cantidad:');
+            if (cantidad !== null && cantidad > 0) {
+                var row = $(`tr[data-cod_barra='${cod_barra}']`);
+                var precio = parseFloat(row.find('.precio').text());
+                row.find('.cantidad').text(cantidad);
+                row.find('.total').text(precio * cantidad);
+                actualizarTotal(); // Actualizar el total al editar la cantidad
+            }
         }
-    }
+
+        // Función para borrar un producto de la tabla
+        window.borrarArticulo = function (button) {
+            var row = button.closest('tr');
+            row.remove();
+            actualizarTotal(); // Actualizar el total al borrar el producto
+        }
+
+        // Función para actualizar el total a cobrar
+        function actualizarTotal() {
+            var totalCobrarElement = $('#totalCobrar');
+            var total = 0;
+            $('#productosEncontrados tr').each(function () {
+                var cantidad = parseFloat($(this).find('.cantidad').text());
+                var precio = parseFloat($(this).find('.precio').text());
+                total += cantidad * precio;
+            });
+            totalCobrarElement.text(total.toFixed(2));
+        }
+    });
 </script>
 
 
