@@ -2,12 +2,61 @@ const Product = require('../models/product');
 const Venta = require('../models/factura');
 const User = require('../models/user');
 
-// Renderiza la página de ventas
-exports.renderSalePage = (req, res) => {
-    res.render('sale'); // Suponiendo que 'sale' es el nombre de tu archivo hbs para la página de ventas
+
+
+exports.abrirModal = async (req, res) => {
+    try {
+        const products = await Product.find();
+        res.render('productModal', { products });
+    } catch (error) {
+        console.error('Error al cargar los productos:', error);
+        res.status(500).send('Error al cargar los productos');
+    }
 };
 
-// Crear una venta
+exports.seleccionarProducto = async (req, res) => {
+    const { cod_barra, descripcion, precio } = req.body;
+    req.session.invoiceItems = req.session.invoiceItems || [];
+    try {
+        const existingItem = req.session.invoiceItems.find(item => item.cod_barra === cod_barra);
+        if (existingItem) {
+            existingItem.cantidad += 1;
+            existingItem.total = existingItem.cantidad * parseFloat(precio);
+        } else {
+            req.session.invoiceItems.push({
+                cod_barra,
+                descripcion,
+                precio: parseFloat(precio),
+                cantidad: 1,
+                total: parseFloat(precio)
+            });
+        }
+        req.session.save();
+        res.redirect('/sales');
+    } catch (error) {
+        console.error('Error al seleccionar el producto:', error);
+        res.status(500).send('Error al seleccionar el producto');
+    }
+};
+
+
+
+// ------------------------------------------------------------------------------------------------------Renderiza la página de ventas
+exports.renderSalePage = async (req, res) => {
+    try {
+        const users = await User.find();
+        res.render('sales', { users });
+    } catch (error) {
+        res.status(500).send(`
+            <script>
+                alert('Error al cargar la página de ventas');
+                window.location.href = '/sales';
+            </script>
+        `);
+    }
+};
+
+// ----------------------------------------------------------------------------------------------------------Crear una venta
 exports.createSale = async (req, res) => {
     const { cantidad, codigo, descripcion, precio, total, vendedor, pago } = req.body;
     try {
@@ -23,14 +72,14 @@ exports.createSale = async (req, res) => {
         res.status(500).send(`
             <script>
                 alert('Error al crear la venta');
-                window.location.href = '/newSale';
+                window.location.href = '/sales';
             </script>
         `);
     }
 };
 
 
-// Buscar producto por código de barras
+// ------------------------------------------------------------------------------------------Buscar producto por código de barras
 exports.searchProduct = async (req, res) => {
     const { codigo } = req.body;
     try {
@@ -54,69 +103,100 @@ exports.searchProduct = async (req, res) => {
     }
 };
 
-// Agrega un producto a la factura
-exports.addToInvoice = async (req, res) => {
-    const { cod_barra, cantidad } = req.body;
-
+// ---------------------------------------------------------------------------------------------------Agrega un producto a la factura
+exports.addItemToInvoice = async (req, res) => {
+    const { cod_barra, descripcion, precio } = req.body;
+    req.session.invoiceItems = req.session.invoiceItems || [];
     try {
-        // Buscar el producto por el código de barras
-        const product = await Product.findOne({ cod_barra });
+        // Inicializa la sesión si no está definida
+        
 
-        if (!product) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
+        const existingItem = req.session.invoiceItems.find(item => item.cod_barra === cod_barra);
+
+        if (existingItem) {
+            existingItem.cantidad += 1;
+            existingItem.total = existingItem.cantidad * parseFloat(precio);
+        } else {
+            req.session.invoiceItems.push({
+                cod_barra,
+                descripcion,
+                precio: parseFloat(precio),
+                cantidad: 1,
+                total: parseFloat(precio)
+            });
         }
 
-        // Crear un nuevo artículo de factura
-        const newItem = {
-            cod_barra: product.cod_barra,
-            descripcion: product.descripcion,
-            precio: product.precio_venta,
-            cantidad,
-            total: product.precio_venta * cantidad
-        };
-
-        // Si la sesión de artículos de la factura no existe, crearla
-        if (!req.session.invoiceItems) {
-            req.session.invoiceItems = [];
-        }
-
-        // Agregar el nuevo artículo a la lista de artículos de la factura en la sesión
-        req.session.invoiceItems.push(newItem);
-
-        res.status(200).json({ message: 'Producto agregado a la factura correctamente', item: newItem });
+        // Guarda la sesión después de modificarla
+        req.session.save((err) => {
+            if (err) {
+                return res.status(500).json({ message: 'Error al guardar la sesión' });
+            }
+            res.status(200).json({ message: 'Artículo agregado a la factura', invoiceItems: req.session.invoiceItems });
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Error al agregar el producto a la factura' });
+        res.status(500).json({ message: 'Error al agregar el artículo a la factura' });
     }
 };
 
+//--------------------------------------------------------------------------- Modifica la cantidad de un producto en la factura
 // Modifica la cantidad de un producto en la factura
 exports.modifyQuantity = async (req, res) => {
+    req.session.invoiceItems = req.session.invoiceItems || [];
     const { cod_barra, nuevaCantidad } = req.body;
 
+    // Log para verificar los datos recibidos
+    console.log('Datos recibidos:', { cod_barra, nuevaCantidad });
+    console.log('Artículos en la factura antes de la modificación:', req.session.invoiceItems);
+
+    if (!cod_barra || !nuevaCantidad) {
+        return res.status(400).json({ message: 'Datos inválidos. cod_barra y nuevaCantidad son requeridos.' });
+    }
+
     try {
-        // Verificar que la sesión de artículos de la factura existe
-        if (!req.session.invoiceItems) {
-            return res.status(400).json({ message: 'No hay artículos en la factura' });
+        // Inicializa la sesión si no está definida
+        req.session.invoiceItems = req.session.invoiceItems || [];
+        console.log('Artículos en la factura antes de la modificación:', req.session.invoiceItems);
+        if (!req.session.invoiceItems || req.session.invoiceItems.length === 0) {
+            console.log('No hay artículos en la factura');
+            return res.status(204).json({ message: 'No hay artículos en la factura' });
         }
 
-        // Encontrar el artículo en la factura
-        const itemIndex = req.session.invoiceItems.findIndex(item => item.cod_barra === cod_barra);
+        const item = req.session.invoiceItems.find(item => item.cod_barra === cod_barra);
 
-        if (itemIndex === -1) {
+        if (!item) {
+            console.log('Producto no encontrado en la factura');
             return res.status(404).json({ message: 'Producto no encontrado en la factura' });
         }
 
-        // Modificar la cantidad del artículo
-        req.session.invoiceItems[itemIndex].cantidad = nuevaCantidad;
-        req.session.invoiceItems[itemIndex].total = req.session.invoiceItems[itemIndex].precio * nuevaCantidad;
+        console.log('Producto encontrado:', item);
 
-        res.status(200).json({ message: 'Cantidad modificada correctamente', item: req.session.invoiceItems[itemIndex] });
+        const precio = parseFloat(item.precio);
+        const cantidad = parseFloat(nuevaCantidad);
+
+        if (isNaN(precio) || isNaN(cantidad)) {
+            console.log('Datos inválidos para el cálculo', { precio, cantidad });
+            return res.status(400).json({ message: 'Datos inválidos para el cálculo' });
+        }
+
+        item.cantidad = cantidad;
+        item.total = precio * cantidad;
+
+        // Guardar la sesión después de modificarla
+        req.session.save((err) => {
+            if (err) {
+                console.log('Error al guardar la sesión', err);
+                return res.status(500).json({ message: 'Error al guardar la sesión' });
+            }
+            console.log('Cantidad modificada correctamente', { item, precio: item.precio });
+            res.status(200).json({ message: 'Cantidad modificada correctamente', item, precio: item.precio });
+        });
     } catch (error) {
+        console.log('Error al modificar la cantidad del producto en la factura', error);
         res.status(500).json({ message: 'Error al modificar la cantidad del producto en la factura' });
     }
 };
 
-// Elimina un artículo de la factura
+// ---------------------------------------------------------------------------------------------------Elimina un artículo de la factura
 exports.deleteItemFromInvoice = async (req, res) => {
     const { cod_barra } = req.body;
 
@@ -142,21 +222,13 @@ exports.deleteItemFromInvoice = async (req, res) => {
     }
 };
 
-// Función para buscar un producto por descripción
-exports.searchProduct = async (req, res) => {
-    const { descripcion } = req.body;
-
+// ----------------------------------------------------------------------------------------------------------Obtener lista de productos
+exports.getProducts = async (req, res) => {
     try {
-        // Buscar productos que coincidan con la descripción (uso de expresión regular para coincidencia parcial)
-        const products = await Product.find({ descripcion: { $regex: descripcion, $options: 'i' } });
-
-        if (!products || products.length === 0) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
-        }
-
-        res.status(200).json(products);
+        const products = await Product.find();
+        res.json(products);
     } catch (error) {
-        res.status(500).json({ message: 'Error al buscar el producto' });
+        res.status(500).json({ message: 'Error al obtener los productos' });
     }
 };
 
@@ -164,18 +236,20 @@ exports.searchProduct = async (req, res) => {
 exports.renderSalePage = async (req, res) => {
     try {
         const users = await User.find();
-        res.render('sale', { users });
+        res.render('sales', { users });
     } catch (error) {
         res.status(500).send('Error al cargar la página de ventas');
     }
 };
 
-// Obtener lista de usuarios
+// ---------------------------------------------------------------------------------------------------------Obtener lista de usuarios
 exports.getUsers = async (req, res) => {
     try {
         const users = await User.find();
+        console.log('Usuarios encontrados:', users); // Agregar este registro de depuración
         res.json(users);
     } catch (error) {
+        console.error('Error al obtener los usuarios:', error); // Agregar este registro de depuración
         res.status(500).json({ message: 'Error al obtener los usuarios' });
     }
 };

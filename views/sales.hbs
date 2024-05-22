@@ -1,0 +1,175 @@
+{{>header}}
+
+
+
+<div class="container">
+    <h1>Facturación</h1>
+    <form id="sale-form" action="/sales" method="POST">
+        <div class="form-group row">
+            <label for="factura" class="col-sm-2 col-form-label">Factura</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" id="factura" name="factura" value="0" readonly>
+            </div>
+            <label for="vendedor" class="col-sm-2 col-form-label">Vendedor</label>
+            <div class="col-sm-4">
+                <select class="form-control" id="vendedor" name="vendedor" required>
+                    {{#each users}}
+                    <option value="{{this.username}}">{{this.username}}</option>
+                    {{/each}}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="pago" class="col-sm-2 col-form-label">Pago</label>
+            <div class="col-sm-4">
+                <select class="form-control" id="pago" name="pago" required>
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Mercado Pago">Mercado Pago</option>
+                </select>
+            </div>
+
+            <label for="fecha" class="col-sm-2 col-form-label">Fecha</label>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" id="fecha" name="fecha"
+                    value="{{moment currentDatetime format='YYYY-MM-DD HH:mm:ss'}}" readonly>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-6">
+                <button type="button" id="buscar-btn" class="btn btn-primary mt-2">Buscar</button>
+            </div>
+        </div>
+    </form>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Cant</th>
+                <th>Código de Barras</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Total</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody id="productosEncontrados">
+            <!-- Aquí se agregarán dinámicamente los productos -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal para seleccionar productos -->
+<div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productModalLabel">Seleccionar Producto</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Código de Barras</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Seleccionar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productList">
+                        <!-- Aquí se agregarán los productos disponibles -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Función para abrir el modal y cargar los productos
+        function abrirModal() {
+            $.get('/sales/products', function (products) {
+                $('#productList').empty();
+                products.forEach(function (product) {
+                    var row = `
+                        <tr>
+                            <td>${product.cod_barra}</td>
+                            <td>${product.descripcion}</td>
+                            <td>${product.precio_venta}</td>
+                            <td>
+                                <button type="button" class="btn btn-primary seleccionar-producto" 
+                                    data-cod_barra="${product.cod_barra}" 
+                                    data-descripcion="${product.descripcion}" 
+                                    data-precio="${product.precio_venta}">
+                                    Seleccionar
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    $('#productList').append(row);
+                });
+                $('#productModal').modal('show');
+            })
+                .fail(function () {
+                    alert('Error al cargar los productos');
+                });
+        }
+
+        // Escuchar el clic en el botón "Buscar" para abrir el modal
+        $('#buscar-btn').click(function () {
+            abrirModal();
+        });
+
+        // Escuchar el clic en los botones "Seleccionar" dentro del modal
+        $(document).on('click', '.seleccionar-producto', function () {
+            var cod_barra = $(this).data('cod_barra');
+            var descripcion = $(this).data('descripcion');
+            var precio = $(this).data('precio');
+            var tbody = $('#productosEncontrados');
+            var row = `
+                <tr data-cod_barra="${cod_barra}">
+                    <td class="cantidad">1</td>
+                    <td>${cod_barra}</td>
+                    <td>${descripcion}</td>
+                    <td class="precio">${precio}</td>
+                    <td class="total">${precio}</td>
+                    <td><button type="button" onclick="editarCantidad('${cod_barra}')" class="btn btn-primary">Editar</button></td>
+                    <td><button type="button" onclick="borrarArticulo(this)" class="btn btn-danger">Borrar</button></td>
+                </tr>
+            `;
+            tbody.append(row);
+            $('#productModal').modal('hide');
+        });
+    });
+
+    function borrarArticulo(button) {
+        var row = $(button).closest('tr');
+        row.remove();
+    }
+
+    function editarCantidad(cod_barra) {
+        var cantidad = prompt('Ingrese la nueva cantidad:');
+        if (cantidad !== null && cantidad > 0) {
+            var row = $(`tr[data-cod_barra='${cod_barra}']`);
+            var precio = parseFloat(row.find('.precio').text());
+            row.find('.cantidad').text(cantidad);
+            row.find('.total').text(precio * cantidad);
+        }
+    }
+</script>
+
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{{>footer}}

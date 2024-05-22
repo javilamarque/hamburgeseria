@@ -2,16 +2,14 @@ const express = require('express');
 const router = express.Router();
 const ventaController = require('../controller/ventaController');
 
-// Ruta para mostrar la página de ventas
-router.get('/sale', ventaController.renderSalePage);
-
-// Ruta para crear una venta
+router.get('/sales', ventaController.renderSalePage);
 router.post('/sales', ventaController.createSale);
-
-// Ruta para buscar productos
-router.post('/sales/search', ventaController.searchProduct);
-
-// Ruta para obtener la lista de usuarios
+router.get('/sales/products', ventaController.getProducts);
 router.get('/users', ventaController.getUsers);
+router.post('/modifyQuantity', ventaController.modifyQuantity);
+
+// Nuevas rutas para manejar la apertura del modal y la selección de productos
+router.get('/openModal', ventaController.abrirModal);
+router.post('/selectProduct', ventaController.seleccionarProducto);
 
 module.exports = router;

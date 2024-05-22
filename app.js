@@ -8,17 +8,21 @@ const userRoute = require('./routes/userRoute');
 const productRoute = require('./routes/productRoute');
 const logoutRoute = require('./routes/logoutRoute');
 const ventaRoute = require('./routes/ventaRoute');
+const handlebarsMoment = require('handlebars.moment');
 
 const app = express();
+
+handlebarsMoment.registerHelpers(hbs.handlebars);
 
 app.use(session({
     secret: 'mysecret',
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: { secure: false } // Cambia a true si estás usando HTTPS
 }));
 
 app.use(cors());
-app.use(methodOverride('_method')); // Coloca methodOverride antes de bodyParser
+app.use(methodOverride('_method'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.set('view engine', 'hbs');
@@ -42,12 +46,14 @@ app.get('/login', (req, res) => {
     res.render('login');
 });
 
+
 app.use('/', userRoute);
 app.use('/', productRoute);
 app.use('/', ventaRoute);
 app.use('/', logoutRoute);
 
 require('dotenv').config({ path: './.env' });
+
 const port = process.env.PORT || 3005;
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
