@@ -45,14 +45,13 @@ exports.seleccionarProducto = async (req, res) => {
 exports.renderSalePage = async (req, res) => {
     try {
         const users = await User.find();
-        res.render('sales', { users });
+        const lastSale = await VentaModel.findOne().sort({ fac_num: -1 }).exec();
+        const nextFactura = lastSale ? lastSale.fac_num + 1 : 1;
+
+        res.render('sales', { users, nextFactura });
     } catch (error) {
-        res.status(500).send(`
-            <script>
-                alert('Error al cargar la página de ventas');
-                window.location.href = '/sales';
-            </script>
-        `);
+        console.error('Error al cargar la página de ventas:', error);
+        res.status(500).send('Error al cargar la página de ventas');
     }
 };
 
@@ -61,6 +60,7 @@ exports.createSale = async (req, res) => {
     try {
         // Extraer los datos del cuerpo de la solicitud
         const { factura, cantidad, codigo, descripcion, precio, total, vendedor, pago, fecha } = req.body;
+
 
         // Asegúrate de que cantidad, codigo, descripcion, precio y total sean arrays
         const facturas = Array.isArray(factura) ? factura : [factura];
@@ -94,7 +94,9 @@ exports.createSale = async (req, res) => {
                 alert('Venta creada exitosamente');
                 window.location.href = '/sales';
             </script>`
+            
         );
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error al crear la venta' });
@@ -256,15 +258,7 @@ exports.getProducts = async (req, res) => {
     }
 };
 
-// Renderiza la página de ventas y pasa la lista de usuarios
-exports.renderSalePage = async (req, res) => {
-    try {
-        const users = await User.find();
-        res.render('sales', { users });
-    } catch (error) {
-        res.status(500).send('Error al cargar la página de ventas');
-    }
-};
+
 
 // ---------------------------------------------------------------------------------------------------------Obtener lista de usuarios
 exports.getUsers = async (req, res) => {

@@ -1,20 +1,19 @@
 {{>header}}
 
 
-
 <div class="container">
     <h1>Facturación</h1>
     <form id="sale-form" action="/sales" method="POST">
         <div class="form-group row">
-            <label for="factura" class="col-sm-2 col-form-label">Factura</label>
+            <label for="factura" class="col-sm-2 col-form-label">Factura Numero:</label>
             <div class="col-sm-4">
-                <input type="text" class="form-control" id="factura" name="factura" value="0" readonly>
+                
+                <input type="number" class="form-control" id="factura" name="factura" value="{{nextFactura}}" readonly><p></p>
                 <input type="hidden" id="cantidad" name="cantidad[]" value="">
                 <input type="hidden" id="codigo" name="codigo[]" value="">
                 <input type="hidden" id="descripcion" name="descripcion[]" value="">
                 <input type="hidden" id="precio" name="precio[]" value="">
                 <input type="hidden" id="total" name="total[]" value="">
-
                 <input type="hidden" id="tipo_pago" name="tipo_pago" value="">
             </div>
             <label for="vendedor" class="col-sm-2 col-form-label">Vendedor</label>
@@ -28,7 +27,7 @@
         </div>
 
         <div class="form-group row">
-            <label for="pago" class="col-sm-2 col-form-label">Pago</label>
+            <label for="pago" class="col-sm-2 col-form-label">Tipo de Pago</label>
             <div class="col-sm-4">
                 <select class="form-control" id="pago" name="pago" required>
                     <option value="Efectivo">Efectivo</option>
@@ -108,11 +107,11 @@
 <script>
 
     $(document).on('click', '.seleccionar-producto', function () {
-            var cod_barra = $(this).data('cod_barra');
-            var descripcion = $(this).data('descripcion');
-            var precio = $(this).data('precio');
-            var cantidad = 1; // Puedes permitir que el usuario ingrese la cantidad si lo prefieres
-            var total = cantidad * precio;
+            let cod_barra = $(this).data('cod_barra');
+            let descripcion = $(this).data('descripcion');
+            let precio = $(this).data('precio');
+            let cantidad = 1; // Puedes permitir que el usuario ingrese la cantidad si lo prefieres
+            let total = cantidad * precio;
 
             // Actualizar los campos ocultos con los detalles del producto seleccionado
             $('#cantidad').val(cantidad);
@@ -131,7 +130,7 @@
             $.get('/sales/products', function (products) {
                 $('#productList').empty();
                 products.forEach(function (product) {
-                    var row = `
+                    let row = `
                         <tr>
                             <td>${product.cod_barra}</td>
                             <td>${product.descripcion}</td>
@@ -162,11 +161,11 @@
 
         // Escuchar el clic en los botones "Seleccionar" dentro del modal
         $(document).on('click', '.seleccionar-producto', function () {
-            var cod_barra = $(this).data('cod_barra');
-            var descripcion = $(this).data('descripcion');
-            var precio = $(this).data('precio');
-            var tbody = $('#productosEncontrados');
-            var row = `
+            let cod_barra = $(this).data('cod_barra');
+            let descripcion = $(this).data('descripcion');
+            let precio = $(this).data('precio');
+            let tbody = $('#productosEncontrados');
+            let row = `
                 <tr data-cod_barra="${cod_barra}">
                     <td class="cantidad">1</td>
                     <td>${cod_barra}</td>
@@ -184,10 +183,10 @@
 
         // Función para editar la cantidad de un producto
         window.editarCantidad = function (cod_barra) {
-            var cantidad = prompt('Ingrese la nueva cantidad:');
+            let cantidad = prompt('Ingrese la nueva cantidad:');
             if (cantidad !== null && cantidad > 0) {
-                var row = $(`tr[data-cod_barra='${cod_barra}']`);
-                var precio = parseFloat(row.find('.precio').text());
+                let row = $(`tr[data-cod_barra='${cod_barra}']`);
+                let precio = parseFloat(row.find('.precio').text());
                 row.find('.cantidad').text(cantidad);
                 row.find('.total').text(precio * cantidad);
                 actualizarTotal(); // Actualizar el total al editar la cantidad
@@ -196,18 +195,18 @@
 
         // Función para borrar un producto de la tabla
         window.borrarArticulo = function (button) {
-            var row = button.closest('tr');
+            let row = button.closest('tr');
             row.remove();
             actualizarTotal(); // Actualizar el total al borrar el producto
         }
 
         // Función para actualizar el total a cobrar
         function actualizarTotal() {
-            var totalCobrarElement = $('#totalCobrar');
-            var total = 0;
+            let totalCobrarElement = $('#totalCobrar');
+            let total = 0;
             $('#productosEncontrados tr').each(function () {
-                var cantidad = parseFloat($(this).find('.cantidad').text());
-                var precio = parseFloat($(this).find('.precio').text());
+                let cantidad = parseFloat($(this).find('.cantidad').text());
+                let precio = parseFloat($(this).find('.precio').text());
                 total += cantidad * precio;
             });
             totalCobrarElement.text(total.toFixed(2));

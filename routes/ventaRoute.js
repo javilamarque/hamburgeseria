@@ -4,6 +4,7 @@ const ventaController = require('../controller/ventaController');
 
 router.get('/sales', ventaController.renderSalePage);
 router.post('/sales', ventaController.createSale);
+
 router.get('/sales/products', ventaController.getProducts);
 router.get('/users', ventaController.getUsers);
 router.post('/modifyQuantity', ventaController.modifyQuantity);

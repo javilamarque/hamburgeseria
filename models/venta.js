@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 mongoose.connect('mongodb://localhost:27017/burger');
 
+
 const ventaSchema = new mongoose.Schema({
 
     descripcion: { type: String, required: true },
