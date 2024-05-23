@@ -8,6 +8,7 @@ const userRoute = require('./routes/userRoute');
 const productRoute = require('./routes/productRoute');
 const logoutRoute = require('./routes/logoutRoute');
 const ventaRoute = require('./routes/ventaRoute');
+const cajaRoute = require('./routes/cajaRoute')
 const handlebarsMoment = require('handlebars.moment');
 
 const app = express();
@@ -46,11 +47,11 @@ app.get('/login', (req, res) => {
     res.render('login');
 });
 
-
 app.use('/', userRoute);
 app.use('/', productRoute);
 app.use('/', ventaRoute);
 app.use('/', logoutRoute);
+app.use('/', cajaRoute)
 
 require('dotenv').config({ path: './.env' });
 

@@ -9,6 +9,13 @@
             <label for="factura" class="col-sm-2 col-form-label">Factura</label>
             <div class="col-sm-4">
                 <input type="text" class="form-control" id="factura" name="factura" value="0" readonly>
+                <input type="hidden" id="cantidad" name="cantidad[]" value="">
+                <input type="hidden" id="codigo" name="codigo[]" value="">
+                <input type="hidden" id="descripcion" name="descripcion[]" value="">
+                <input type="hidden" id="precio" name="precio[]" value="">
+                <input type="hidden" id="total" name="total[]" value="">
+
+                <input type="hidden" id="tipo_pago" name="tipo_pago" value="">
             </div>
             <label for="vendedor" class="col-sm-2 col-form-label">Vendedor</label>
             <div class="col-sm-4">
@@ -63,6 +70,8 @@
     <div class="total-container">
         <h3>Total a Cobrar: $<span id="totalCobrar">0.00</span></h3>
     </div>
+    <button type="button" id="confirmar-venta-btn" class="btn btn-success mt-2">Confirmar Venta</button>
+    <a href="/caja" class="btn btn-success">Ver Caja</a>
 </div>
 
 <!-- Modal para seleccionar productos -->
@@ -94,10 +103,28 @@
         </div>
     </div>
 </div>
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
+
+    $(document).on('click', '.seleccionar-producto', function () {
+            var cod_barra = $(this).data('cod_barra');
+            var descripcion = $(this).data('descripcion');
+            var precio = $(this).data('precio');
+            var cantidad = 1; // Puedes permitir que el usuario ingrese la cantidad si lo prefieres
+            var total = cantidad * precio;
+
+            // Actualizar los campos ocultos con los detalles del producto seleccionado
+            $('#cantidad').val(cantidad);
+            $('#codigo').val(cod_barra);
+            $('#descripcion').val(descripcion);
+            $('#precio').val(precio);
+            $('#total').val(total);
+
+            // Ocultar el modal
+            $('#productModal').modal('hide');
+        });
+
     $(document).ready(function () {
         // Función para abrir el modal y cargar los productos
         function abrirModal() {
@@ -187,10 +214,10 @@
         }
     });
 </script>
+<script src="/js/confirmarVenta.js"></script>
 
 
 
 
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 {{>footer}}

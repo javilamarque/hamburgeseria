@@ -1,5 +1,5 @@
 const Product = require('../models/product');
-const Venta = require('../models/factura');
+const VentaModel = require('../models/venta');
 const User = require('../models/user');
 
 
@@ -58,25 +58,49 @@ exports.renderSalePage = async (req, res) => {
 
 // ----------------------------------------------------------------------------------------------------------Crear una venta
 exports.createSale = async (req, res) => {
-    const { cantidad, codigo, descripcion, precio, total, vendedor, pago } = req.body;
     try {
-        const newSale = new Venta({ cantidad, codigo, descripcion, precio, total, vendedor, pago });
-        await newSale.save();
-        res.status(201).send(`
-            <script>
+        // Extraer los datos del cuerpo de la solicitud
+        const { factura, cantidad, codigo, descripcion, precio, total, vendedor, pago, fecha } = req.body;
+
+        // Asegúrate de que cantidad, codigo, descripcion, precio y total sean arrays
+        const facturas = Array.isArray(factura) ? factura : [factura];
+        const cantidades = Array.isArray(cantidad) ? cantidad : [cantidad];
+        const codigos = Array.isArray(codigo) ? codigo : [codigo];
+        const descripciones = Array.isArray(descripcion) ? descripcion : [descripcion];
+        const precios = Array.isArray(precio) ? precio : [precio];
+        const totales = Array.isArray(total) ? total : [total];
+        const fechas = Array.isArray(fecha) ? fecha : [fecha];
+        const vendedores = Array.isArray(vendedor) ? vendedor : [vendedor];
+        const pagos = Array.isArray(pago) ? pago : [pago];
+
+        // Crear un arreglo de ventas a partir de los datos recibidos
+        const ventasArray = cantidades.map((cant, index) => ({
+            factura: facturas[index],
+            cantidad: cant,
+            codigo: codigos[index],
+            descripcion: descripciones[index],
+            precio: precios[index],
+            total: totales[index],
+            pago: pagos[index], // Asegúrate de tomar el índice correcto
+            fecha: fechas[index],
+            vendedor: vendedores[index] // Asegúrate de tomar el índice correcto
+        }));
+
+        // Aquí puedes añadir la lógica para guardar la venta en la base de datos
+        const ventas = await VentaModel.create(ventasArray);
+
+        res.send(
+            `<script>
                 alert('Venta creada exitosamente');
                 window.location.href = '/sales';
-            </script>
-        `);
+            </script>`
+        );
     } catch (error) {
-        res.status(500).send(`
-            <script>
-                alert('Error al crear la venta');
-                window.location.href = '/sales';
-            </script>
-        `);
+        console.error(error);
+        res.status(500).json({ message: 'Error al crear la venta' });
     }
 };
+
 
 
 // ------------------------------------------------------------------------------------------Buscar producto por código de barras
@@ -109,7 +133,7 @@ exports.addItemToInvoice = async (req, res) => {
     req.session.invoiceItems = req.session.invoiceItems || [];
     try {
         // Inicializa la sesión si no está definida
-        
+
 
         const existingItem = req.session.invoiceItems.find(item => item.cod_barra === cod_barra);
 

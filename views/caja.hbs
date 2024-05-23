@@ -1,0 +1,66 @@
+{{>header}}
+
+
+<div class="container">
+    <h1 class="mt-5">Caja</h1>
+
+    <div class="row mt-4">
+            <h3>Estado de la Caja</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Apertura</th>
+                        <th>Cierre Parcial</th>
+                        <th>Total Caja</th>
+                        <th>Total Efectivo</th>
+                        <th>Total Transferencia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{caja.apertura}}</td>
+                        <td>{{caja.cierre_parcial}}</td>
+                        <td>{{caja.t_caja}}</td>
+                        <td>{{caja.t_efectivo}}</td>
+                        <td>{{caja.t_transferencia}}</td>
+                    </tr>
+                </tbody>
+            </table>
+    </div>
+
+    
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>Cerrar Caja</h3>
+            <button type="button" id="cerrar-caja-btn" class="btn btn-danger">Cierre Parcial</button>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+{{>footer}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+{{>footer}}
