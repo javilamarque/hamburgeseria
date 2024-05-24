@@ -1,6 +1,7 @@
 {{>header}}
 
 
+
 <div class="container">
     <h1 class="mt-5">Caja</h1>
 
@@ -9,56 +10,27 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>Apertura</th>
-                    <th>Cierre Parcial</th>
-                    <th>Total Caja</th>
-                    <th>Total Efectivo</th>
+                    <th>Apertura</th>                    
                     <th>Total Transferencia</th>
+                    <th>Ventas Efectivo</th>
+                    <th>Cierre Parcial</th>
+                    <th>Total Dinero en Caja</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>{{caja.apertura}}</td>
-                    <td>{{caja.cierre_parcial}}</td>
-                    <td>{{caja.t_caja}}</td>
-                    <td>{{caja.t_efectivo}}</td>
-                    <td>{{caja.t_transferencia}}</td>
+                    <td>${{caja.apertura}}</td>                    
+                    <td>${{caja.t_transferencia}}</td>
+                    <td>${{caja.total_ventas_dia}}</td>
+                    <td>${{caja.cierre_parcial}}</td>
+                    <td>${{caja.total_final}}</td>
                 </tr>
             </tbody>
         </table>
     </div>
-
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <h3>Abrir Caja</h3>
-            <!-- Formulario para enviar el valor de apertura de la caja -->
-            <form id="abrir-caja-form" action="/caja/apertura" method="POST">
-                <!-- Campo de entrada para el valor de apertura -->
-                <div class="form-group">
-                    <label for="apertura">Valor de Apertura:</label>
-                    <input type="number" step="0.01" class="form-control" id="apertura" name="apertura" required>
-                </div>
-                <!-- Botón para enviar el formulario -->
-                <button type="submit" class="btn btn-primary">Abrir Caja</button>
-            </form>
-        </div>
-    </div>
-</div>
+</div> 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-
-
-
-
-
-
-
-
-
-
-{{>footer}}
-
 
 
 
