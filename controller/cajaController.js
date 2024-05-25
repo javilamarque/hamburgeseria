@@ -76,7 +76,7 @@ exports.renderCajaPage = async (req, res) => {
         // Calcular los totales de ventas del día
         const { totalEfectivo, totalTransferencia } = await exports.calcularTotalesVentasDia();
 
-        const totalFinal = valorApertura + totalEfectivo + totalTransferencia;
+        const totalFinal = valorApertura + totalEfectivo 
 
         const formatDecimal = (num) => {
             if (typeof num === 'number' && !isNaN(num)) {
