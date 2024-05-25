@@ -1,7 +1,7 @@
 const Product = require('../models/product');
 const VentaModel = require('../models/venta');
 const User = require('../models/user');
-
+const CajaModel = require('../models/caja');
 
 
 exports.abrirModal = async (req, res) => {
@@ -58,11 +58,8 @@ exports.renderSalePage = async (req, res) => {
 // ----------------------------------------------------------------------------------------------------------Crear una venta
 exports.createSale = async (req, res) => {
     try {
-        // Extraer los datos del cuerpo de la solicitud
         const { factura, cantidad, codigo, descripcion, precio, total, vendedor, pago, fecha } = req.body;
 
-
-        // Asegúrate de que cantidad, codigo, descripcion, precio y total sean arrays
         const facturas = Array.isArray(factura) ? factura : [factura];
         const cantidades = Array.isArray(cantidad) ? cantidad : [cantidad];
         const codigos = Array.isArray(codigo) ? codigo : [codigo];
@@ -73,7 +70,6 @@ exports.createSale = async (req, res) => {
         const vendedores = Array.isArray(vendedor) ? vendedor : [vendedor];
         const pagos = Array.isArray(pago) ? pago : [pago];
 
-        // Crear un arreglo de ventas a partir de los datos recibidos
         const ventasArray = cantidades.map((cant, index) => ({
             factura: facturas[index],
             cantidad: cant,
@@ -81,22 +77,34 @@ exports.createSale = async (req, res) => {
             descripcion: descripciones[index],
             precio: precios[index],
             total: totales[index],
-            pago: pagos[index], // Asegúrate de tomar el índice correcto
+            pago: pagos[index],
             fecha: fechas[index],
-            vendedor: vendedores[index] // Asegúrate de tomar el índice correcto
+            vendedor: vendedores[index]
         }));
 
-        // Aquí puedes añadir la lógica para guardar la venta en la base de datos
+        // Crear las ventas en la base de datos
         const ventas = await VentaModel.create(ventasArray);
+
+        // Actualizar los valores de la caja
+        const caja = await CajaModel.findOne().sort({ fecha_apertura: -1 }).exec();
+
+        ventasArray.forEach(venta => {
+            if (venta.pago === 'Mercado Pago') {
+                caja.t_transferencia += venta.total;
+            } else if (venta.pago === 'Efectivo') {
+                caja.total_ventas_dia += venta.total;
+            }
+        });
+
+        caja.total_final = caja.apertura + caja.t_transferencia + caja.total_ventas_dia;
+        await caja.save();
 
         res.send(
             `<script>
                 alert('Venta creada exitosamente');
                 window.location.href = '/sales';
             </script>`
-            
         );
-
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error al crear la venta' });

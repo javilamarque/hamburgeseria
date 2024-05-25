@@ -1,5 +1,5 @@
 const Caja = require('../models/caja');
-const Venta = require('../models/venta');
+const VentaModel = require('../models/venta');
 
 // Función para obtener los datos de la caja desde la base de datos
 exports.obtenerDatosCaja = async () => {
@@ -25,14 +25,44 @@ exports.abrirCaja = async (req, res) => {
             }
         }
 
-        // Guardar el valor de apertura como una cadena en la base de datos
-        await Caja.create({ apertura: apertura.toString() });
+        // Guardar el valor de apertura como un número en la base de datos
+        await Caja.create({ apertura: parseFloat(apertura) });
         res.status(200).send('Caja abierta correctamente.');
     } catch (error) {
         console.error(error);
         res.status(500).send('Error al abrir la caja.');
     }
 };
+
+exports.calcularTotalesVentasDia = async () => {
+    try {
+        // Obtener la fecha actual
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Buscar todas las ventas del día actual
+        const ventasDelDia = await VentaModel.find({ f_factura: { $gte: today } });
+
+        // Inicializar totales
+        let totalEfectivo = 0;
+        let totalTransferencia = 0;
+
+        // Sumar los totales de las ventas del día según el tipo de pago
+        ventasDelDia.forEach(venta => {
+            if (venta.pago === 'Mercado Pago') {
+                totalTransferencia += venta.total;
+            } else {
+                totalEfectivo += venta.total;
+            }
+        });
+
+        return { totalEfectivo, totalTransferencia };
+    } catch (error) {
+        console.error(error);
+        throw new Error('Error al calcular los totales de ventas del día');
+    }
+};
+
 exports.renderCajaPage = async (req, res) => {
     try {
         const datosCaja = await Caja.findOne().sort({ fecha_apertura: -1 });
@@ -43,13 +73,10 @@ exports.renderCajaPage = async (req, res) => {
 
         const valorApertura = parseFloat(datosCaja.apertura);
 
-        const ventasDelDia = await Venta.find({ f_factura: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) } });
+        // Calcular los totales de ventas del día
+        const { totalEfectivo, totalTransferencia } = await exports.calcularTotalesVentasDia();
 
-        const totalVentasDia = ventasDelDia.reduce((total, venta) => {
-            return total + venta.total;
-        }, 0);
-
-        const totalFinal = valorApertura + totalVentasDia;
+        const totalFinal = valorApertura + totalEfectivo + totalTransferencia;
 
         const formatDecimal = (num) => {
             if (typeof num === 'number' && !isNaN(num)) {
@@ -62,11 +89,12 @@ exports.renderCajaPage = async (req, res) => {
         const caja = {
             apertura: formatDecimal(valorApertura),
             cierre_parcial: datosCaja.cierre_parcial !== undefined ? formatDecimal(parseFloat(datosCaja.cierre_parcial)) : '',
-            t_transferencia: datosCaja.t_transferencia !== undefined ? formatDecimal(parseFloat(datosCaja.t_transferencia)) : '',
-            total_ventas_dia: formatDecimal(totalVentasDia),
+            t_transferencia: formatDecimal(totalTransferencia),
+            total_ventas_dia: formatDecimal(totalEfectivo),
             total_final: formatDecimal(totalFinal),
             fecha_apertura: datosCaja.fecha_apertura ? datosCaja.fecha_apertura.toISOString() : ''
         };
+
         console.log('Valores de la caja:', caja);
         res.render('caja', { caja });
     } catch (error) {
