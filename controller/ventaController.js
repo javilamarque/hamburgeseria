@@ -2,6 +2,7 @@ const Product = require('../models/product');
 const VentaModel = require('../models/venta');
 const User = require('../models/user');
 const Caja = require('../models/caja');
+const moment = require('moment');
 
 
 exports.abrirModal = async (req, res) => {
@@ -52,6 +53,24 @@ exports.renderSalePage = async (req, res) => {
     } catch (error) {
         console.error('Error al cargar la página de ventas:', error);
         res.status(500).send('Error al cargar la página de ventas');
+    }
+};
+
+//-------------------------------------------------------------------------------------------------------MOSTRAR VENTAS REALIZADAS
+exports.renderSaleViews = async (req, res) => {
+    try {
+        const ventas = await VentaModel.find({});
+
+        // Formatear las fechas
+        const ventasFormatted = ventas.map(venta => ({
+            ...venta._doc,
+            f_factura: moment(venta.f_factura).format('DD-MM-YYYY HH:mm')
+        }));
+
+        res.render('viewSales', { ventas: ventasFormatted });
+    } catch (error) {
+        console.error('Error al obtener las ventas:', error);
+        res.status(500).send('Error al obtener las ventas.');
     }
 };
 

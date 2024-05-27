@@ -1,0 +1,33 @@
+{{>header}}
+
+<div class="container">
+    <h1 class="mt-5">Consultar Ventas</h1>
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>N° Fact</th>
+                <th>Cantidad</th>
+                <th>Descripción</th>
+                <th>Total</th>
+                <th>Fecha</th>
+                <th>Vendedor</th>
+                <th>Pago</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each ventas}}
+            <tr>
+                <td>{{fac_num}}</td>
+                <td>{{cantidad}}</td>
+                <td>{{descripcion}}</td>
+                <td>{{total}}</td>
+                <td>{{f_factura}}</td>
+                <td>{{vendedor}}</td>
+                <td>{{pago}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+{{>footer}}
