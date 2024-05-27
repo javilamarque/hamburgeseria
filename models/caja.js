@@ -13,7 +13,7 @@ const cajaSchema = new Schema({
     total_ventas_dia: { type: Number, default: 0 },
     total_final: { type: Number, default: 0 },
     fecha_apertura: { type: Date, default: Date.now }
-});
+}, { collection: 'cajas' }); // Aquí se especifica el nombre de la colección
 
 module.exports = mongoose.model('Caja', cajaSchema);
 

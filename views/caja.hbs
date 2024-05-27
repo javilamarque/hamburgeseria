@@ -1,7 +1,6 @@
 {{>header}}
 
 
-
 <div class="container">
     <h1 class="mt-5">Caja</h1>
 
@@ -10,7 +9,7 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>Apertura</th>                    
+                    <th>Apertura</th>
                     <th>Total Transferencia</th>
                     <th>Ventas Efectivo</th>
                     <th>Cierre Parcial</th>
@@ -19,7 +18,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>${{caja.apertura}}</td>                    
+                    <td>${{caja.apertura}}</td>
                     <td>${{caja.t_transferencia}}</td>
                     <td>${{caja.total_ventas_dia}}</td>
                     <td>${{caja.cierre_parcial}}</td>
@@ -28,12 +27,68 @@
             </tbody>
         </table>
     </div>
-</div> 
+
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cierreParcialModal">
+        Cierre Parcial
+    </button>
+
+    <div class="modal fade" id="cierreParcialModal" tabindex="-1" aria-labelledby="cierreParcialModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cierreParcialModalLabel">Cierre Parcial</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="cierreParcialForm">
+                        <div class="mb-3">
+                            <label for="cierre_parcial" class="form-label">Cierre Parcial</label>
+                            <input type="number" class="form-control" id="cierre_parcial" name="cierre_parcial"
+                                required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Procesar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('cierreParcialForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const cierreParcial = document.getElementById('cierre_parcial').value;
+
+            const formData = {
+                cierre_parcial: cierreParcial
+            };
+
+            const response = await fetch('/procesarCierreParcial', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                alert('Cierre parcial procesado correctamente.');
+                location.reload();
+            } else {
+                alert('Error al procesar el cierre parcial.');
+            }
+        });
+    });
+</script>
+
+
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-
-
 
 
 

@@ -76,7 +76,7 @@ exports.renderCajaPage = async (req, res) => {
         // Calcular los totales de ventas del día
         const { totalEfectivo, totalTransferencia } = await exports.calcularTotalesVentasDia();
 
-        const totalFinal = valorApertura + totalEfectivo 
+        const totalFinal = valorApertura + totalEfectivo - parseFloat(datosCaja.cierre_parcial);
 
         const formatDecimal = (num) => {
             if (typeof num === 'number' && !isNaN(num)) {
@@ -88,7 +88,7 @@ exports.renderCajaPage = async (req, res) => {
 
         const caja = {
             apertura: formatDecimal(valorApertura),
-            cierre_parcial: datosCaja.cierre_parcial !== undefined ? formatDecimal(parseFloat(datosCaja.cierre_parcial)) : '',
+            cierre_parcial: formatDecimal(parseFloat(datosCaja.cierre_parcial)),
             t_transferencia: formatDecimal(totalTransferencia),
             total_ventas_dia: formatDecimal(totalEfectivo),
             total_final: formatDecimal(totalFinal),
@@ -100,5 +100,35 @@ exports.renderCajaPage = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send('Error al cargar la página de caja.');
+    }
+};
+
+
+//-----------------------------------------------------------------------------CIERRE PARCIAL
+exports.procesarCierreParcial = async (req, res) => {
+    try {
+        const { cierre_parcial } = req.body;
+
+        // Verificar si el valor de cierre_parcial es un número
+        if (isNaN(parseFloat(cierre_parcial))) {
+            return res.status(400).send('El valor de cierre parcial no es un número válido.');
+        }
+
+        // Obtener los datos de la caja
+        const datosCaja = await exports.obtenerDatosCaja();
+
+        console.log('Datos de la caja antes del cierre parcial:', datosCaja);
+
+        // Actualizar cierre parcial y total final
+        datosCaja.cierre_parcial += parseFloat(cierre_parcial);
+        datosCaja.total_final = datosCaja.apertura + datosCaja.total_ventas_dia - datosCaja.cierre_parcial;
+
+        // Guardar los datos en la base de datos
+        await datosCaja.save();
+
+        res.status(200).send('Cierre parcial procesado correctamente.');
+    } catch (error) {
+        console.error('Error al procesar el cierre parcial:', error);
+        res.status(500).send('Error al procesar el cierre parcial.');
     }
 };

@@ -1,7 +1,7 @@
 const Product = require('../models/product');
 const VentaModel = require('../models/venta');
 const User = require('../models/user');
-const CajaModel = require('../models/caja');
+const Caja = require('../models/caja');
 
 
 exports.abrirModal = async (req, res) => {
@@ -86,7 +86,7 @@ exports.createSale = async (req, res) => {
         const ventas = await VentaModel.create(ventasArray);
 
         // Actualizar los valores de la caja
-        const caja = await CajaModel.findOne().sort({ fecha_apertura: -1 }).exec();
+        const caja = await Caja.findOne().sort({ fecha_apertura: -1 }).exec();
 
         ventasArray.forEach(venta => {
             if (venta.pago === 'Mercado Pago') {
@@ -96,7 +96,7 @@ exports.createSale = async (req, res) => {
             }
         });
 
-        caja.total_final = caja.apertura + caja.t_transferencia + caja.total_ventas_dia;
+        caja.total_final = caja.apertura + caja.total_ventas_dia - caja.cierre_parcial;
         await caja.save();
 
         res.send(
