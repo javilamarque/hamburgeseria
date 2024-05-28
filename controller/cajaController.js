@@ -48,7 +48,7 @@ exports.calcularTotalesVentasDia = async () => {
 
         // Sumar los totales de las ventas del día según el tipo de pago
         ventasDelDia.forEach(venta => {
-            if (venta.pago === 'Mercado Pago') {
+            if (venta.tipo_pago === 'Mercado Pago') {
                 totalTransferencia += venta.total;
             } else {
                 totalEfectivo += venta.total;
@@ -67,7 +67,7 @@ exports.renderCajaPage = async (req, res) => {
         const datosCaja = await Caja.findOne().sort({ fecha_apertura: -1 });
 
         if (!datosCaja) {
-            return res.status(404).send('No hay datos de caja disponibles.');
+            return res.status(404).send('Primero debe Abrir la Caja!!!');
         }
 
         const valorApertura = parseFloat(datosCaja.apertura);

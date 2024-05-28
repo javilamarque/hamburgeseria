@@ -15,7 +15,7 @@
                 <input type="hidden" id="descripcion" name="descripcion[]" value="">
                 <input type="hidden" id="precio" name="precio[]" value="">
                 <input type="hidden" id="total" name="total[]" value="">
-                <input type="hidden" id="tipo_pago" name="tipo_pago" value="">
+                <input type="hidden" id="tipo_pago" name="pago[]" value="">
             </div>
             <label for="vendedor" class="col-sm-2 col-form-label">Vendedor</label>
             <div class="col-sm-4">
@@ -73,6 +73,12 @@
     <button type="button" id="confirmar-venta-btn" class="btn btn-success mt-2">Confirmar Venta</button>
     <a href="/caja" class="btn btn-success">Ver Caja</a>
 </div>
+
+
+
+
+
+
 <a href="/admin" class="btn btn-success">Ir a Pagina Pricipal</a>
 <!-- Modal para seleccionar productos -->
 <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel"
@@ -82,7 +88,7 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="productModalLabel">Seleccionar Producto</h5>
                 <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
-                    
+
                 </button>
             </div>
             <div class="modal-body">
@@ -91,7 +97,7 @@
                         <tr>
                             <th>Código de Barras</th>
                             <th>Descripción</th>
-                            <th>Precio</th>                            
+                            <th>Precio</th>
                             <th>Stock</th>
                             <th>Seleccionar</th>
                         </tr>
@@ -133,7 +139,7 @@
         $('#precio').val(precio);
         $('#total').val(total);
 
-        
+
     });
 
     $(document).ready(function () {

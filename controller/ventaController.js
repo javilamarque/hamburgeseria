@@ -81,6 +81,7 @@ exports.createSale = async (req, res) => {
     try {
         const { factura, cantidad, codigo, descripcion, precio, total, vendedor, pago, fecha } = req.body;
 
+        // Asegurarse de que los datos estén en arrays
         const facturas = Array.isArray(factura) ? factura : [factura];
         const cantidades = Array.isArray(cantidad) ? cantidad : [cantidad];
         const codigos = Array.isArray(codigo) ? codigo : [codigo];
@@ -91,22 +92,35 @@ exports.createSale = async (req, res) => {
         const vendedores = Array.isArray(vendedor) ? vendedor : [vendedor];
         const pagos = Array.isArray(pago) ? pago : [pago];
 
-        const ventasArray = cantidades.map((cant, index) => ({
-            factura: facturas[index],
-            cantidad: parseFloat(cant),
-            codigo: codigos[index],
-            descripcion: descripciones[index],
-            precio: parseFloat(precios[index]),
-            total: parseFloat(totales[index]),
-            pago: pagos[index],
-            fecha: fechas[index],
-            vendedor: vendedores[index]
-        }));
+        // Crear ventas individuales
+        const ventasArray = [];
+        for (let i = 0; i < codigos.length; i++) {
+            const codigosBarra = codigos[i].split(',').map(codigo => codigo.trim());
+            const descripcionesArray = descripciones[i].split(',').map(desc => desc.trim());
+            const preciosArray = precios[i].split(',').map(precio => parseFloat(precio.trim()));
+            const totalesArray = totales[i].split(',').map(total => parseFloat(total.trim()));
+            const tipoPago = pagos[i]; // Obtener el tipo de pago de acuerdo al índice de la venta
+
+            for (let j = 0; j < codigosBarra.length; j++) {
+                ventasArray.push({
+                    num_factura: facturas[0], // Asumiendo que la factura es la misma para todos los artículos
+                    cantidad: parseFloat(cantidades[i].split(',')[j]),
+                    codigo: codigosBarra[j],
+                    descripcion: descripcionesArray[j],
+                    precio: preciosArray[j],
+                    total: totalesArray[j],
+                    tipo_pago: tipoPago, // Asignar el tipo de pago correspondiente
+                    fecha: new Date(fechas[0]), // Asumiendo que la fecha es la misma para todos los artículos
+                    vendedor: vendedores[0] // Asumiendo que el vendedor es el mismo para todos los artículos
+                });
+            }
+        }
+
 
         // Crear las ventas en la base de datos
-        const ventas = await VentaModel.create(ventasArray);
+        await VentaModel.create(ventasArray);
 
-        // Actualizar el stock de los productos
+        // Buscar y actualizar el stock de los productos
         for (let venta of ventasArray) {
             const product = await Product.findOne({ cod_barra: venta.codigo });
 
@@ -121,27 +135,24 @@ exports.createSale = async (req, res) => {
             await product.save();
         }
 
-        // Actualizar los valores de la caja
         const caja = await Caja.findOne().sort({ fecha_apertura: -1 }).exec();
 
         if (!caja) {
             return res.status(500).json({ message: 'No se encontró una caja abierta.' });
         }
 
-
-
         ventasArray.forEach(venta => {
-            if (venta.pago === 'Mercado Pago') {
-                caja.t_transferencia += venta.total;
-            } else if (venta.pago === 'Efectivo') {
+            if (venta.tipo_pago === 'Mercado Pago') {
+                caja.t_transferencia += venta.total; // Sumar a t_transferencia en lugar de total_ventas_dia
+            } else if (venta.tipo_pago === 'Efectivo') {
                 caja.total_ventas_dia += venta.total;
             }
         });
 
+        // Calcular el total final de la caja
         caja.total_final = caja.apertura + caja.total_ventas_dia - caja.cierre_parcial;
 
-        
-
+        // Guardar los cambios en la caja
         await caja.save();
 
         res.send(
@@ -155,6 +166,7 @@ exports.createSale = async (req, res) => {
         res.status(500).json({ message: 'Error al crear la venta' });
     }
 };
+
 
 
 
@@ -231,7 +243,7 @@ exports.modifyQuantity = async (req, res) => {
     try {
         // Inicializa la sesión si no está definida
         req.session.invoiceItems = req.session.invoiceItems || [];
-        
+
         if (!req.session.invoiceItems || req.session.invoiceItems.length === 0) {
             return res.status(204).json({ message: 'No hay artículos en la factura' });
         }

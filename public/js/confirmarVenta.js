@@ -1,6 +1,5 @@
 $(function () {
     $(document).on('click', '#confirmar-venta-btn', function () {
-        // Recopilar los datos de los productos en la tabla
         let productos = [];
         $('#productosEncontrados tr').each(function () {
             let cantidad = $(this).find('.cantidad').text();
@@ -17,14 +16,14 @@ $(function () {
             });
         });
 
-        // Asegúrate de tener todos los campos del formulario
-        $('#sale-form #cantidad').val(productos.map(p => p.cantidad).join(','));
-        $('#sale-form #codigo').val(productos.map(p => p.codigo).join(','));
-        $('#sale-form #descripcion').val(productos.map(p => p.descripcion).join(','));
-        $('#sale-form #precio').val(productos.map(p => p.precio).join(','));
-        $('#sale-form #total').val(productos.map(p => p.total).join(','));
+        let tipoPago = $('#pago').val();
+        $('#sale-form #cantidad').val(productos.map(p => p.cantidad));
+        $('#sale-form #codigo').val(productos.map(p => p.codigo));
+        $('#sale-form #descripcion').val(productos.map(p => p.descripcion));
+        $('#sale-form #precio').val(productos.map(p => p.precio));
+        $('#sale-form #total').val(productos.map(p => p.total));
+        $('#sale-form #tipo_pago').val(tipoPago);
 
-        // Enviar el formulario
-        $('#sale-form').trigger('submit');
+        $('#sale-form').submit();
     });
 });
