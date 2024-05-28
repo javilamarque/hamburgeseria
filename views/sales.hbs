@@ -91,7 +91,8 @@
                         <tr>
                             <th>Código de Barras</th>
                             <th>Descripción</th>
-                            <th>Precio</th>
+                            <th>Precio</th>                            
+                            <th>Stock</th>
                             <th>Seleccionar</th>
                         </tr>
                     </thead>
@@ -140,6 +141,7 @@
                             <td>${product.cod_barra}</td>
                             <td>${product.descripcion}</td>
                             <td>${product.precio_venta}</td>
+                            <td>${product.stock}</td>
                             <td>
                                 <button type="button" class="btn btn-primary seleccionar-producto" 
                                     data-cod_barra="${product.cod_barra}" 
