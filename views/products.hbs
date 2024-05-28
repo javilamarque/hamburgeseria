@@ -33,14 +33,10 @@
     </table>
 </div>
 
-<button type="button" class="btn btn-danger" id="cancel-btn">Cancelar</button>
+<a href="/newProduct" class="btn btn-success">Crear Nuevo Producto</a>
+<a href="/sales" class="btn btn-success">Ir a Ventas</a>
 
 
-<script>
-    document.getElementById('cancel-btn').addEventListener('click', function () {
-        window.history.back();
-    });
-</script>
 
 <script>
     async function deleteProduct(codigoDeBarras) {

@@ -30,4 +30,12 @@
     </table>
 </div>
 
+<button type="button" class="btn btn-danger" id="cancel-btn">Cancelar</button>
+
+<script>
+    document.getElementById('cancel-btn').addEventListener('click', function () {
+        window.history.back();
+    });
+</script>
+
 {{>footer}}

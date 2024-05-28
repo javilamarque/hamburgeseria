@@ -72,7 +72,7 @@
     <button type="button" id="confirmar-venta-btn" class="btn btn-success mt-2">Confirmar Venta</button>
     <a href="/caja" class="btn btn-success">Ver Caja</a>
 </div>
-
+    <button type="button" class="btn btn-danger" id="cancel-btn">Ir a Pagina Pricipal</button>
 <!-- Modal para seleccionar productos -->
 <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel"
     aria-hidden="true">
@@ -104,6 +104,14 @@
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    document.getElementById('cancel-btn').addEventListener('click', function () {
+        window.history.back();
+    });
+</script>
+
+
 <script>
 
     $(document).on('click', '.seleccionar-producto', function () {
