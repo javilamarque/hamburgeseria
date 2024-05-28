@@ -1,4 +1,5 @@
 const Product = require('../models/product');
+const moment = require('moment');
 
 // Obtener todos los productos
 exports.getAllProducts = async (req, res) => {
@@ -113,3 +114,27 @@ exports.deleteProductByBarcode = async (req, res) => {
         res.status(500).json({ message: 'Error al eliminar el producto' });
     }
 };
+
+
+//------------------------------------------------------------------------------------------------------RENDERIZAR PAGINA PRODUCTOS ACTUALIZADOS-------------------------
+
+exports.renderProductsPage = async (req, res) => {
+    try {
+        const products = await Product.find();
+        moment.locale('es');
+        // Formatear las fechas
+        const formattedProducts = products.map(product => {
+            const formattedDate = moment(product.fecha).format('dddd, D MMMM YYYY, HH:mm:ss');
+            return {
+                ...product._doc,
+                fecha: formattedDate
+            };
+        });
+        res.set('Cache-Control', 'no-store');
+        res.render('products', { products: formattedProducts });
+    } catch (error) {
+        console.error('Error al cargar los productos:', error);
+        res.status(500).send('Error al cargar los productos');
+    }
+};
+

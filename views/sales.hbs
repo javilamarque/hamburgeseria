@@ -7,8 +7,9 @@
         <div class="form-group row">
             <label for="factura" class="col-sm-2 col-form-label">Factura Numero:</label>
             <div class="col-sm-4">
-                
-                <input type="number" class="form-control" id="factura" name="factura" value="{{nextFactura}}" readonly><p></p>
+
+                <input type="number" class="form-control" id="factura" name="factura" value="{{nextFactura}}" readonly>
+                <p></p>
                 <input type="hidden" id="cantidad" name="cantidad[]" value="">
                 <input type="hidden" id="codigo" name="codigo[]" value="">
                 <input type="hidden" id="descripcion" name="descripcion[]" value="">
@@ -72,7 +73,7 @@
     <button type="button" id="confirmar-venta-btn" class="btn btn-success mt-2">Confirmar Venta</button>
     <a href="/caja" class="btn btn-success">Ver Caja</a>
 </div>
-    <button type="button" class="btn btn-danger" id="cancel-btn">Ir a Pagina Pricipal</button>
+<a href="/admin" class="btn btn-success">Ir a Pagina Pricipal</a>
 <!-- Modal para seleccionar productos -->
 <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel"
     aria-hidden="true">
@@ -105,32 +106,28 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-<script>
-    document.getElementById('cancel-btn').addEventListener('click', function () {
-        window.history.back();
-    });
-</script>
+
 
 
 <script>
 
     $(document).on('click', '.seleccionar-producto', function () {
-            let cod_barra = $(this).data('cod_barra');
-            let descripcion = $(this).data('descripcion');
-            let precio = $(this).data('precio');
-            let cantidad = 1; // Puedes permitir que el usuario ingrese la cantidad si lo prefieres
-            let total = cantidad * precio;
+        let cod_barra = $(this).data('cod_barra');
+        let descripcion = $(this).data('descripcion');
+        let precio = $(this).data('precio');
+        let cantidad = 1; // Puedes permitir que el usuario ingrese la cantidad si lo prefieres
+        let total = cantidad * precio;
 
-            // Actualizar los campos ocultos con los detalles del producto seleccionado
-            $('#cantidad').val(cantidad);
-            $('#codigo').val(cod_barra);
-            $('#descripcion').val(descripcion);
-            $('#precio').val(precio);
-            $('#total').val(total);
+        // Actualizar los campos ocultos con los detalles del producto seleccionado
+        $('#cantidad').val(cantidad);
+        $('#codigo').val(cod_barra);
+        $('#descripcion').val(descripcion);
+        $('#precio').val(precio);
+        $('#total').val(total);
 
-            // Ocultar el modal
-            $('#productModal').modal('hide');
-        });
+        // Ocultar el modal
+        $('#productModal').modal('hide');
+    });
 
     $(document).ready(function () {
         // Función para abrir el modal y cargar los productos

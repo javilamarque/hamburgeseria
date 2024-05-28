@@ -8,7 +8,7 @@ $(document).ready(function () {
             let cantidad = $(this).find('.cantidad').text();
             let codigo = $(this).find('td:nth-child(2)').text();
             let descripcion = $(this).find('td:nth-child(3)').text();
-        let precio = $(this).find('.precio').text();
+            let precio = $(this).find('.precio').text();
             let total = $(this).find('.total').text();
             productos.push({
                 cantidad: cantidad,

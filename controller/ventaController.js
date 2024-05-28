@@ -56,15 +56,17 @@ exports.renderSalePage = async (req, res) => {
     }
 };
 
+
+
 //-------------------------------------------------------------------------------------------------------MOSTRAR VENTAS REALIZADAS
 exports.renderSaleViews = async (req, res) => {
     try {
         const ventas = await VentaModel.find({});
-
+        moment.locale('es')
         // Formatear las fechas
         const ventasFormatted = ventas.map(venta => ({
             ...venta._doc,
-            f_factura: moment(venta.f_factura).format('DD-MM-YYYY HH:mm')
+            f_factura: moment(venta.f_factura).format('dddd, D MMMM YYYY, HH:mm:ss')
         }));
 
         res.render('viewSales', { ventas: ventasFormatted });
@@ -91,11 +93,11 @@ exports.createSale = async (req, res) => {
 
         const ventasArray = cantidades.map((cant, index) => ({
             factura: facturas[index],
-            cantidad: cant,
+            cantidad: parseFloat(cant),
             codigo: codigos[index],
             descripcion: descripciones[index],
-            precio: precios[index],
-            total: totales[index],
+            precio: parseFloat(precios[index]),
+            total: parseFloat(totales[index]),
             pago: pagos[index],
             fecha: fechas[index],
             vendedor: vendedores[index]
@@ -104,8 +106,29 @@ exports.createSale = async (req, res) => {
         // Crear las ventas en la base de datos
         const ventas = await VentaModel.create(ventasArray);
 
+        // Actualizar el stock de los productos
+        for (let venta of ventasArray) {
+            const product = await Product.findOne({ cod_barra: venta.codigo });
+
+            if (!product) {
+                return res.status(404).json({ message: `Producto con código ${venta.codigo} no encontrado` });
+            }
+
+            // Descontar la cantidad vendida del stock
+            product.stock -= venta.cantidad;
+
+            // Guardar los cambios en el producto
+            await product.save();
+        }
+
         // Actualizar los valores de la caja
         const caja = await Caja.findOne().sort({ fecha_apertura: -1 }).exec();
+
+        if (!caja) {
+            return res.status(500).json({ message: 'No se encontró una caja abierta.' });
+        }
+
+        console.log('Ventas a procesar:', ventasArray);
 
         ventasArray.forEach(venta => {
             if (venta.pago === 'Mercado Pago') {
@@ -116,6 +139,12 @@ exports.createSale = async (req, res) => {
         });
 
         caja.total_final = caja.apertura + caja.total_ventas_dia - caja.cierre_parcial;
+
+        console.log('Actualización de la caja:', {
+            total_ventas_dia: caja.total_ventas_dia,
+            total_final: caja.total_final
+        });
+
         await caja.save();
 
         res.send(
@@ -125,7 +154,7 @@ exports.createSale = async (req, res) => {
             </script>`
         );
     } catch (error) {
-        console.error(error);
+        console.error('Error al crear la venta:', error);
         res.status(500).json({ message: 'Error al crear la venta' });
     }
 };

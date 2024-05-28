@@ -14,7 +14,6 @@ exports.obtenerDatosCaja = async () => {
 
 exports.abrirCaja = async (req, res) => {
     const { apertura } = req.body;
-    console.log('Valor de apertura recibido:', apertura);
     try {
         const ultimaCaja = await Caja.findOne().sort({ fecha_apertura: -1 });
 
@@ -95,7 +94,6 @@ exports.renderCajaPage = async (req, res) => {
             fecha_apertura: datosCaja.fecha_apertura ? datosCaja.fecha_apertura.toISOString() : ''
         };
 
-        console.log('Valores de la caja:', caja);
         res.render('caja', { caja });
     } catch (error) {
         console.error(error);
@@ -117,7 +115,6 @@ exports.procesarCierreParcial = async (req, res) => {
         // Obtener los datos de la caja
         const datosCaja = await exports.obtenerDatosCaja();
 
-        console.log('Datos de la caja antes del cierre parcial:', datosCaja);
 
         // Actualizar cierre parcial y total final
         datosCaja.cierre_parcial += parseFloat(cierre_parcial);

@@ -7,7 +7,7 @@ const productSchema = new mongoose.Schema({
     stock: { type: Number, default: 0 },
     costo: { type: Number, required: true },
     precio_venta: { type: Number, required: true },
-    fecha: { type: Date, default: Date.now }
+    fecha: { type: Date, default: Date.now, require: true }
 }, { collection: 'products' });
 
 const Product = mongoose.model('Product', productSchema);
