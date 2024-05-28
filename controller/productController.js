@@ -89,7 +89,6 @@ exports.updateProduct = async (req, res) => {
     };
 
     try {
-        console.log('Actualizando producto con código de barras:', req.params.codigoDeBarras);
         const updatedProduct = await Product.findOneAndUpdate({ cod_barra: codigoDeBarras }, updateData, { new: true });
         if (!updatedProduct) {
             return res.status(404).json({ message: 'Producto no encontrado' });

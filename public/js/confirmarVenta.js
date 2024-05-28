@@ -1,7 +1,5 @@
-$(document).ready(function () {
-    // Otras funciones y manejadores...
-
-    $('#confirmar-venta-btn').click(function () {
+$(function () {
+    $(document).on('click', '#confirmar-venta-btn', function () {
         // Recopilar los datos de los productos en la tabla
         let productos = [];
         $('#productosEncontrados tr').each(function () {
@@ -27,6 +25,6 @@ $(document).ready(function () {
         $('#sale-form #total').val(productos.map(p => p.total).join(','));
 
         // Enviar el formulario
-        $('#sale-form').submit();
+        $('#sale-form').trigger('submit');
     });
 });

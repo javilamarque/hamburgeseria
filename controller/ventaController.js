@@ -128,7 +128,7 @@ exports.createSale = async (req, res) => {
             return res.status(500).json({ message: 'No se encontró una caja abierta.' });
         }
 
-        console.log('Ventas a procesar:', ventasArray);
+
 
         ventasArray.forEach(venta => {
             if (venta.pago === 'Mercado Pago') {
@@ -140,10 +140,7 @@ exports.createSale = async (req, res) => {
 
         caja.total_final = caja.apertura + caja.total_ventas_dia - caja.cierre_parcial;
 
-        console.log('Actualización de la caja:', {
-            total_ventas_dia: caja.total_ventas_dia,
-            total_final: caja.total_final
-        });
+        
 
         await caja.save();
 
@@ -226,9 +223,6 @@ exports.modifyQuantity = async (req, res) => {
     req.session.invoiceItems = req.session.invoiceItems || [];
     const { cod_barra, nuevaCantidad } = req.body;
 
-    // Log para verificar los datos recibidos
-    console.log('Datos recibidos:', { cod_barra, nuevaCantidad });
-    console.log('Artículos en la factura antes de la modificación:', req.session.invoiceItems);
 
     if (!cod_barra || !nuevaCantidad) {
         return res.status(400).json({ message: 'Datos inválidos. cod_barra y nuevaCantidad son requeridos.' });
@@ -237,26 +231,22 @@ exports.modifyQuantity = async (req, res) => {
     try {
         // Inicializa la sesión si no está definida
         req.session.invoiceItems = req.session.invoiceItems || [];
-        console.log('Artículos en la factura antes de la modificación:', req.session.invoiceItems);
+        
         if (!req.session.invoiceItems || req.session.invoiceItems.length === 0) {
-            console.log('No hay artículos en la factura');
             return res.status(204).json({ message: 'No hay artículos en la factura' });
         }
 
         const item = req.session.invoiceItems.find(item => item.cod_barra === cod_barra);
 
         if (!item) {
-            console.log('Producto no encontrado en la factura');
             return res.status(404).json({ message: 'Producto no encontrado en la factura' });
         }
 
-        console.log('Producto encontrado:', item);
 
         const precio = parseFloat(item.precio);
         const cantidad = parseFloat(nuevaCantidad);
 
         if (isNaN(precio) || isNaN(cantidad)) {
-            console.log('Datos inválidos para el cálculo', { precio, cantidad });
             return res.status(400).json({ message: 'Datos inválidos para el cálculo' });
         }
 
@@ -266,14 +256,11 @@ exports.modifyQuantity = async (req, res) => {
         // Guardar la sesión después de modificarla
         req.session.save((err) => {
             if (err) {
-                console.log('Error al guardar la sesión', err);
                 return res.status(500).json({ message: 'Error al guardar la sesión' });
             }
-            console.log('Cantidad modificada correctamente', { item, precio: item.precio });
             res.status(200).json({ message: 'Cantidad modificada correctamente', item, precio: item.precio });
         });
     } catch (error) {
-        console.log('Error al modificar la cantidad del producto en la factura', error);
         res.status(500).json({ message: 'Error al modificar la cantidad del producto en la factura' });
     }
 };
@@ -320,7 +307,6 @@ exports.getProducts = async (req, res) => {
 exports.getUsers = async (req, res) => {
     try {
         const users = await User.find();
-        console.log('Usuarios encontrados:', users); // Agregar este registro de depuración
         res.json(users);
     } catch (error) {
         console.error('Error al obtener los usuarios:', error); // Agregar este registro de depuración
