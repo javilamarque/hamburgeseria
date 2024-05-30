@@ -7,15 +7,7 @@
         <div class="form-group row">
             <label for="factura" class="col-sm-2 col-form-label">Factura Numero:</label>
             <div class="col-sm-4">
-
                 <input type="number" class="form-control" id="factura" name="factura" value="{{nextFactura}}" readonly>
-                <p></p>
-                <input type="hidden" id="cantidad" name="cantidad[]" value="">
-                <input type="hidden" id="codigo" name="codigo[]" value="">
-                <input type="hidden" id="descripcion" name="descripcion[]" value="">
-                <input type="hidden" id="precio" name="precio[]" value="">
-                <input type="hidden" id="total" name="total[]" value="">
-                <input type="hidden" id="tipo_pago" name="pago[]" value="">
             </div>
             <label for="vendedor" class="col-sm-2 col-form-label">Vendedor</label>
             <div class="col-sm-4">
@@ -48,6 +40,19 @@
                 <button type="button" id="buscar-btn" class="btn btn-primary mt-2">Buscar</button>
             </div>
         </div>
+
+        <!-- Hidden inputs to hold the item data -->
+        <div id="items-container">
+            <!-- Items will be added here dynamically using JavaScript -->
+        </div>
+
+        <div class="total-container">
+            <h3>Total a Cobrar: $<span id="totalCobrar">0.00</span></h3>
+            <input type="hidden" id="total" name="total" value="">
+        </div>
+
+        <button type="button" id="confirmar-venta-btn" class="btn btn-success mt-2">Confirmar Venta</button>
+        <a href="/caja" class="btn btn-success">Ver Caja</a>
     </form>
 
     <table class="table">
@@ -63,15 +68,9 @@
             </tr>
         </thead>
         <tbody id="productosEncontrados">
-            <!-- Aquí se agregarán dinámicamente los productos -->
+
         </tbody>
     </table>
-    <!-- Total a cobrar -->
-    <div class="total-container">
-        <h3>Total a Cobrar: $<span id="totalCobrar">0.00</span></h3>
-    </div>
-    <button type="button" id="confirmar-venta-btn" class="btn btn-success mt-2">Confirmar Venta</button>
-    <a href="/caja" class="btn btn-success">Ver Caja</a>
 </div>
 
 
@@ -124,31 +123,13 @@
 
 {{!-- ------------------------------------------------------------------------------ --}}
 <script>
-
-    $(document).on('click', '.seleccionar-producto', function () {
-        let cod_barra = $(this).data('cod_barra');
-        let descripcion = $(this).data('descripcion');
-        let precio = $(this).data('precio');
-        let cantidad = 1; // Puedes permitir que el usuario ingrese la cantidad si lo prefieres
-        let total = cantidad * precio;
-
-        // Actualizar los campos ocultos con los detalles del producto seleccionado
-        $('#cantidad').val(cantidad);
-        $('#codigo').val(cod_barra);
-        $('#descripcion').val(descripcion);
-        $('#precio').val(precio);
-        $('#total').val(total);
-
-
-    });
-
-    $(document).ready(function () {
-        // Función para abrir el modal y cargar los productos
-        function abrirModal() {
-            $.get('/sales/products', function (products) {
-                $('#productList').empty();
-                products.forEach(function (product) {
-                    let row = `
+    document.addEventListener('DOMContentLoaded', () => {
+        $(document).ready(function () {
+            function abrirModal() {
+                $.get('/sales/products', function (products) {
+                    $('#productList').empty();
+                    products.forEach(function (product) {
+                        let row = `
                         <tr>
                             <td>${product.cod_barra}</td>
                             <td>${product.descripcion}</td>
@@ -164,72 +145,112 @@
                             </td>
                         </tr>
                     `;
-                    $('#productList').append(row);
-                });
-                $('#productModal').modal('show');
-            })
-                .fail(function () {
-                    alert('Error al cargar los productos');
-                });
-        }
+                        $('#productList').append(row);
+                    });
+                    $('#productModal').modal('show');
+                })
+                    .fail(function () {
+                        alert('Error al cargar los productos');
+                    });
+            }
 
-        // Escuchar el clic en el botón "Buscar" para abrir el modal
-        $('#buscar-btn').click(function () {
-            abrirModal();
-        });
+            $(document).on('click', '.seleccionar-producto', function () {
+                let cod_barra = $(this).data('cod_barra');
+                let descripcion = $(this).data('descripcion');
+                let precio = $(this).data('precio');
+                let cantidad = 1; // Puedes permitir que el usuario ingrese la cantidad si lo prefieres
+                let total = cantidad * precio;
 
-        // Escuchar el clic en los botones "Seleccionar" dentro del modal
-        $(document).on('click', '.seleccionar-producto', function () {
-            let cod_barra = $(this).data('cod_barra');
-            let descripcion = $(this).data('descripcion');
-            let precio = $(this).data('precio');
-            let tbody = $('#productosEncontrados');
-            let row = `
+                // Actualizar los campos ocultos con los detalles del producto seleccionado
+                $('#cantidad').val(cantidad);
+                $('#codigo').val(cod_barra);
+                $('#descripcion').val(descripcion);
+                $('#precio').val(precio);
+                $('#total').val(total);
+            });
+
+            $('#buscar-btn').click(function () {
+                abrirModal();
+            });
+
+            $(document).on('click', '.seleccionar-producto', function () {
+                let cod_barra = $(this).data('cod_barra');
+                let descripcion = $(this).data('descripcion');
+                let precio = $(this).data('precio');
+                let tbody = $('#productosEncontrados');
+                let row = `
                 <tr data-cod_barra="${cod_barra}">
                     <td class="cantidad">1</td>
-                    <td>${cod_barra}</td>
-                    <td>${descripcion}</td>
+                    <td class="cod_barra">${cod_barra}</td>
+                    <td class="descripcion">${descripcion}</td>
                     <td class="precio">${precio}</td>
                     <td class="total">${precio}</td>
                     <td><button type="button" onclick="editarCantidad('${cod_barra}')" class="btn btn-primary">Editar</button></td>
                     <td><button type="button" onclick="borrarArticulo(this)" class="btn btn-danger">Borrar</button></td>
                 </tr>
             `;
-            tbody.append(row);
-            $('#productModal').modal('hide');
-            actualizarTotal(); // Actualizar el total al añadir el producto
-        });
-
-        // Función para editar la cantidad de un producto
-        window.editarCantidad = function (cod_barra) {
-            let cantidad = prompt('Ingrese la nueva cantidad:');
-            if (cantidad !== null && cantidad > 0) {
-                let row = $(`tr[data-cod_barra='${cod_barra}']`);
-                let precio = parseFloat(row.find('.precio').text());
-                row.find('.cantidad').text(cantidad);
-                row.find('.total').text(precio * cantidad);
-                actualizarTotal(); // Actualizar el total al editar la cantidad
-            }
-        }
-
-        // Función para borrar un producto de la tabla
-        window.borrarArticulo = function (button) {
-            let row = button.closest('tr');
-            row.remove();
-            actualizarTotal(); // Actualizar el total al borrar el producto
-        }
-
-        // Función para actualizar el total a cobrar
-        function actualizarTotal() {
-            let totalCobrarElement = $('#totalCobrar');
-            let total = 0;
-            $('#productosEncontrados tr').each(function () {
-                let cantidad = parseFloat($(this).find('.cantidad').text());
-                let precio = parseFloat($(this).find('.precio').text());
-                total += cantidad * precio;
+                tbody.append(row);
+                $('#productModal').modal('hide');
+                actualizarTotal();
             });
-            totalCobrarElement.text(total.toFixed(2));
-        }
+
+            window.editarCantidad = function (cod_barra) {
+                let cantidad = prompt('Ingrese la nueva cantidad:');
+                if (cantidad !== null && cantidad > 0) {
+                    let row = $(`tr[data-cod_barra='${cod_barra}']`);
+                    let precio = parseFloat(row.find('.precio').text());
+                    row.find('.cantidad').text(cantidad);
+                    row.find('.total').text(precio * cantidad);
+                    actualizarTotal();
+                }
+            }
+
+            window.borrarArticulo = function (button) {
+                let row = button.closest('tr');
+                row.remove();
+                actualizarTotal();
+            }
+
+            function actualizarTotal() {
+                let totalCobrarElement = $('#totalCobrar');
+                let total = 0;
+                $('#productosEncontrados tr').each(function () {
+                    let cantidad = parseFloat($(this).find('.cantidad').text());
+                    let precio = parseFloat($(this).find('.precio').text());
+                    total += cantidad * precio;
+                });
+                totalCobrarElement.text(total.toFixed(2));
+            }
+
+            document.getElementById('confirmar-venta-btn').addEventListener('click', (event) => {
+                event.preventDefault();
+
+                const itemsContainer = document.getElementById('items-container');
+                itemsContainer.innerHTML = '';
+                const rows = document.querySelectorAll('#productosEncontrados tr');
+
+                rows.forEach((row, index) => {
+                    const cod_barra = row.querySelector('.cod_barra') ? row.querySelector('.cod_barra').textContent : null;
+                    const descripcion = row.querySelector('.descripcion') ? row.querySelector('.descripcion').textContent : null;
+                    const cantidad = row.querySelector('.cantidad') ? row.querySelector('.cantidad').textContent : null;
+                    const precio = row.querySelector('.precio') ? row.querySelector('.precio').textContent : null;
+                    const total = row.querySelector('.total') ? row.querySelector('.total').textContent : null;
+
+                    if (cod_barra && descripcion && cantidad && precio && total) {
+                        itemsContainer.innerHTML += `
+                        <input type="hidden" name="items[${index}][cod_barra]" value="${cod_barra}">
+                        <input type="hidden" name="items[${index}][descripcion]" value="${descripcion}">
+                        <input type="hidden" name="items[${index}][cantidad]" value="${cantidad}">
+                        <input type="hidden" name="items[${index}][precio]" value="${precio}">
+                        <input type="hidden" name="items[${index}][total]" value="${total}">
+                    `;
+                    }
+                });
+
+                document.getElementById('total').value = document.getElementById('totalCobrar').textContent;
+                document.getElementById('sale-form').submit();
+            });
+        });
     });
 </script>
 <script src="/js/confirmarVenta.js"></script>

@@ -12,7 +12,7 @@ router.get('/users', ventaController.getUsers);
 router.post('/modifyQuantity', ventaController.modifyQuantity);
 
 // Nuevas rutas para manejar la apertura del modal y la selección de productos
-router.get('/openModal', ventaController.abrirModal);
+
 router.post('/selectProduct', ventaController.seleccionarProducto);
 
 module.exports = router;

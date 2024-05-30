@@ -46,19 +46,6 @@ exports.createProduct = async (req, res) => {
     }
 };
 
-// Obtener un producto por su código de barras
-exports.getProductByBarcode = async (req, res) => {
-    const codigoDeBarras = req.params.codigoDeBarras;
-    try {
-        const product = await Product.findOne({ cod_barra: codigoDeBarras });
-        if (!product) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
-        }
-        res.json(product);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener el producto' });
-    }
-};
 
 
 // Obtener la página de edición de productos
@@ -134,5 +121,25 @@ exports.renderProductsPage = async (req, res) => {
     } catch (error) {
         console.error('Error al cargar los productos:', error);
         res.status(500).send('Error al cargar los productos');
+    }
+};
+
+
+exports.seleccionarProducto = async (req, res) => {
+    try {
+        const { cod_barra } = req.body;
+
+        // Consultar el producto en la base de datos usando el código de barras
+        const product = await Product.findOne({ cod_barra });
+
+        if (!product) {
+            return res.status(404).json({ message: `Producto con código ${cod_barra} no encontrado` });
+        }
+
+        // Enviar los detalles del producto al cliente
+        res.json(product);
+    } catch (error) {
+        console.error('Error al seleccionar el producto:', error);
+        res.status(500).json({ message: 'Error al seleccionar el producto' });
     }
 };

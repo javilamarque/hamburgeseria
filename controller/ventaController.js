@@ -5,15 +5,7 @@ const Caja = require('../models/caja');
 const moment = require('moment');
 
 
-exports.abrirModal = async (req, res) => {
-    try {
-        const products = await Product.find();
-        res.render('productModal', { products });
-    } catch (error) {
-        console.error('Error al cargar los productos:', error);
-        res.status(500).send('Error al cargar los productos');
-    }
-};
+
 
 exports.seleccionarProducto = async (req, res) => {
     const { cod_barra, descripcion, precio } = req.body;
@@ -42,7 +34,7 @@ exports.seleccionarProducto = async (req, res) => {
 
 
 
-// ------------------------------------------------------------------------------------------------------Renderiza la página de ventas
+// ------------------------------------------------------------------------------------------------------RENDERIZAR LA PAGINA DE VENTAS------------------------------------------------------------------------
 exports.renderSalePage = async (req, res) => {
     try {
         const users = await User.find();
@@ -76,62 +68,67 @@ exports.renderSaleViews = async (req, res) => {
     }
 };
 
-// ----------------------------------------------------------------------------------------------------------Crear una venta
+// ----------------------------------------------------------------------------------------------------------CREAR VENTAS----------------------------------------------------------------------------------------
 exports.createSale = async (req, res) => {
     try {
-        const { factura, cantidad, codigo, descripcion, precio, total, vendedor, pago, fecha } = req.body;
-
-        // Asegurarse de que los datos estén en arrays
-        const facturas = Array.isArray(factura) ? factura : [factura];
-        const cantidades = Array.isArray(cantidad) ? cantidad : [cantidad];
-        const codigos = Array.isArray(codigo) ? codigo : [codigo];
-        const descripciones = Array.isArray(descripcion) ? descripcion : [descripcion];
-        const precios = Array.isArray(precio) ? precio : [precio];
-        const totales = Array.isArray(total) ? total : [total];
-        const fechas = Array.isArray(fecha) ? fecha : [fecha];
-        const vendedores = Array.isArray(vendedor) ? vendedor : [vendedor];
-        const pagos = Array.isArray(pago) ? pago : [pago];
-
-        // Crear ventas individuales
-        const ventasArray = [];
-        for (let i = 0; i < codigos.length; i++) {
-            const codigosBarra = codigos[i].split(',').map(codigo => codigo.trim());
-            const descripcionesArray = descripciones[i].split(',').map(desc => desc.trim());
-            const preciosArray = precios[i].split(',').map(precio => parseFloat(precio.trim()));
-            const totalesArray = totales[i].split(',').map(total => parseFloat(total.trim()));
-            const tipoPago = pagos[i]; // Obtener el tipo de pago de acuerdo al índice de la venta
-
-            for (let j = 0; j < codigosBarra.length; j++) {
-                ventasArray.push({
-                    num_factura: facturas[0], // Asumiendo que la factura es la misma para todos los artículos
-                    cantidad: parseFloat(cantidades[i].split(',')[j]),
-                    codigo: codigosBarra[j],
-                    descripcion: descripcionesArray[j],
-                    precio: preciosArray[j],
-                    total: totalesArray[j],
-                    tipo_pago: tipoPago, // Asignar el tipo de pago correspondiente
-                    fecha: new Date(fechas[0]), // Asumiendo que la fecha es la misma para todos los artículos
-                    vendedor: vendedores[0] // Asumiendo que el vendedor es el mismo para todos los artículos
-                });
-            }
+        const { items, total, vendedor, pago } = req.body;
+        if (!items || Object.keys(items).length === 0) {
+            throw new Error('La lista de items no es válida.');
         }
 
+        const processedItems = await Promise.all(Object.values(items).map(async (item, index) => {
 
-        // Crear las ventas en la base de datos
-        await VentaModel.create(ventasArray);
+            const cod_barra = parseInt(item.cod_barra);
+            const cantidad = parseInt(item.cantidad);
+            const precio = parseFloat(item.precio);
+            const total = parseFloat(item.total);
 
-        // Buscar y actualizar el stock de los productos
-        for (let venta of ventasArray) {
-            const product = await Product.findOne({ cod_barra: venta.codigo });
-
-            if (!product) {
-                return res.status(404).json({ message: `Producto con código ${venta.codigo} no encontrado` });
+            if (isNaN(cod_barra) || isNaN(cantidad) || isNaN(precio) || isNaN(total)) {
+                throw new Error('Datos de item no válidos');
             }
 
-            // Descontar la cantidad vendida del stock
-            product.stock -= venta.cantidad;
+            if (!cod_barra) {
+                throw new Error(`El código de barra del item ${index + 1} es inválido.`);
+            }
 
-            // Guardar los cambios en el producto
+            const product = await Product.findOne({ cod_barra });
+            if (!product) {
+                throw new Error(`Producto con código ${cod_barra} no encontrado`);
+            }
+
+            return {
+                cod_barra,
+                descripcion: product.descripcion,
+                cantidad,
+                precio,
+                total
+            };
+        }));
+
+        const ventaTotal = parseFloat(total);
+        if (isNaN(ventaTotal) || typeof vendedor !== 'string' || !['Efectivo', 'Mercado Pago'].includes(pago)) {
+            throw new Error('Datos de venta no válidos');
+        }
+
+        const nuevaVenta = new VentaModel({
+            descripcion: processedItems.map(item => item.descripcion).join(', '),
+            total: ventaTotal,
+            f_factura: new Date(),
+            vendedor,
+            tipo_pago: pago,
+            cantidad: processedItems.reduce((acc, item) => acc + item.cantidad, 0)
+        });
+
+        await nuevaVenta.save();
+
+        for (let item of processedItems) {
+            const product = await Product.findOne({ cod_barra: item.cod_barra });
+
+            if (!product) {
+                return res.status(404).json({ message: `Producto con código ${item.cod_barra} no encontrado` });
+            }
+
+            product.stock -= item.cantidad;
             await product.save();
         }
 
@@ -141,18 +138,13 @@ exports.createSale = async (req, res) => {
             return res.status(500).json({ message: 'No se encontró una caja abierta.' });
         }
 
-        ventasArray.forEach(venta => {
-            if (venta.tipo_pago === 'Mercado Pago') {
-                caja.t_transferencia += venta.total; // Sumar a t_transferencia en lugar de total_ventas_dia
-            } else if (venta.tipo_pago === 'Efectivo') {
-                caja.total_ventas_dia += venta.total;
-            }
-        });
+        if (pago === 'Mercado Pago') {
+            caja.t_transferencia += ventaTotal;
+        } else if (pago === 'Efectivo') {
+            caja.total_ventas_dia += ventaTotal;
+        }
 
-        // Calcular el total final de la caja
         caja.total_final = caja.apertura + caja.total_ventas_dia - caja.cierre_parcial;
-
-        // Guardar los cambios en la caja
         await caja.save();
 
         res.send(
@@ -170,7 +162,7 @@ exports.createSale = async (req, res) => {
 
 
 
-// ------------------------------------------------------------------------------------------Buscar producto por código de barras
+// -----------------------------------------------------------------------------------------------------BUSCAR PRODUCTOS-------------------------------------------------------------------------------------------
 exports.searchProduct = async (req, res) => {
     const { codigo } = req.body;
     try {
@@ -194,7 +186,7 @@ exports.searchProduct = async (req, res) => {
     }
 };
 
-// ---------------------------------------------------------------------------------------------------Agrega un producto a la factura
+// ---------------------------------------------------------------------------------------------------AGREGAR PRODUCTO A LA FACTURA==================================================================================
 exports.addItemToInvoice = async (req, res) => {
     const { cod_barra, descripcion, precio } = req.body;
     req.session.invoiceItems = req.session.invoiceItems || [];
@@ -229,7 +221,7 @@ exports.addItemToInvoice = async (req, res) => {
     }
 };
 
-//--------------------------------------------------------------------------- Modifica la cantidad de un producto en la factura
+//---------------------------------------------------------------------------========================MODIFICAR CANTIDAD EN LA FACTURA================================================================================
 // Modifica la cantidad de un producto en la factura
 exports.modifyQuantity = async (req, res) => {
     req.session.invoiceItems = req.session.invoiceItems || [];
@@ -277,7 +269,7 @@ exports.modifyQuantity = async (req, res) => {
     }
 };
 
-// ---------------------------------------------------------------------------------------------------Elimina un artículo de la factura
+// ---------------------------------------------------------------------------------------------------ELIMINAR ARTICULO DE LA FACTURA===============================================================================
 exports.deleteItemFromInvoice = async (req, res) => {
     const { cod_barra } = req.body;
 
@@ -303,7 +295,7 @@ exports.deleteItemFromInvoice = async (req, res) => {
     }
 };
 
-// ----------------------------------------------------------------------------------------------------------Obtener lista de productos
+// ----------------------------------------------------------------------------------------------------------OBTENER LISTA DE PRODUCTOS==============================================================================
 exports.getProducts = async (req, res) => {
     try {
         const products = await Product.find();
@@ -315,7 +307,7 @@ exports.getProducts = async (req, res) => {
 
 
 
-// ---------------------------------------------------------------------------------------------------------Obtener lista de usuarios
+// ---------------------------------------------------------------------------------------------------------OBTENER LISTA DE USUARIOS===================================================================================
 exports.getUsers = async (req, res) => {
     try {
         const users = await User.find();
