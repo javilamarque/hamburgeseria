@@ -67,7 +67,12 @@ exports.renderCajaPage = async (req, res) => {
         const datosCaja = await Caja.findOne().sort({ fecha_apertura: -1 });
 
         if (!datosCaja) {
-            return res.status(404).send('Primero debe Abrir la Caja!!!');
+            return res.status(404).send(`
+                <script>
+                    alert('La Caja aún se Encuentra Cerrada! ');
+                    window.location.href = '/sales';
+                </script>
+            `);
         }
 
         const valorApertura = parseFloat(datosCaja.apertura);

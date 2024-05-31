@@ -70,6 +70,18 @@ exports.renderSaleViews = async (req, res) => {
 
 // ----------------------------------------------------------------------------------------------------------CREAR VENTAS----------------------------------------------------------------------------------------
 exports.createSale = async (req, res) => {
+
+    // Verificar si la caja está abierta
+    const caja = await Caja.findOne().sort({ fecha_apertura: -1 }).exec();
+    if (!caja || caja.cierre_parcial) {
+        return res.status(400).send(`
+            <script>
+                alert('No se Puede Realizar la Venta, debe Haber una caja abierta previamente');
+                window.location.href = '/sales';
+            </script>
+        `);
+    }
+
     try {
         const { items, total, vendedor, pago } = req.body;
         if (!items || Object.keys(items).length === 0) {
@@ -82,6 +94,8 @@ exports.createSale = async (req, res) => {
             const cantidad = parseInt(item.cantidad);
             const precio = parseFloat(item.precio);
             const total = parseFloat(item.total);
+
+            
 
             if (isNaN(cod_barra) || isNaN(cantidad) || isNaN(precio) || isNaN(total)) {
                 throw new Error('Datos de item no válidos');
@@ -135,7 +149,12 @@ exports.createSale = async (req, res) => {
         const caja = await Caja.findOne().sort({ fecha_apertura: -1 }).exec();
 
         if (!caja) {
-            return res.status(500).json({ message: 'No se encontró una caja abierta.' });
+            return res.status(500).send(`
+                <script>
+                    alert('No se Encontro una Caja Abierta');
+                    window.location.href = '/sales';
+                </script>
+            `);
         }
 
         if (pago === 'Mercado Pago') {
