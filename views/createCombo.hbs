@@ -2,7 +2,144 @@
 
 
 
+<div class="container">
+    <h1 class="mt-5">Crear Combo</h1>
 
+    <div id="items-section" class="mt-3 d-none">
+        <!-- Contenedor dinámico para productos -->
+        <div id="productos-container"></div>
+        <button type="button" id="agregar-producto-btn" class="btn btn-secondary mt-2">Agregar Producto</button>
+    </div>
+
+    <div id="precio-section" class="mt-3 d-none">
+        <div class="form-group row justify-content-end">
+            <div class="col-md-6">
+                <input type="number" id="precio-combo" class="form-control" placeholder="Precio del Combo">
+            </div>
+            <div class="col-md-4">
+                <button type="button" id="agregar-precio-btn" class="btn btn-success ml-2">Agregar Precio</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed-bottom mb-3 ml-3">
+        <button id="cancelar-btn" class="btn btn-danger">Cancelar</button>
+        <button id="agregar-items-btn" class="btn btn-primary ml-2">Agregar Items</button>
+    </div>
+</div>
+
+<!-- Modal para seleccionar productos -->
+<div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productModalLabel">Seleccionar Producto</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Código de Barras</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Seleccionar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productList">
+                        <!-- Aquí se cargarán los productos -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Mostrar secciones de items y precio al hacer clic en "Agregar Items"
+        $('#agregar-items-btn').click(function () {
+            $('#items-section').removeClass('d-none');
+            $('#precio-section').removeClass('d-none');
+        });
+
+        // Funcionalidad del botón "Cancelar"
+        $('#cancelar-btn').click(function () {
+            window.location.href = '/home';
+        });
+
+        // Añadir nuevo campo de producto
+        $('#agregar-producto-btn').click(function () {
+            const productoRow = `
+                    <div class="form-group row align-items-center mt-2">
+                        <div class="col-md-8">
+                            <input type="text" class="form-control producto-seleccionado" placeholder="Seleccione un producto" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-secondary seleccionar-producto-btn">Seleccionar Producto</button>
+                        </div>
+                    </div>
+                `;
+            $('#productos-container').append(productoRow);
+        });
+
+        // Abrir el modal de selección de producto al hacer clic en el botón "Seleccionar Producto"
+        $(document).on('click', '.seleccionar-producto-btn', function () {
+            const productoInput = $(this).closest('.row').find('.producto-seleccionado');
+            const modalButton = $(this);
+
+            $.get('/sales/products', function (products) {
+                $('#productList').empty();
+                products.forEach(function (product) {
+                    let row = `
+                            <tr>
+                                <td>${product.cod_barra}</td>
+                                <td>${product.descripcion}</td>
+                                <td>${product.precio_venta}</td>
+                                <td>${product.stock}</td>
+                                <td>
+                                    <button type="button" class="btn btn-primary seleccionar-producto" 
+                                        data-cod_barra="${product.cod_barra}" 
+                                        data-descripcion="${product.descripcion}" 
+                                        data-precio="${product.precio_venta}">
+                                        Seleccionar
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    $('#productList').append(row);
+                });
+                $('#productModal').modal('show');
+
+                // Seleccionar un producto del modal
+                $(document).off('click', '.seleccionar-producto').on('click', '.seleccionar-producto', function () {
+                    let descripcion = $(this).data('descripcion');
+                    productoInput.val(descripcion);
+                    $('#productModal').modal('hide');
+                });
+            }).fail(function () {
+                alert('Error al cargar los productos');
+            });
+        });
+
+        // Añadir precio al combo
+        $('#agregar-precio-btn').click(function () {
+            const precioCombo = $('#precio-combo').val();
+            // Aquí puedes realizar la lógica para agregar el precio al combo
+            alert('Precio del Combo: ' + precioCombo);
+        });
+    });
+</script>
 
 
 

@@ -143,3 +143,7 @@ exports.seleccionarProducto = async (req, res) => {
         res.status(500).json({ message: 'Error al seleccionar el producto' });
     }
 };
+
+exports.rendeComboPage = async (req, res) => {
+    res.rende('createCombo')
+}

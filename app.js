@@ -9,6 +9,7 @@ const productRoute = require('./routes/productRoute');
 const logoutRoute = require('./routes/logoutRoute');
 const ventaRoute = require('./routes/ventaRoute');
 const cajaRoute = require('./routes/cajaRoute')
+const comboRoute = require('./routes/comboRoute')
 const handlebarsMoment = require('handlebars.moment');
 
 const app = express();
@@ -47,11 +48,16 @@ app.get('/login', (req, res) => {
     res.render('login');
 });
 
+app.get('/createCombo', (req, res) => {
+    res.render('createCombo');
+})
+
 app.use('/', userRoute);
 app.use('/', productRoute);
 app.use('/', ventaRoute);
 app.use('/', logoutRoute);
 app.use('/', cajaRoute)
+app.use('/', comboRoute)
 
 require('dotenv').config({ path: './.env' });
 
