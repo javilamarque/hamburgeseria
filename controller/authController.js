@@ -19,10 +19,10 @@ exports.loginUser = async (req, res) => {
         }
 
         // Determine user role based on username
-        let userRole = 'empleado';
-        if (username === 'javi') {
-            userRole = 'admin';
-        }
+        // let userRole = 'empleado';
+        // if (username === 'javi') {
+        //     userRole = 'admin';
+        // }
 
         // Redirect to different pages based on user role
         if (userRole === 'admin') {
