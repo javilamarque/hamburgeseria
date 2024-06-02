@@ -1,62 +1,54 @@
 {{>header}}
 
-
-
 <div class="container">
-    <h1 class="mt-5 text-center">Crear Combo</h1>
+    <h1 class="mt-5 text-center">Combos Creados</h1>
 
-    <div class="mt-3">
-        <input type="text" id="nombre-combo" class="form-control mx-auto" style="max-width: 300px;"
-            placeholder="INGRESE NOMBRE DEL COMBO" required>
-    </div>
-
-    <div id="items-section" class="mt-3 text-center">
-        <!-- Contenedor dinámico para productos -->
-        <div id="productos-container"></div>
-        <button type="button" id="agregar-producto-btn" class="btn btn-secondary mt-2">Agregar Producto</button>
-    </div>
-
-    <div id="precio-section" class="mt-3 text-center">
-        <div class="row justify-content-center">
-            <div class="col-md-4 mb-2">
-                <input type="text" id="codigo-barra" class="form-control" placeholder="Código de Barra" required>
-            </div>
-            <div class="col-md-4">
-                <input type="number" id="precio-combo" class="form-control" placeholder="Precio del Combo" required>
-            </div>
-        </div>
-    </div>
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Código de Barra</th>
+                <th>Precio</th>
+                <th>Productos</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="combos-table-body">
+            <!-- Aquí se cargarán los combos -->
+        </tbody>
+    </table>
 
     <div class="mt-4 mb-3 text-center">
         <button id="cancelar-btn" class="btn btn-danger">Cancelar</button>
-        <button id="agregar-items-btn" class="btn btn-primary ms-2">Agregar Items</button>
         <button id="guardar-btn" class="btn btn-success ms-2">Guardar</button>
     </div>
 </div>
 
-<!-- Modal para seleccionar productos -->
-<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<!-- Modal para editar combos -->
+<div class="modal fade" id="editComboModal" tabindex="-1" aria-labelledby="editComboModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="productModalLabel">Seleccionar Producto</h5>
+                <h5 class="modal-title" id="editComboModalLabel">Editar Combo</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Código de Barras</th>
-                            <th>Descripción</th>
-                            <th>Precio</th>
-                            <th>Stock</th>
-                            <th>Seleccionar</th>
-                        </tr>
-                    </thead>
-                    <tbody id="productList">
-                        <!-- Aquí se cargarán los productos -->
-                    </tbody>
-                </table>
+                <input type="hidden" id="edit-combo-id">
+                <div class="mb-3">
+                    <input type="text" id="edit-nombre-combo" class="form-control" placeholder="Nombre del Combo"
+                        required>
+                </div>
+                <div class="mb-3">
+                    <input type="text" id="edit-codigo-barra" class="form-control" placeholder="Código de Barra"
+                        required>
+                </div>
+                <div class="mb-3">
+                    <input type="number" id="edit-precio-combo" class="form-control" placeholder="Precio del Combo"
+                        required>
+                </div>
+                <div id="edit-productos-container"></div>
+                <button type="button" id="edit-agregar-producto-btn" class="btn btn-secondary mt-2">Agregar
+                    Producto</button>
             </div>
         </div>
     </div>
@@ -68,78 +60,115 @@
 
 <script>
     $(document).ready(function () {
-        // Mostrar secciones de items y precio al hacer clic en "Agregar Items"
-        $('#agregar-items-btn').click(function () {
-            $('#items-section').removeClass('d-none');
-            $('#precio-section').removeClass('d-none');
-        });
+        // Obtener y mostrar todos los combos
+        function loadCombos() {
+            $.get('/combos', function (combos) {
+                const tableBody = $('#combos-table-body');
+                tableBody.empty();
+                combos.forEach(function (combo) {
+                    const comboRow = `
+                        <tr data-combo-id="${combo._id}">
+                            <td>${combo.nombre}</td>
+                            <td>${combo.codigoBarra}</td>
+                            <td>${combo.precio}</td>
+                            <td>
+                                <ul>${combo.productos.map(producto => `<li>${producto.descripcion}</li>`).join('')}</ul>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary me-2" onclick="openEditModal('${combo._id}')">Editar</button>
+                                <button class="btn btn-danger" onclick="deleteCombo('${combo._id}')">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.append(comboRow);
+                });
+            }).fail(function () {
+                alert('Error al obtener los combos');
+            });
+        }
+
+        loadCombos();
 
         // Funcionalidad del botón "Cancelar"
         $('#cancelar-btn').click(function () {
             window.location.href = '/home';
         });
 
-        // Añadir nuevo campo de producto
-        $('#agregar-producto-btn').click(function () {
-            const productoRow = `
-                <div class="row justify-content-center align-items-center mt-2">
-                        <div class="col-md-6">
-                            <input type="text" class="form-control mb-2 producto-seleccionado" placeholder="Seleccione un producto" readonly>
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-primary seleccionar-producto-btn mb-2 w-100">Seleccionar Producto</button>
-                        </div>
-                    </div>
-            `;
-            $('#productos-container').append(productoRow);
-        });
-
-        // Abrir el modal de selección de producto al hacer clic en el botón "Seleccionar Producto"
-        $(document).on('click', '.seleccionar-producto-btn', function () {
-            const productoInput = $(this).closest('.row').find('.producto-seleccionado');
-
-            $.get('/sales/products', function (products) {
-                $('#productList').empty();
-                products.forEach(function (product) {
-                    let row = `
-                        <tr>
-                            <td>${product.cod_barra}</td>
-                            <td>${product.descripcion}</td>
-                            <td>${product.precio_venta}</td>
-                            <td>${product.stock}</td>
-                            <td>
-                                <button type="button" class="btn btn-primary seleccionar-producto" 
-                                    data-cod_barra="${product.cod_barra}" 
-                                    data-descripcion="${product.descripcion}" 
-                                    data-precio="${product.precio_venta}">
-                                    Seleccionar
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                    $('#productList').append(row);
-                });
-                $('#productModal').modal('show');
-
-                // Seleccionar un producto del modal
-                $(document).off('click', '.seleccionar-producto').on('click', '.seleccionar-producto', function () {
-                    let descripcion = $(this).data('cod_barra');
-                    productoInput.val(descripcion);
-                    $('#productModal').modal('hide');
-                });
-            }).fail(function () {
-                alert('Error al cargar los productos');
-            });
-        });
-
-        // Validar y guardar el combo
+        // Guardar cambios
         $('#guardar-btn').click(function () {
-            const nombreCombo = $('#nombre-combo').val();
-            const codigoBarra = $('#codigo-barra').val();
-            const precioCombo = $('#precio-combo').val();
+            alert('Se han guardado las modificaciones');
+            loadCombos();
+        });
+
+        // Abrir modal para editar combo
+        window.openEditModal = function (comboId) {
+            $.get(`/combos/${comboId}`, function (combo) {
+                $('#edit-combo-id').val(combo._id);
+                $('#edit-nombre-combo').val(combo.nombre);
+                $('#edit-codigo-barra').val(combo.codigoBarra);
+                $('#edit-precio-combo').val(combo.precio);
+                $('#edit-productos-container').empty();
+
+                combo.productos.forEach(function (producto) {
+                    addEditProductRow(producto.descripcion);
+                });
+
+                $('#editComboModal').modal('show');
+            }).fail(function () {
+                alert('Error al obtener los detalles del combo');
+            });
+        }
+
+        // Añadir nuevo campo de producto en el modal de edición
+        $('#edit-agregar-producto-btn').click(function () {
+            addEditProductRow();
+        });
+
+        function addEditProductRow(description = '') {
+            const productoRow = `
+                <div class="row justify-content-center align-items-center mt-2 ">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control mb-2 edit-producto-seleccionado" value="${description}" placeholder="Seleccione un producto" readonly>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-primary seleccionar-producto-btn mb-2 w-100">Seleccionar Producto</button>
+                    </div>
+                </div>
+            `;
+            $('#edit-productos-container').append(productoRow);
+        }
+
+        // Eliminar combo
+        window.deleteCombo = function (comboId) {
+            if (confirm('¿Está seguro de que desea eliminar este combo?')) {
+                $.ajax({
+                    type: 'DELETE',
+                    url: `/combos/${comboId}`,
+                    success: function () {
+                        alert('Combo eliminado exitosamente');
+                        loadCombos();
+                    },
+                    error: function (error) {
+                        alert('Error al eliminar el combo');
+                        console.error(error);
+                    }
+                });
+            }
+        }
+
+        // Actualizar combo
+        $('#editComboModal').find('.btn-close, .modal-footer .btn-secondary').click(function () {
+            $('#editComboModal').modal('hide');
+        });
+
+        $('#editComboModal').find('.modal-footer .btn-primary').click(function () {
+            const comboId = $('#edit-combo-id').val();
+            const nombreCombo = $('#edit-nombre-combo').val();
+            const codigoBarra = $('#edit-codigo-barra').val();
+            const precioCombo = $('#edit-precio-combo').val();
             const productos = [];
 
-            $('.producto-seleccionado').each(function () {
+            $('.edit-producto-seleccionado').each(function () {
                 if ($(this).val() !== '') {
                     productos.push($(this).val());
                 }
@@ -158,16 +187,17 @@
             };
 
             $.ajax({
-                type: 'POST',
-                url: '/combos',
+                type: 'PUT',
+                url: `/combos/${comboId}`,
                 data: JSON.stringify(comboData),
                 contentType: 'application/json',
-                success: function (response) {
-                    alert('Combo guardado exitosamente');
-                    window.location.href = '/home';
+                success: function () {
+                    alert('Combo actualizado exitosamente');
+                    $('#editComboModal').modal('hide');
+                    loadCombos();
                 },
                 error: function (error) {
-                    alert('Error al guardar el combo');
+                    alert('Error al actualizar el combo');
                     console.error(error);
                 }
             });
@@ -175,12 +205,25 @@
     });
 </script>
 
-<style>
-    .custom-width-input {
-        max-width: 300px;
-        /* Ajusta el valor según necesites */
-        margin-left: 500px;
-    }
-</style>
-
 {{>footer}}
+
+
+
+
+
+
+
+{{!-- <script>
+    $(document).ready(function () {
+        // Obtener todos los combos y mostrar sus productos
+        $.get('/combos', function (combos) {
+            combos.forEach(function (combo) {
+                console.log('Combo:', combo.nombre);
+                console.log('Productos:');
+                combo.productos.forEach(function (producto) {
+                    console.log('Descripción:', producto.descripcion);
+                });
+            });
+        });
+    });
+</script> --}}
