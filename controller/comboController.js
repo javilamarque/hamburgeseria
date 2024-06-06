@@ -104,7 +104,14 @@ exports.getComboById = async (req, res) => {
 exports.getAllCombos = async (req, res) => {
     try {
         const combos = await Combo.find().populate('productos', 'descripcion');
-        res.json(combos);
+        const formattedCombos = combos.map(combo => ({
+            _id: combo._id,
+            nombre: combo.nombre,
+            productos: combo.productos,
+            precio: combo.precio,
+            codigoBarra: combo.codigoBarra
+        }));
+        res.json(formattedCombos);
     } catch (error) {
         console.error('Error al obtener los combos:', error);
         res.status(500).send('Error al obtener los combos');

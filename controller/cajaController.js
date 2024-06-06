@@ -35,18 +35,14 @@ exports.abrirCaja = async (req, res) => {
 
 exports.calcularTotalesVentasDia = async () => {
     try {
-        // Obtener la fecha actual
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        // Buscar todas las ventas del día actual
         const ventasDelDia = await VentaModel.find({ f_factura: { $gte: today } });
 
-        // Inicializar totales
         let totalEfectivo = 0;
         let totalTransferencia = 0;
 
-        // Sumar los totales de las ventas del día según el tipo de pago
         ventasDelDia.forEach(venta => {
             if (venta.tipo_pago === 'Mercado Pago') {
                 totalTransferencia += venta.total;
@@ -77,18 +73,11 @@ exports.renderCajaPage = async (req, res) => {
 
         const valorApertura = parseFloat(datosCaja.apertura);
 
-        // Calcular los totales de ventas del día
         const { totalEfectivo, totalTransferencia } = await exports.calcularTotalesVentasDia();
 
         const totalFinal = valorApertura + totalEfectivo - parseFloat(datosCaja.cierre_parcial);
 
-        const formatDecimal = (num) => {
-            if (typeof num === 'number' && !isNaN(num)) {
-                return num.toFixed(2);
-            } else {
-                return '';
-            }
-        };
+        const formatDecimal = (num) => (typeof num === 'number' && !isNaN(num)) ? num.toFixed(2) : '';
 
         const caja = {
             apertura: formatDecimal(valorApertura),
@@ -106,26 +95,19 @@ exports.renderCajaPage = async (req, res) => {
     }
 };
 
-
-//-----------------------------------------------------------------------------CIERRE PARCIAL
 exports.procesarCierreParcial = async (req, res) => {
     try {
         const { cierre_parcial } = req.body;
 
-        // Verificar si el valor de cierre_parcial es un número
         if (isNaN(parseFloat(cierre_parcial))) {
             return res.status(400).send('El valor de cierre parcial no es un número válido.');
         }
 
-        // Obtener los datos de la caja
         const datosCaja = await exports.obtenerDatosCaja();
 
-
-        // Actualizar cierre parcial y total final
         datosCaja.cierre_parcial += parseFloat(cierre_parcial);
         datosCaja.total_final = datosCaja.apertura + datosCaja.total_ventas_dia - datosCaja.cierre_parcial;
 
-        // Guardar los datos en la base de datos
         await datosCaja.save();
 
         res.status(200).send('Cierre parcial procesado correctamente.');

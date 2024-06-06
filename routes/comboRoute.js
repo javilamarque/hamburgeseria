@@ -24,6 +24,12 @@ router.get('/combos', comboController.getAllCombos);
 // Ruta para obtener un combo por su ID
 router.get('/combos/:id', comboController.getComboById);
 
+// Ruta para obtener todos los combos
+router.get('/sales/combos', comboController.getAllCombos);
+
+// Ruta para obtener un combo por su ID
+router.get('/sales/combos/:id', comboController.getComboById);
+
 // Ruta para renderizar la vista viewCombos
 router.get('/viewCombo', (req, res) => {
     res.render('viewCombo');
