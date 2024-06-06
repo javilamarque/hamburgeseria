@@ -171,32 +171,32 @@
             }
 
             function abrirModalCombo() {
-                $.get('/sales/combos', function (combos) {
-                    $('#comboList').empty();
-                    combos.forEach(function (combo) {
-                        let row = `
-                <tr>
-                    <td>${combo.nombre}</td>
-                    <td>
-                        <ul>
-                            ${combo.productos.map(producto => `<li>${producto.descripcion}</li>`).join('')}
-                        </ul>
-                    </td>
-                    <td>${combo.precio}</td>
-                    <td>
-                        <button type="button" class="btn btn-primary seleccionar-combo" data-combo-id="${combo._id}" data-combo-precio="${combo.precio}" data-combo-cod_barra="${combo.codigoBarra}">
-                            Seleccionar
-                        </button>
-                    </td>
-                </tr>
-                `;
-                        $('#comboList').append(row);
-                    });
-                    $('#comboModal').modal('show');
-                }).fail(function () {
-                    alert('Error al cargar los combos');
+            $.get('/sales/combos', function (combos) {
+                $('#comboList').empty();
+                combos.forEach(function (combo) {
+                    let row = `
+                        <tr>
+                            <td>${combo.nombre}</td>
+                            <td>
+                                <ul>
+                                    ${combo.productos.map(producto => `<li>${producto.descripcion}</li>`).join('')}
+                                </ul>
+                            </td>
+                            <td>${combo.precio}</td>
+                            <td>
+                                <button type="button" class="btn btn-primary seleccionar-combo" data-combo-id="${combo._id}" data-combo-precio="${combo.precio}" data-combo-cod_barra="combo_${combo._id}">
+                                    Seleccionar
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    $('#comboList').append(row);
                 });
-            }
+                $('#comboModal').modal('show');
+            }).fail(function () {
+                alert('Error al cargar los combos');
+            });
+        }
 
             $(document).on('click', '.seleccionar-producto', function () {
                 let cod_barra = $(this).data('cod_barra');
@@ -228,32 +228,32 @@
             });
 
             $(document).on('click', '.seleccionar-combo', function () {
-                let comboId = $(this).data('combo-id');
-                let comboPrecio = $(this).data('combo-precio');
-                let comboCodBarra = $(this).data('combo-cod_barra');
+            let comboId = $(this).data('combo-id');
+            let comboPrecio = $(this).data('combo-precio');
+            let comboCodBarra = $(this).data('combo-cod_barra');
 
-                $.get(`/sales/combos/${comboId}`, function (combo) {
-                    let productosDescripcion = combo.productos.map(producto => producto.descripcion).join(', ');
-                    let tbody = $('#productosEncontrados');
-                    let row = `
-                <tr data-cod_barra="${comboCodBarra}">
-                    <td class="cantidad">1</td>
-                    <td class="cod_barra">${comboCodBarra}</td>
-                    <td class="descripcion">${productosDescripcion}</td>
-                    <td class="precio">${comboPrecio}</td>
-                    <td class="total">${comboPrecio}</td>
-                    <td><button type="button" onclick="editarCantidad('${comboCodBarra}')" class="btn btn-primary">Editar Cantidad</button></td>
-                    <td><button type="button" onclick="borrarArticulo(this)" class="btn btn-danger">Borrar</button></td>
-                </tr>
-            `;
-                    tbody.append(row);
-                    $('#comboModal').modal('hide');
-                    actualizarTotal();
-                    toggleConfirmButton();
-                }).fail(function () {
-                    alert('Error al cargar los productos del combo');
-                });
+            $.get(`/sales/combos/${comboId}`, function (combo) {
+                let productosDescripcion = combo.productos.map(producto => producto.descripcion).join(', ');
+                let tbody = $('#productosEncontrados');
+                let row = `
+                    <tr data-cod_barra="${comboCodBarra}">
+                        <td class="cantidad">1</td>
+                        <td class="cod_barra">${comboCodBarra}</td>
+                        <td class="descripcion">${productosDescripcion}</td>
+                        <td class="precio">${comboPrecio}</td>
+                        <td class="total">${comboPrecio}</td>
+                        <td><button type="button" onclick="editarCantidad('${comboCodBarra}')" class="btn btn-primary">Editar Cantidad</button></td>
+                        <td><button type="button" onclick="borrarArticulo(this)" class="btn btn-danger">Borrar</button></td>
+                    </tr>
+                `;
+                tbody.append(row);
+                $('#comboModal').modal('hide');
+                actualizarTotal();
+                toggleConfirmButton();
+            }).fail(function () {
+                alert('Error al cargar los productos del combo');
             });
+        });
 
             $('#buscar-btn').click(function () {
                 abrirModal();
@@ -328,7 +328,6 @@
                 }
             });
 
-            console.log('Datos del formulario:', $('#sale-form').serialize());
             document.getElementById('total').value = document.getElementById('totalCobrar').textContent;
             document.getElementById('sale-form').submit();
         });

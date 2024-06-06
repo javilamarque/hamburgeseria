@@ -3,6 +3,7 @@ const VentaModel = require('../models/venta');
 const User = require('../models/user');
 const Caja = require('../models/caja');
 const moment = require('moment');
+const Combo = require('../models/combo');
 
 exports.seleccionarProducto = async (req, res) => {
     const { cod_barra, descripcion, precio } = req.body;
@@ -59,44 +60,24 @@ exports.renderSaleViews = async (req, res) => {
 };
 
 exports.createSale = async (req, res) => {
-    try {
-        const { items, total, vendedor, pago } = req.body;
+    const { vendedor, pago, items } = req.body;
+    const ventaTotal = parseFloat(req.body.total);
 
-        if (!items || Object.keys(items).length === 0) {
-            throw new Error('La lista de items no es válida.');
+    try {
+        if (!items || items.length === 0) {
+            return res.status(400).json({ message: 'Datos de venta no válidos' });
         }
 
-        const processedItems = await Promise.all(Object.values(items).map(async (item, index) => {
-            const cod_barra = parseInt(item.cod_barra);
-            const cantidad = parseInt(item.cantidad);
-            const precio = parseFloat(item.precio);
-            const total = parseFloat(item.total);
-
-            if (isNaN(cod_barra) || isNaN(cantidad) || isNaN(precio) || isNaN(total)) {
-                throw new Error('Datos de item no válidos');
-            }
-
-            if (!cod_barra) {
-                throw new Error(`El código de barra del item ${index + 1} es inválido.`);
-            }
-
-            const product = await Product.findOne({ cod_barra });
-            if (!product) {
-                throw new Error(`Producto con código ${cod_barra} no encontrado`);
-            }
-
-            return {
-                cod_barra,
-                descripcion: product.descripcion,
-                cantidad,
-                precio,
-                total
-            };
+        const processedItems = items.map(item => ({
+            cod_barra: item.cod_barra,
+            descripcion: item.descripcion,
+            cantidad: parseFloat(item.cantidad),
+            precio: parseFloat(item.precio),
+            total: parseFloat(item.total)
         }));
 
-        const ventaTotal = parseFloat(total);
-        if (isNaN(ventaTotal) || typeof vendedor !== 'string' || !['Efectivo', 'Mercado Pago'].includes(pago)) {
-            throw new Error('Datos de venta no válidos');
+        if (processedItems.some(item => isNaN(item.cantidad) || isNaN(item.precio) || isNaN(item.total))) {
+            return res.status(400).json({ message: 'Datos de venta no válidos' });
         }
 
         const nuevaVenta = new VentaModel({
@@ -111,14 +92,36 @@ exports.createSale = async (req, res) => {
         await nuevaVenta.save();
 
         for (let item of processedItems) {
-            const product = await Product.findOne({ cod_barra: item.cod_barra });
+            if (item.cod_barra.startsWith('combo_')) {
+                // Handle combo items
+                const comboId = item.cod_barra.split('_')[1];
+                const combo = await Combo.findById(comboId).populate('productos');
 
-            if (!product) {
-                return res.status(404).json({ message: `Producto con código ${item.cod_barra} no encontrado` });
+                if (!combo) {
+                    return res.status(404).json({ message: `Combo con ID ${comboId} no encontrado` });
+                }
+
+                for (let product of combo.productos) {
+                    const productInDb = await Product.findOne({ cod_barra: product.cod_barra });
+
+                    if (!productInDb) {
+                        return res.status(404).json({ message: `Producto con código ${product.cod_barra} no encontrado` });
+                    }
+
+                    productInDb.stock -= item.cantidad;
+                    await productInDb.save();
+                }
+            } else {
+                // Handle individual items
+                const product = await Product.findOne({ cod_barra: item.cod_barra });
+
+                if (!product) {
+                    return res.status(404).json({ message: `Producto con código ${item.cod_barra} no encontrado` });
+                }
+
+                product.stock -= item.cantidad;
+                await product.save();
             }
-
-            product.stock -= item.cantidad;
-            await product.save();
         }
 
         const caja = await Caja.findOne().sort({ fecha_apertura: -1 }).exec();
