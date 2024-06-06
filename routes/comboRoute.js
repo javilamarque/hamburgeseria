@@ -3,6 +3,8 @@ const router = express.Router();
 const productController = require('../controller/productController')
 const comboController = require('../controller/comboController')
 
+// Ruta para obtener todos los productos
+router.get('/productos', productController.getAllProductsCombo);
 
 // Ruta para obtener todos los productos
 router.get('/sales/products', productController.getAllProducts);

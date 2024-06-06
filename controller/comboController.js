@@ -111,8 +111,10 @@ exports.getAllCombos = async (req, res) => {
     }
 };
 
+
+
 // Controlador para obtener todos los productos
-exports.getProducts = async (req, res) => {
+exports.getAllProducts = async (req, res) => { // Actualizado
     try {
         const products = await Product.find();
         res.json(products);

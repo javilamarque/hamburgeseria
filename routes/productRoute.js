@@ -9,6 +9,7 @@ router.get('/products/:codigoDeBarras/edit', productController.getEditProductPag
 router.put('/products/:codigoDeBarras', productController.updateProduct);
 router.delete('/products/:codigoDeBarras', productController.deleteProductByBarcode);
 router.get('/products', productController.renderProductsPage);
+router.get('/products/search', productController.searchProduct);
 
 
 module.exports = router;

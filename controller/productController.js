@@ -11,6 +11,17 @@ exports.getAllProducts = async (req, res) => {
     }
 };
 
+
+// Obtener todos los productos
+exports.getAllProductsCombo = async (req, res) => {
+    try {
+        const products = await Product.find();
+        res.json(products); // Devolver los productos como JSON
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener los productos' });
+    }
+};
+
 // Crear un nuevo producto
 exports.createProduct = async (req, res) => {
     const { cod_barra, descripcion, stock, costo, precio_venta, fecha } = req.body;
@@ -147,3 +158,16 @@ exports.seleccionarProducto = async (req, res) => {
 exports.rendeComboPage = async (req, res) => {
     res.rende('createCombo')
 }
+
+
+//-----------------------------------------------------------------------------------------------------BUSQUEDA DE PRODUCTO------------------------------------------------------
+exports.searchProduct = async (req, res) => {
+    try {
+        const { descripcion } = req.query;
+        const products = await Product.find({ descripcion: new RegExp(descripcion, 'i') }); // Buscar productos que coincidan parcialmente con la descripción
+        res.json(products);
+    } catch (error) {
+        console.error('Error al buscar productos:', error);
+        res.status(500).json({ message: 'Error al buscar productos' });
+    }
+};

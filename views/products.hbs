@@ -2,6 +2,14 @@
 
 <div class="container">
     <h1>Lista de Productos</h1>
+    <div class="row mb-3 justify-content-center">
+        <div class="col-md-4 ">
+            <input type="text" id="searchInput" class="form-control" placeholder="Buscar producto por descripción">
+        </div>
+        <div class="col-md-2">
+            <button id="searchButton" class="btn btn-primary">Buscar</button>
+        </div>
+    </div>
     <table class="table">
         <thead>
             <tr>
@@ -36,8 +44,6 @@
 <a href="/newProduct" class="btn btn-success">Crear Nuevo Producto</a>
 <a href="/sales" class="btn btn-success">Ir a Ventas</a>
 
-
-
 <script>
     async function deleteProduct(codigoDeBarras) {
         if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
@@ -59,6 +65,40 @@
             }
         }
     }
+
+    document.getElementById('searchButton').addEventListener('click', async function () {
+        const searchQuery = document.getElementById('searchInput').value;
+        try {
+            const response = await fetch(`/products/search?descripcion=${searchQuery}`);
+            if (response.ok) {
+                const products = await response.json();
+                const tableBody = document.getElementById('productsTableBody');
+                tableBody.innerHTML = ''; // Limpiar la tabla existente
+                products.forEach(product => {
+                    const row = `
+                        <tr id="product-${product.cod_barra}">
+                            <td>${product.cod_barra}</td>
+                            <td>${product.descripcion}</td>
+                            <td>${product.stock}</td>
+                            <td>${product.costo}</td>
+                            <td>${product.precio_venta}</td>
+                            <td>${product.fecha}</td>
+                            <td>
+                                <a href="/products/${product.cod_barra}/edit" class="btn btn-info">Editar</a>
+                                <button onclick="deleteProduct('${product.cod_barra}')" class="btn btn-danger">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+            } else {
+                alert('Error al buscar los productos');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al buscar los productos');
+        }
+    });
 </script>
 
 {{> footer}}
