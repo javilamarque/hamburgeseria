@@ -3,7 +3,7 @@
 <div class="container">
     <h1 class="mt-5">Consultar Ventas</h1>
     <table class="table table-striped mt-3">
-        <thead>
+        <thead class="table-success">
             <tr>
                 <th>N° Fact</th>
                 <th>Cantidad</th>
@@ -28,9 +28,22 @@
             {{/each}}
         </tbody>
     </table>
+    <div class="volver">
+    <a href="/sales" class="btn btn-primary">Ir a Ventas</a>
+    <a href="/home" class="btn btn-warning">Ir a Inicio</a>
+    </div>
 </div>
 
-<a href="/sales" class="btn btn-success">Ir a Ventas</a>
+
+<style>
+    .volver {
+        text-align: center;
+        margin-top: 10px;
+        margin-bottom: 150px;
+    }
+</style>
 
 
 {{>footer}}
+
+

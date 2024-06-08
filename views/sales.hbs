@@ -140,16 +140,16 @@
 
 <script>
     $(document).ready(function () {
-            $('.btn-close').click(function () {
-                $('#productModal').modal('hide');
-                $('#comboModal').modal('hide');
-            });
+        $('.btn-close').click(function () {
+            $('#productModal').modal('hide');
+            $('#comboModal').modal('hide');
+        });
 
-            function abrirModal() {
-                $.get('/sales/products', function (products) {
-                    $('#productList').empty();
-                    products.forEach(function (product) {
-                        let row = `
+        function abrirModal() {
+            $.get('/sales/products', function (products) {
+                $('#productList').empty();
+                products.forEach(function (product) {
+                    let row = `
                     <tr>
                         <td>${product.cod_barra}</td>
                         <td>${product.descripcion}</td>
@@ -162,15 +162,15 @@
                         </td>
                     </tr>
                 `;
-                        $('#productList').append(row);
-                    });
-                    $('#productModal').modal('show');
-                }).fail(function () {
-                    alert('Error al cargar los productos');
+                    $('#productList').append(row);
                 });
-            }
+                $('#productModal').modal('show');
+            }).fail(function () {
+                alert('Error al cargar los productos');
+            });
+        }
 
-            function abrirModalCombo() {
+        function abrirModalCombo() {
             $.get('/sales/combos', function (combos) {
                 $('#comboList').empty();
                 combos.forEach(function (combo) {
@@ -198,19 +198,19 @@
             });
         }
 
-            $(document).on('click', '.seleccionar-producto', function () {
-                let cod_barra = $(this).data('cod_barra');
-                let descripcion = $(this).data('descripcion');
-                let precio = $(this).data('precio');
-                let stock = $(this).data('stock');
+        $(document).on('click', '.seleccionar-producto', function () {
+            let cod_barra = $(this).data('cod_barra');
+            let descripcion = $(this).data('descripcion');
+            let precio = $(this).data('precio');
+            let stock = $(this).data('stock');
 
-                if (stock <= 0) {
-                    alert('El producto no tiene stock');
-                    return;
-                }
+            if (stock <= 0) {
+                alert('El producto no tiene stock');
+                return;
+            }
 
-                let tbody = $('#productosEncontrados');
-                let row = `
+            let tbody = $('#productosEncontrados');
+            let row = `
             <tr data-cod_barra="${cod_barra}">
                 <td class="cantidad">1</td>
                 <td class="cod_barra">${cod_barra}</td>
@@ -221,13 +221,13 @@
                 <td><button type="button" onclick="borrarArticulo(this)" class="btn btn-danger">Borrar</button></td>
             </tr>
         `;
-                tbody.append(row);
-                $('#productModal').modal('hide');
-                actualizarTotal();
-                toggleConfirmButton();
-            });
+            tbody.append(row);
+            $('#productModal').modal('hide');
+            actualizarTotal();
+            toggleConfirmButton();
+        });
 
-            $(document).on('click', '.seleccionar-combo', function () {
+        $(document).on('click', '.seleccionar-combo', function () {
             let comboId = $(this).data('combo-id');
             let comboPrecio = $(this).data('combo-precio');
             let comboCodBarra = $(this).data('combo-cod_barra');
@@ -255,55 +255,55 @@
             });
         });
 
-            $('#buscar-btn').click(function () {
-                abrirModal();
-            });
+        $('#buscar-btn').click(function () {
+            abrirModal();
+        });
 
-            $('#buscar-combo-btn').click(function () {
-                abrirModalCombo();
-            });
+        $('#buscar-combo-btn').click(function () {
+            abrirModalCombo();
+        });
 
-            window.editarCantidad = function (cod_barra) {
-                let cantidad = prompt('Ingrese la nueva cantidad:');
-                if (cantidad !== null && cantidad > 0) {
-                    let row = $(`tr[data-cod_barra='${cod_barra}']`);
-                    let precio = parseFloat(row.find('.precio').text());
-                    row.find('.cantidad').text(cantidad);
-                    row.find('.total').text(precio * cantidad);
-                    actualizarTotal();
-                }
-            }
-
-            window.borrarArticulo = function (button) {
-                let row = button.closest('tr');
-                row.remove();
+        window.editarCantidad = function (cod_barra) {
+            let cantidad = prompt('Ingrese la nueva cantidad:');
+            if (cantidad !== null && cantidad > 0) {
+                let row = $(`tr[data-cod_barra='${cod_barra}']`);
+                let precio = parseFloat(row.find('.precio').text());
+                row.find('.cantidad').text(cantidad);
+                row.find('.total').text(precio * cantidad);
                 actualizarTotal();
-                toggleConfirmButton();
             }
+        }
 
-            function actualizarTotal() {
-                let totalCobrarElement = $('#totalCobrar');
-                let total = 0;
+        window.borrarArticulo = function (button) {
+            let row = button.closest('tr');
+            row.remove();
+            actualizarTotal();
+            toggleConfirmButton();
+        }
 
-                $('#productosEncontrados tr').each(function () {
-                    let cantidad = parseFloat($(this).find('.cantidad').text());
-                    let precio = parseFloat($(this).find('.precio').text());
-                    total += cantidad * precio;
-                });
+        function actualizarTotal() {
+            let totalCobrarElement = $('#totalCobrar');
+            let total = 0;
 
-                totalCobrarElement.text(total.toFixed(2));
-                $('#total').val(total.toFixed(2));
+            $('#productosEncontrados tr').each(function () {
+                let cantidad = parseFloat($(this).find('.cantidad').text());
+                let precio = parseFloat($(this).find('.precio').text());
+                total += cantidad * precio;
+            });
+
+            totalCobrarElement.text(total.toFixed(2));
+            $('#total').val(total.toFixed(2));
+        }
+
+        function toggleConfirmButton() {
+            if ($('#productosEncontrados tr').length > 0) {
+                $('#confirmar-venta-btn').show();
+            } else {
+                $('#confirmar-venta-btn').hide();
             }
+        }
 
-            function toggleConfirmButton() {
-                if ($('#productosEncontrados tr').length > 0) {
-                    $('#confirmar-venta-btn').show();
-                } else {
-                    $('#confirmar-venta-btn').hide();
-                }
-            }
-
-            document.getElementById('confirmar-venta-btn').addEventListener('click', (event) => {
+        document.getElementById('confirmar-venta-btn').addEventListener('click', (event) => {
             event.preventDefault();
 
             const itemsContainer = document.getElementById('items-container');
@@ -331,7 +331,7 @@
             document.getElementById('total').value = document.getElementById('totalCobrar').textContent;
             document.getElementById('sale-form').submit();
         });
-        });
+    });
 </script>
 
 
@@ -339,260 +339,3 @@
 
 
 
-
-
-{{!-- {{>header}}
-
-<div class="container">
-    <h1>Facturación</h1>
-    <form id="sale-form" action="/sales" method="POST">
-        <div class="form-group row">
-            <label for="factura" class="col-sm-2 col-form-label">Factura Numero:</label>
-            <div class="col-sm-4">
-                <input type="number" class="form-control" id="factura" name="factura" value="{{nextFactura}}" readonly>
-            </div>
-            <label for="vendedor" class="col-sm-2 col-form-label">Vendedor</label>
-            <div class="col-sm-4">
-                <select class="form-control" id="vendedor" name="vendedor" required>
-                    {{#each users}}
-                    <option value="{{this.username}}">{{this.username}}</option>
-                    {{/each}}
-                </select>
-            </div>
-        </div>
-
-        <div class="form-group row">
-            <label for="pago" class="col-sm-2 col-form-label">Tipo de Pago</label>
-            <div class="col-sm-4">
-                <select class="form-control" id="pago" name="pago" required>
-                    <option value="Efectivo">Efectivo</option>
-                    <option value="Mercado Pago">Mercado Pago</option>
-                </select>
-            </div>
-
-            <label for="fecha" class="col-sm-2 col-form-label">Fecha</label>
-            <div class="col-sm-4">
-                <input type="text" class="form-control" id="fecha" name="fecha"
-                    value="{{moment currentDatetime format='YYYY-MM-DD HH:mm:ss'}}" readonly>
-            </div>
-        </div>
-
-        <div class="form-group row">
-            <div class="col-md-6">
-                <button type="button" id="buscar-btn" class="btn btn-primary mt-2">Buscar Producto</button>
-                <button type="button" id="buscar-combo-btn" class="btn btn-warning mt-2">Buscar Combo</button>
-            </div>
-        </div>
-
-        <!-- Hidden inputs to hold the item data -->
-        <div id="items-container">
-            <!-- Items will be added here dynamically using JavaScript -->
-        </div>
-
-        <div class="total-container">
-            <h3>Total a Cobrar: $<span id="totalCobrar">0.00</span></h3>
-            <input type="hidden" id="total" name="total" value="">
-        </div>
-
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Cant</th>
-                    <th>Código de Barras</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
-                    <th>Total</th>
-                    <th>Editar</th>
-                    <th>Eliminar</th>
-                </tr>
-            </thead>
-            <tbody id="productosEncontrados">
-                <!-- Productos agregados aparecerán aquí -->
-            </tbody>
-        </table>
-        <div class="text-center">
-        <button type="button" id="confirmar-venta-btn" class="btn btn-success mt-2" style="display:none;">Confirmar
-            Venta</button>
-        </div>   
-    </form>
-    
-    <div class="mt-5">
-        <a href="/admin" class="btn btn-success">Ir a Pagina Pricipal</a>
-    </div>
-</div>
-
-<!-- Modal para seleccionar productos -->
-<div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="productModalLabel">Seleccionar Producto</h5>
-                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Código de Barras</th>
-                            <th>Descripción</th>
-                            <th>Precio</th>
-                            <th>Stock</th>
-                            <th>Seleccionar</th>
-                        </tr>
-                    </thead>
-                    <tbody id="productList">
-                        <!-- Aquí se agregarán los productos disponibles -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-<script>
-    $(document).ready(function () {
-        $('.btn-close').click(function () {
-            $('#productModal').modal('hide');
-        });
-
-        function abrirModal() {
-            $.get('/sales/products', function (products) {
-                $('#productList').empty();
-                products.forEach(function (product) {
-                    let row = `
-                        <tr>
-                            <td>${product.cod_barra}</td>
-                            <td>${product.descripcion}</td>
-                            <td>${product.precio_venta}</td>
-                            <td>${product.stock}</td>
-                            <td>
-                                <button type="button" class="btn btn-primary seleccionar-producto" 
-                                    data-cod_barra="${product.cod_barra}" 
-                                    data-descripcion="${product.descripcion}" 
-                                    data-precio="${product.precio_venta}" 
-                                    data-stock="${product.stock}">
-                                    Seleccionar
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                    $('#productList').append(row);
-                });
-                $('#productModal').modal('show');
-            }).fail(function () {
-                alert('Error al cargar los productos');
-            });
-        }
-
-        $(document).on('click', '.seleccionar-producto', function () {
-            let cod_barra = $(this).data('cod_barra');
-            let descripcion = $(this).data('descripcion');
-            let precio = $(this).data('precio');
-            let stock = $(this).data('stock');
-
-            // Verificar si el producto tiene stock suficiente
-            if (stock <= 0) {
-                alert('El producto no tiene stock');
-                return;
-            }
-
-            let tbody = $('#productosEncontrados');
-            let row = `
-                <tr data-cod_barra="${cod_barra}">
-                    <td class="cantidad">1</td>
-                    <td class="cod_barra">${cod_barra}</td>
-                    <td class="descripcion">${descripcion}</td>
-                    <td class="precio">${precio}</td>
-                    <td class="total">${precio}</td>
-                    <td><button type="button" onclick="editarCantidad('${cod_barra}')" class="btn btn-primary">Editar Cantidad</button></td>
-                    <td><button type="button" onclick="borrarArticulo(this)" class="btn btn-danger">Borrar</button></td>
-                </tr>
-            `;
-            tbody.append(row);
-            $('#productModal').modal('hide');
-            actualizarTotal();
-            toggleConfirmButton();
-        });
-
-        $('#buscar-btn').click(function () {
-            abrirModal();
-        });
-
-        $('#buscar-combo-btn').click(function () {
-            // Aquí puedes añadir la funcionalidad para buscar combos
-        });
-
-        window.editarCantidad = function (cod_barra) {
-            let cantidad = prompt('Ingrese la nueva cantidad:');
-            if (cantidad !== null && cantidad > 0) {
-                let row = $(`tr[data-cod_barra='${cod_barra}']`);
-                let precio = parseFloat(row.find('.precio').text());
-                row.find('.cantidad').text(cantidad);
-                row.find('.total').text(precio * cantidad);
-                actualizarTotal();
-            }
-        }
-
-        window.borrarArticulo = function (button) {
-            let row = button.closest('tr');
-            row.remove();
-            actualizarTotal();
-            toggleConfirmButton();
-        }
-
-        function actualizarTotal() {
-            let totalCobrarElement = $('#totalCobrar');
-            let total = 0;
-            $('#productosEncontrados tr').each(function () {
-                let cantidad = parseFloat($(this).find('.cantidad').text());
-                let precio = parseFloat($(this).find('.precio').text());
-                total += cantidad * precio;
-            });
-            totalCobrarElement.text(total.toFixed(2));
-        }
-
-        function toggleConfirmButton() {
-            if ($('#productosEncontrados tr').length > 0) {
-                $('#confirmar-venta-btn').show();
-            } else {
-                $('#confirmar-venta-btn').hide();
-            }
-        }
-
-        document.getElementById('confirmar-venta-btn').addEventListener('click', (event) => {
-            event.preventDefault();
-
-            const itemsContainer = document.getElementById('items-container');
-            itemsContainer.innerHTML = '';
-            const rows = document.querySelectorAll('#productosEncontrados tr');
-
-            rows.forEach((row, index) => {
-                const cod_barra = row.querySelector('.cod_barra') ? row.querySelector('.cod_barra').textContent : null;
-                const descripcion = row.querySelector('.descripcion') ? row.querySelector('.descripcion').textContent : null;
-                const cantidad = row.querySelector('.cantidad') ? row.querySelector('.cantidad').textContent : null;
-                const precio = row.querySelector('.precio') ? row.querySelector('.precio').textContent : null;
-                const total = row.querySelector('.total') ? row.querySelector('.total').textContent : null;
-
-                if (cod_barra && descripcion && cantidad && precio && total) {
-                    itemsContainer.innerHTML += `
-                        <input type="hidden" name="items[${index}][cod_barra]" value="${cod_barra}">
-                        <input type="hidden" name="items[${index}][descripcion]" value="${descripcion}">
-                        <input type="hidden" name="items[${index}][cantidad]" value="${cantidad}">
-                        <input type="hidden" name="items[${index}][precio]" value="${precio}">
-                        <input type="hidden" name="items[${index}][total]" value="${total}">
-                    `;
-                }
-            });
-
-            document.getElementById('total').value = document.getElementById('totalCobrar').textContent;
-            document.getElementById('sale-form').submit();
-        });
-    });
-</script>
-<script src="/js/confirmarVenta.js"></script>
-
-{{>footer}} --}}
