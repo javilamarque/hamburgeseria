@@ -174,22 +174,24 @@
             $.get('/sales/combos', function (combos) {
                 $('#comboList').empty();
                 combos.forEach(function (combo) {
+                    let stockInsuficiente = combo.productos.some(producto => producto.stock <= 0);
+
                     let row = `
-                        <tr>
-                            <td>${combo.nombre}</td>
-                            <td>
-                                <ul>
-                                    ${combo.productos.map(producto => `<li>${producto.descripcion}</li>`).join('')}
-                                </ul>
-                            </td>
-                            <td>${combo.precio}</td>
-                            <td>
-                                <button type="button" class="btn btn-primary seleccionar-combo" data-combo-id="${combo._id}" data-combo-precio="${combo.precio}" data-combo-cod_barra="combo_${combo._id}">
-                                    Seleccionar
-                                </button>
-                            </td>
-                        </tr>
-                    `;
+                <tr>
+                    <td>${combo.nombre}</td>
+                    <td>
+                        <ul>
+                            ${combo.productos.map(producto => `<li>${producto.descripcion} (Stock: ${producto.stock})</li>`).join('')}
+                        </ul>
+                    </td>
+                    <td>${combo.precio}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary seleccionar-combo" data-combo-id="${combo._id}" data-combo-precio="${combo.precio}" data-combo-cod_barra="combo_${combo.codigoBarra}" ${stockInsuficiente ? 'disabled' : ''}>
+                            ${stockInsuficiente ? 'Stock Insuficiente' : 'Seleccionar'}
+                        </button>
+                    </td>
+                </tr>
+            `;
                     $('#comboList').append(row);
                 });
                 $('#comboModal').modal('show');

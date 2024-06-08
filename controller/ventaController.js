@@ -94,8 +94,9 @@ exports.createSale = async (req, res) => {
         for (let item of processedItems) {
             if (item.cod_barra.startsWith('combo_')) {
                 // Handle combo items
-                const comboId = item.cod_barra.split('_')[1];
-                const combo = await Combo.findById(comboId).populate('productos');
+                const comboCodigoBarra = item.cod_barra.split('_')[1];
+                // Obtener el combo basado en su código de barras
+                const combo = await Combo.findOne({ codigoBarra: comboCodigoBarra }).populate('productos');
 
                 if (!combo) {
                     return res.status(404).json({ message: `Combo con ID ${comboId} no encontrado` });
@@ -124,6 +125,7 @@ exports.createSale = async (req, res) => {
             }
         }
 
+        // Actualizar la caja
         const caja = await Caja.findOne().sort({ fecha_apertura: -1 }).exec();
 
         if (!caja) {

@@ -103,11 +103,16 @@ exports.getComboById = async (req, res) => {
 // Obtener todos los combos con productos poblados
 exports.getAllCombos = async (req, res) => {
     try {
-        const combos = await Combo.find().populate('productos', 'descripcion');
+        const combos = await Combo.find().populate('productos', 'descripcion cod_barra stock');
+        // Mapear los combos a un formato adecuado para el frontend
         const formattedCombos = combos.map(combo => ({
             _id: combo._id,
             nombre: combo.nombre,
-            productos: combo.productos,
+            productos: combo.productos.map(producto => ({
+                descripcion: producto.descripcion,
+                cod_barra: producto.cod_barra,
+                stock: producto.stock // Asegurar que la cantidad exista
+            })),
             precio: combo.precio,
             codigoBarra: combo.codigoBarra
         }));
