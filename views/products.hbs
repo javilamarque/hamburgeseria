@@ -42,8 +42,10 @@
 </div>
 
 <a href="/newProduct" class="btn btn-success">Crear Nuevo Producto</a>
-<a href="/sales" class="btn btn-success">Ir a Ventas</a>
-
+<div>
+    <a href="/sales" class="btn btn-success">Ir a Ventas</a>
+    <a href="/admin/home" class="btn btn-danger">Cancelar</a>
+</div>
 <script>
     async function deleteProduct(codigoDeBarras) {
         if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {

@@ -7,6 +7,74 @@
             <tr>
                 <th>Username</th>
                 <th>Password</th>
+                <th>Rol</th>
+                <th>Accion</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each users}}
+            <tr id="user-{{this._id}}">
+                <td>{{this.username}}</td>
+                <td>{{this.password}}</td>
+                <td>{{this.role}}</td>
+                <td>
+                    <button onclick="editUser('{{this._id}}')" class="btn btn-primary">Editar</button>
+                    <button onclick="deleteUser('{{this._id}}')" class="btn btn-danger">Eliminar</button>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+<button type="button" class="btn btn-danger" id="cancel-btn">Cancelar</button>
+
+<script>
+    document.getElementById('cancel-btn').addEventListener('click', function () {
+        window.history.back();
+    });
+
+    function editUser(userId) {
+        window.location.href = `/users/edit/${userId}`;
+    }
+
+    async function deleteUser(userId) {
+        if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
+            try {
+                const response = await fetch(`/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    document.getElementById(`user-${userId}`).remove();
+                } else {
+                    alert('Error al eliminar el usuario');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al eliminar el usuario');
+            }
+        }
+    }
+</script>
+
+{{> footer}}
+
+
+
+
+
+
+{{!-- {{> header}}
+
+<div class="container">
+    <h1>Usuarios Registrados</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Password</th>
                 <th>Accion</th>
             </tr>
         </thead>
@@ -55,4 +123,4 @@
             }
         }
     }
-</script>
+</script> --}}
