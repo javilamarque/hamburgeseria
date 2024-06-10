@@ -53,7 +53,7 @@ app.use(express.static('public'));
 app.get('/', (req, res) => {
     res.render('login');
 });
-app.get('/admin/home', (req, res) => {
+app.get('/admin', (req, res) => {
     res.render('admin/home');
 });
 app.get('/empleado', (req, res) => {
@@ -76,7 +76,7 @@ app.use('/', ventaRoute);
 app.use('/', logoutRoute);
 app.use('/', cajaRoute)
 app.use('/', comboRoute)
-app.use('/admin', authMiddleware('admin'));
+app.use('/admin/home', authMiddleware('admin'));
 app.use('/empleado / empleado', authMiddleware('empleado'));
 
 require('dotenv').config({ path: './.env' });

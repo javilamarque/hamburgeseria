@@ -18,15 +18,9 @@ exports.loginUser = async (req, res) => {
             return res.status(401).json({ message: 'Password Invalido' });
         }
 
-        // Determine user role based on username
-        // let userRole = 'empleado';
-        // if (username === 'javi') {
-        //     userRole = 'admin';
-        // }
-
-        // Redirect to different pages based on user role
+        
         if (userRole === 'admin') {
-            return res.redirect('/admin');
+            return res.redirect('/admin/home');
         } else {
             return res.redirect('/empleado');
         }
