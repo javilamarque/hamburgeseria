@@ -1,6 +1,5 @@
 {{>header}}
 
-
 <div class="container">
     <h1 class="mt-5">Caja</h1>
 
@@ -10,9 +9,11 @@
             <thead>
                 <tr>
                     <th>Apertura</th>
-                    <th>Total Transferencia</th>
+                    <th>Ventas Transferencia</th>
                     <th>Ventas Efectivo</th>
-                    <th>Retiro Parcial</th>
+                    <th>Retiro Efectivo</th>
+                    <th>Retiro Transferencia</th>
+                    <th>Total Transferencia</th>
                     <th>Total Dinero en Caja</th>
                 </tr>
             </thead>
@@ -22,6 +23,8 @@
                     <td>${{caja.t_transferencia}}</td>
                     <td>${{caja.total_ventas_dia}}</td>
                     <td>${{caja.cierre_parcial}}</td>
+                    <td>${{caja.retiro_parcial_transferencia}}</td>
+                    <td>${{caja.total_transferencia}}</td>
                     <td>${{caja.total_final}}</td>
                 </tr>
             </tbody>
@@ -32,14 +35,14 @@
         Retiro Parcial
     </button>
 
+    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#retiroTransferenciaModal">
+        Retiro Parcial Transferencia
+    </button>
+
     <div class="modal fade" id="cierreParcialModal" tabindex="-1" aria-labelledby="cierreParcialModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                {{!-- <div class="modal-header">
-                    <h5 class="modal-title" id="cierreParcialModalLabel">Cierre Parcial</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div> --}}
                 <div class="modal-body">
                     <form id="cierreParcialForm">
                         <div class="mb-3">
@@ -54,18 +57,34 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="retiroTransferenciaModal" tabindex="-1" aria-labelledby="retiroTransferenciaModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form id="retiroTransferenciaForm">
+                        <div class="mb-3">
+                            <label for="retiro_transferencia" class="form-label">Retiro Parcial Transferencia</label>
+                            <input type="number" class="form-control" id="retiro_transferencia"
+                                name="retiro_transferencia" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Procesar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 <button type="button" class="btn btn-danger" id="cancel-btn">Ir a Inicio</button>
 
-{{!------------------------------------------------ BOTON DE CANCELAR ---------------------}}
 <script>
     document.getElementById('cancel-btn').addEventListener('click', function () {
         window.history.back();
     });
-</script>
 
-{{!------------------------------------------------ SCRIPT DE CIERRE PARCIAL ---------------------}}
-<script>
     document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('cierreParcialForm').addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -91,20 +110,34 @@
                 alert('Error al procesar el cierre parcial.');
             }
         });
+
+        document.getElementById('retiroTransferenciaForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const retiroTransferencia = document.getElementById('retiro_transferencia').value;
+
+            const formData = {
+                retiro_transferencia: retiroTransferencia
+            };
+
+            const response = await fetch('/procesarRetiroTransferencia', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                alert('Retiro parcial transferencia procesado correctamente.');
+                location.reload();
+            } else {
+                alert('Error al procesar el retiro parcial transferencia.');
+            }
+        });
     });
 </script>
 
-
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-
-
-
-
-
-
-
-
 {{>footer}}

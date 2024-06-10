@@ -6,14 +6,15 @@ mongoose.connect('mongodb://localhost:27017/burger', {
     useUnifiedTopology: true
 });
 
-const cajaSchema = new Schema({
+const cajaSchema = new mongoose.Schema({
     apertura: { type: Number, required: true },
-    cierre_parcial: { type: Number, default: 0 },
-    t_transferencia: { type: Number, default: 0 },
-    total_ventas_dia: { type: Number, default: 0 },
-    total_final: { type: Number, default: 0 },
-    fecha_apertura: { type: Date, default: Date.now }
-}, { collection: 'cajas' }); // Aquí se especifica el nombre de la colección
+    t_transferencia: { type: Number, required: true },  // Ventas Transferencia
+    total_ventas_dia: { type: Number, required: true }, // Ventas Efectivo
+    cierre_parcial: { type: Number, default: 0 },       // Retiro Efectivo
+    retiro_parcial_transferencia: { type: Number, default: 0 }, // Retiro Transferencia
+    total_transferencia: { type: Number, default: 0 },  // Total Transferencia
+    total_final: { type: Number, default: 0 }           // Total Dinero en Caja
+});
 
 module.exports = mongoose.model('Caja', cajaSchema);
 

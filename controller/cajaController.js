@@ -2,34 +2,40 @@ const Caja = require('../models/caja');
 const VentaModel = require('../models/venta');
 
 // Función para obtener los datos de la caja desde la base de datos
-exports.obtenerDatosCaja = async () => {
+exports.obtenerDatosCaja = async (req,res) => {
     try {
-        // Obtener los datos de la última caja abierta
-        const datosCaja = await Caja.findOne().sort({ fecha_apertura: -1 });
-        return datosCaja;
+        const caja = await Caja.findOne(); // Supongo que solo hay un documento de caja
+        if (!caja) {
+            return res.status(404).json({ message: 'No se encontró la caja' });
+        }
+        caja.total_transferencia = caja.t_transferencia - caja.retiro_parcial_transferencia;
+        caja.total_final = caja.apertura + caja.total_ventas_dia - caja.cierre_parcial;
+        await caja.save();
+        res.render('caja', { caja });
     } catch (error) {
-        throw new Error('Error al obtener los datos de la caja desde la base de datos.');
+        console.error('Error al obtener el estado de la caja:', error);
+        res.status(500).json({ message: 'Error al obtener el estado de la caja' });
     }
 };
 
 exports.abrirCaja = async (req, res) => {
-    const { apertura } = req.body;
     try {
-        const ultimaCaja = await Caja.findOne().sort({ fecha_apertura: -1 });
+        const { apertura } = req.body;
 
-        if (ultimaCaja) {
-            const horasTranscurridas = (new Date() - ultimaCaja.fecha_apertura) / (1000 * 60 * 60);
-            if (horasTranscurridas < 24) {
-                return res.status(400).send('La caja ya fue abierta recientemente.');
-            }
-        }
+        const nuevaCaja = new Caja({
+            apertura: parseFloat(apertura),
+            t_transferencia: 0,        // Inicializamos con 0
+            total_ventas_dia: 0,       // Inicializamos con 0
+            cierre_parcial: 0,
+            retiro_parcial_transferencia: 0,
+            total_transferencia: 0,
+            total_final: parseFloat(apertura)
+        });
 
-        // Guardar el valor de apertura como un número en la base de datos
-        await Caja.create({ apertura: parseFloat(apertura) });
-        res.status(200).send('Caja abierta correctamente.');
+        await nuevaCaja.save();
+        res.status(200).json({ message: 'Caja abierta correctamente.' });
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Error al abrir la caja.');
+        res.status(500).json({ message: 'Error al abrir la caja.', error });
     }
 };
 
@@ -84,9 +90,11 @@ exports.renderCajaPage = async (req, res) => {
             cierre_parcial: formatDecimal(parseFloat(datosCaja.cierre_parcial)),
             t_transferencia: formatDecimal(totalTransferencia),
             total_ventas_dia: formatDecimal(totalEfectivo),
+            retiro_parcial_transferencia: formatDecimal(parseFloat(datosCaja.retiro_parcial_transferencia)),
+            total_transferencia: formatDecimal(parseFloat(datosCaja.total_transferencia)),
             total_final: formatDecimal(totalFinal),
             fecha_apertura: datosCaja.fecha_apertura ? datosCaja.fecha_apertura.toISOString() : ''
-        };
+        }
 
         res.render('caja', { caja });
     } catch (error) {
@@ -98,21 +106,28 @@ exports.renderCajaPage = async (req, res) => {
 exports.procesarCierreParcial = async (req, res) => {
     try {
         const { cierre_parcial } = req.body;
-
-        if (isNaN(parseFloat(cierre_parcial))) {
-            return res.status(400).send('El valor de cierre parcial no es un número válido.');
+        const caja = await Caja.findOne();
+        if (!caja) {
+            return res.status(404).json({ message: 'No se encontró la caja' });
         }
-
-        const datosCaja = await exports.obtenerDatosCaja();
-
-        datosCaja.cierre_parcial += parseFloat(cierre_parcial);
-        datosCaja.total_final = datosCaja.apertura + datosCaja.total_ventas_dia - datosCaja.cierre_parcial;
-
-        await datosCaja.save();
-
-        res.status(200).send('Cierre parcial procesado correctamente.');
+        caja.cierre_parcial += parseFloat(cierre_parcial);
+        await caja.save();
+        await exports.obtenerDatosCaja(req ,res); // Asegúrate de pasar res correctamente
     } catch (error) {
         console.error('Error al procesar el cierre parcial:', error);
-        res.status(500).send('Error al procesar el cierre parcial.');
+        res.status(500).json({ message: 'Error al procesar el cierre parcial' });
+    }
+};
+
+exports.procesarRetiroTransferencia = async (req, res) => {
+    const { retiro_transferencia } = req.body;
+    try {
+        const caja = await Caja.findOne();
+        caja.retiro_parcial_transferencia += parseFloat(retiro_transferencia);
+        caja.total_transferencia = caja.t_transferencia - caja.retiro_parcial_transferencia;
+        await caja.save();
+        res.status(200).json({ message: 'Retiro parcial transferencia procesado correctamente.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al procesar el retiro parcial transferencia.' });
     }
 };

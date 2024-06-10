@@ -6,7 +6,10 @@ const cajaController = require('../controller/cajaController');
 router.post('/caja/apertura', cajaController.abrirCaja);
 router.post('/procesarCierreParcial', cajaController.procesarCierreParcial);
 
+router.post('/procesarRetiroTransferencia', cajaController.procesarRetiroTransferencia);
+
 // Ruta para manejar la solicitud GET para la página de caja
 router.get('/caja', cajaController.renderCajaPage);
 
+router.get('/caja', cajaController.obtenerDatosCaja);
 module.exports = router;
