@@ -114,8 +114,9 @@ exports.renderCajaPage = async (req, res) => {
                 total_dinero_en_caja: formatDecimal(parseFloat(datosCaja.cerrada.total_dinero_en_caja))
             } : null
         };
-
-        res.render('caja', { caja, userRole: req.session.userRole });
+        // Obtener la fecha de cierre de la caja desde los datos guardados
+        const fechaCierre = datosCaja.cerrada ? datosCaja.cerrada.fecha_cierre : '';
+        res.render('caja', { caja, fechaCierre, userRole: req.session.userRole });
     } catch (error) {
         console.error('Error al recuperar la caja:', error);
         res.status(500).json({ message: 'Error al recuperar la caja' });
