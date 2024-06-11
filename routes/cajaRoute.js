@@ -17,4 +17,6 @@ router.get('/caja', cajaController.renderCajaPage);
 // Ruta para cerrar la caja
 router.post('/cerrarCaja', cajaController.cerrarCaja);
 
+router.post('/actualizarCajaAbierta', cajaController.updateCaja);
+
 module.exports = router;

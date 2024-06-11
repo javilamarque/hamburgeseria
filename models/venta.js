@@ -18,7 +18,8 @@ const ventaSchema = new mongoose.Schema({
     fac_num: { type: Number },
     vendedor: { type: String, required: true },
     tipo_pago: { type: String, enum: ['Efectivo', 'Mercado Pago'], required: true },
-    cantidad: { type: Number, required: true }
+    cantidad: { type: Number, required: true },
+    procesada: { type: Boolean, default: false }
 });
 
 ventaSchema.plugin(AutoIncrement, { inc_field: 'fac_num' });

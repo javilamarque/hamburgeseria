@@ -86,20 +86,19 @@ exports.createSale = async (req, res) => {
             f_factura: new Date(),
             vendedor,
             tipo_pago: pago,
-            cantidad: processedItems.reduce((acc, item) => acc + item.cantidad, 0)
+            cantidad: processedItems.reduce((acc, item) => acc + item.cantidad, 0),
+            procesada: false // Inicialmente no procesada
         });
 
         await nuevaVenta.save();
 
         for (let item of processedItems) {
             if (item.cod_barra.startsWith('combo_')) {
-                // Handle combo items
                 const comboCodigoBarra = item.cod_barra.split('_')[1];
-                // Obtener el combo basado en su código de barras
                 const combo = await Combo.findOne({ codigoBarra: comboCodigoBarra }).populate('productos');
 
                 if (!combo) {
-                    return res.status(404).json({ message: `Combo con ID ${comboId} no encontrado` });
+                    return res.status(404).json({ message: `Combo con ID ${comboCodigoBarra} no encontrado` });
                 }
 
                 for (let product of combo.productos) {
@@ -113,7 +112,6 @@ exports.createSale = async (req, res) => {
                     await productInDb.save();
                 }
             } else {
-                // Handle individual items
                 const product = await Product.findOne({ cod_barra: item.cod_barra });
 
                 if (!product) {
@@ -125,7 +123,7 @@ exports.createSale = async (req, res) => {
             }
         }
 
-        // Actualizar la caja
+        // Actualizar la caja solo si la venta no ha sido procesada
         const caja = await Caja.findOne().sort({ fecha_apertura: -1 }).exec();
 
         if (!caja) {
@@ -137,14 +135,20 @@ exports.createSale = async (req, res) => {
             `);
         }
 
-        if (pago === 'Mercado Pago') {
-            caja.t_transferencia += ventaTotal;
-        } else if (pago === 'Efectivo') {
-            caja.total_ventas_dia += ventaTotal;
-        }
+        if (!nuevaVenta.procesada) {
+            if (pago === 'Mercado Pago') {
+                caja.t_transferencia += ventaTotal;
+            } else if (pago === 'Efectivo') {
+                caja.total_ventas_dia += ventaTotal;
+            }
 
-        caja.total_final = caja.apertura + caja.total_ventas_dia - caja.cierre_parcial;
-        await caja.save();
+            caja.total_final = caja.apertura + caja.total_ventas_dia - caja.cierre_parcial;
+            await caja.save();
+
+            // Marcar la venta como procesada
+            nuevaVenta.procesada = true;
+            await nuevaVenta.save();
+        }
 
         res.send(
             `<script>
