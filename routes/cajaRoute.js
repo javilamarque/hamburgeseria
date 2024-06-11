@@ -14,6 +14,10 @@ router.post('/procesarRetiroTransferencia', cajaController.procesarRetiroTransfe
 
 // Ruta para manejar la solicitud GET para la página de caja
 router.get('/caja', cajaController.renderCajaPage);
-
 router.get('/caja', cajaController.obtenerDatosCaja);
+
+//CERRAR CAJA
+router.post('/cerrarCaja', cajaController.cerrarCaja);
+
+
 module.exports = router;

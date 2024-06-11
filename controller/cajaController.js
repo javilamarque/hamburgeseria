@@ -64,6 +64,7 @@ exports.calcularTotalesVentasDia = async () => {
     }
 };
 
+
 exports.renderCajaPage = async (req, res) => {
     try {
         const datosCaja = await Caja.findOne().sort({ fecha_apertura: -1 });
@@ -71,7 +72,7 @@ exports.renderCajaPage = async (req, res) => {
         if (!datosCaja) {
             return res.status(404).send(`
                 <script>
-                    alert('La Caja aún se Encuentra Cerrada! ');
+                    alert('La Caja aún se Encuentra Cerrada!');
                     window.location.href = '/sales';
                 </script>
             `);
@@ -86,15 +87,25 @@ exports.renderCajaPage = async (req, res) => {
         const formatDecimal = (num) => (typeof num === 'number' && !isNaN(num)) ? num.toFixed(2) : '';
 
         const caja = {
-            apertura: formatDecimal(valorApertura),
-            cierre_parcial: formatDecimal(parseFloat(datosCaja.cierre_parcial)),
-            t_transferencia: formatDecimal(totalTransferencia),
-            total_ventas_dia: formatDecimal(totalEfectivo),
-            retiro_parcial_transferencia: formatDecimal(parseFloat(datosCaja.retiro_parcial_transferencia)),
-            total_transferencia: formatDecimal(parseFloat(datosCaja.total_transferencia)),
-            total_final: formatDecimal(totalFinal),
-            fecha_apertura: datosCaja.fecha_apertura ? datosCaja.fecha_apertura.toISOString() : ''
-        }
+            abierta: {
+                apertura: formatDecimal(valorApertura),
+                t_transferencia: formatDecimal(totalTransferencia),
+                total_ventas_dia: formatDecimal(totalEfectivo),
+                cierre_parcial_efectivo: formatDecimal(parseFloat(datosCaja.cierre_parcial)),
+                retiro_parcial_transferencia: formatDecimal(parseFloat(datosCaja.retiro_parcial_transferencia)),
+                total_transferencia: formatDecimal(parseFloat(datosCaja.total_transferencia)),
+                total_dinero_en_caja: formatDecimal(totalFinal)
+            },
+            cerrada: datosCaja.cerrada ? {
+                apertura: formatDecimal(datosCaja.cerrada.apertura),
+                t_transferencia: formatDecimal(datosCaja.cerrada.t_transferencia),
+                total_ventas_dia: formatDecimal(datosCaja.cerrada.total_ventas_dia),
+                cierre_parcial_efectivo: formatDecimal(datosCaja.cerrada.cierre_parcial_efectivo),
+                retiro_parcial_transferencia: formatDecimal(datosCaja.cerrada.retiro_parcial_transferencia),
+                total_transferencia: formatDecimal(datosCaja.cerrada.total_transferencia),
+                total_dinero_en_caja: formatDecimal(datosCaja.cerrada.total_dinero_en_caja)
+            } : null
+        };
 
         res.render('caja', { caja, userRole: req.session.userRole });
     } catch (error) {
@@ -102,6 +113,7 @@ exports.renderCajaPage = async (req, res) => {
         res.status(500).send('Error al cargar la página de caja.');
     }
 };
+
 
 exports.procesarCierreParcial = async (req, res) => {
     try {
@@ -129,5 +141,38 @@ exports.procesarRetiroTransferencia = async (req, res) => {
         res.status(200).json({ message: 'Retiro parcial transferencia procesado correctamente.' });
     } catch (error) {
         res.status(500).json({ message: 'Error al procesar el retiro parcial transferencia.' });
+    }
+};
+
+
+
+exports.cerrarCaja = async (req, res) => {
+    try {
+        const datosCaja = await Caja.findOne().sort({ fecha_apertura: -1 });
+
+        if (!datosCaja) {
+            return res.status(404).send('No se encontró una caja abierta.');
+        }
+
+        const valorApertura = parseFloat(datosCaja.apertura);
+        const { totalEfectivo, totalTransferencia } = await exports.calcularTotalesVentasDia();
+        const totalDineroEnCaja = valorApertura + totalEfectivo - parseFloat(datosCaja.cierre_parcial_efectivo);
+
+        datosCaja.cerrada = {
+            apertura: valorApertura,
+            t_transferencia: totalTransferencia,
+            total_ventas_dia: totalEfectivo,
+            cierre_parcial_efectivo: datosCaja.cierre_parcial_efectivo,
+            retiro_parcial_transferencia: datosCaja.retiro_parcial_transferencia,
+            total_transferencia: totalTransferencia,
+            total_dinero_en_caja: totalDineroEnCaja
+        };
+
+        await datosCaja.save();
+
+        res.status(200).send('Caja cerrada correctamente.');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error al cerrar la caja.');
     }
 };
