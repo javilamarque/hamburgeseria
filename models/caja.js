@@ -13,7 +13,17 @@ const cajaSchema = new mongoose.Schema({
     cierre_parcial: { type: Number, default: 0 },       // Retiro Efectivo
     retiro_parcial_transferencia: { type: Number, default: 0 }, // Retiro Transferencia
     total_transferencia: { type: Number, default: 0 },  // Total Transferencia
-    total_final: { type: Number, default: 0 }           // Total Dinero en Caja
+    total_final: { type: Number, default: 0 },           // Total Dinero en Caja
+    cerrada: {
+        apertura: { type: Number },
+        t_transferencia: { type: Number },
+        total_ventas_dia: { type: Number },
+        cierre_parcial_efectivo: { type: Number },
+        retiro_parcial_transferencia: { type: Number },
+        total_transferencia: { type: Number },
+        total_dinero_en_caja: { type: Number },
+        fecha_cierre: { type: Date, default: Date.now, required: true }, 
+    }
 });
 
 module.exports = mongoose.model('Caja', cajaSchema);

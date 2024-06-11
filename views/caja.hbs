@@ -46,7 +46,7 @@
 
     {{#if caja.cerrada}}
     <div class="row mt-4">
-        <h3>Estado de la Caja Cerrada</h3>
+        <h3>Estado de la Caja Cerrada ({{moment caja.cerrada.fecha_cierre "DD/MM/YYYY HH:mm:ss"}})</h3>
         <table class="table disabled">
             <thead>
                 <tr>
@@ -61,13 +61,13 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>${{caja.cerrada.apertura}}</td> 
-                    <td>${{caja.cerrada.t_transferencia}}</td> 
-                    <td>${{caja.cerrada.total_ventas_dia}}</td> 
-                    <td>${{caja.cerrada.cierre_parcial_efectivo}}</td> 
-                    <td>${{caja.cerrada.retiro_parcial_transferencia}}</td> 
-                    <td>${{caja.cerrada.total_transferencia}}</td> 
-                    <td>${{caja.cerrada.total_dinero_en_caja}}</td> 
+                    <td>${{caja.cerrada.apertura}}</td>
+                    <td>${{caja.cerrada.t_transferencia}}</td>
+                    <td>${{caja.cerrada.total_ventas_dia}}</td>
+                    <td>${{caja.cerrada.cierre_parcial_efectivo}}</td>
+                    <td>${{caja.cerrada.retiro_parcial_transferencia}}</td>
+                    <td>${{caja.cerrada.total_transferencia}}</td>
+                    <td>${{caja.cerrada.total_dinero_en_caja}}</td>
                 </tr>
             </tbody>
         </table>
@@ -188,7 +188,7 @@
 
             if (response.ok) {
                 alert('Caja cerrada correctamente.');
-                location.reload();
+                window.location.href = '/caja';  // Redirigir a la vista de la caja
             } else {
                 alert('Error al cerrar la caja.');
             }

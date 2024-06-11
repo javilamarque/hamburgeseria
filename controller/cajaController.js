@@ -1,5 +1,6 @@
 const Caja = require('../models/caja');
 const VentaModel = require('../models/venta');
+const moment = require('moment');
 
 // Función para obtener los datos de la caja desde la base de datos
 exports.obtenerDatosCaja = async (req,res) => {
@@ -64,7 +65,6 @@ exports.calcularTotalesVentasDia = async () => {
     }
 };
 
-
 exports.renderCajaPage = async (req, res) => {
     try {
         const datosCaja = await Caja.findOne().sort({ fecha_apertura: -1 });
@@ -114,6 +114,55 @@ exports.renderCajaPage = async (req, res) => {
     }
 };
 
+// exports.renderCajaPage = async (req, res) => {
+//     try {
+//         const datosCaja = await Caja.findOne().sort({ fecha_apertura: -1 });
+
+//         if (!datosCaja) {
+//             return res.status(404).send(`
+//                 <script>
+//                     alert('La Caja aún se Encuentra Cerrada!');
+//                     window.location.href = '/sales';
+//                 </script>
+//             `);
+//         }
+
+//         const valorApertura = parseFloat(datosCaja.apertura);
+
+//         const { totalEfectivo, totalTransferencia } = await exports.calcularTotalesVentasDia();
+
+//         const totalFinal = valorApertura + totalEfectivo - parseFloat(datosCaja.cierre_parcial);
+
+//         const formatDecimal = (num) => (typeof num === 'number' && !isNaN(num)) ? num.toFixed(2) : '';
+
+//         const caja = {
+//             abierta: {
+//                 apertura: formatDecimal(valorApertura),
+//                 t_transferencia: formatDecimal(totalTransferencia),
+//                 total_ventas_dia: formatDecimal(totalEfectivo),
+//                 cierre_parcial_efectivo: formatDecimal(parseFloat(datosCaja.cierre_parcial)),
+//                 retiro_parcial_transferencia: formatDecimal(parseFloat(datosCaja.retiro_parcial_transferencia)),
+//                 total_transferencia: formatDecimal(parseFloat(datosCaja.total_transferencia)),
+//                 total_dinero_en_caja: formatDecimal(totalFinal)
+//             },
+//             cerrada: datosCaja.cerrada ? {
+//                 apertura: formatDecimal(datosCaja.cerrada.apertura),
+//                 t_transferencia: formatDecimal(datosCaja.cerrada.t_transferencia),
+//                 total_ventas_dia: formatDecimal(datosCaja.cerrada.total_ventas_dia),
+//                 cierre_parcial_efectivo: formatDecimal(datosCaja.cerrada.cierre_parcial_efectivo),
+//                 retiro_parcial_transferencia: formatDecimal(datosCaja.cerrada.retiro_parcial_transferencia),
+//                 total_transferencia: formatDecimal(datosCaja.cerrada.total_transferencia),
+//                 total_dinero_en_caja: formatDecimal(datosCaja.cerrada.total_dinero_en_caja)
+//             } : null
+//         };
+
+//         res.render('caja', { caja, userRole: req.session.userRole });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Error al cargar la página de caja.');
+//     }
+// };
+
 
 exports.procesarCierreParcial = async (req, res) => {
     try {
@@ -156,21 +205,22 @@ exports.cerrarCaja = async (req, res) => {
 
         const valorApertura = parseFloat(datosCaja.apertura);
         const { totalEfectivo, totalTransferencia } = await exports.calcularTotalesVentasDia();
-        const totalDineroEnCaja = valorApertura + totalEfectivo - parseFloat(datosCaja.cierre_parcial_efectivo);
+        const totalDineroEnCaja = valorApertura + totalEfectivo - parseFloat(datosCaja.cierre_parcial);
 
         datosCaja.cerrada = {
             apertura: valorApertura,
             t_transferencia: totalTransferencia,
             total_ventas_dia: totalEfectivo,
-            cierre_parcial_efectivo: datosCaja.cierre_parcial_efectivo,
+            cierre_parcial_efectivo: datosCaja.cierre_parcial,
             retiro_parcial_transferencia: datosCaja.retiro_parcial_transferencia,
             total_transferencia: totalTransferencia,
-            total_dinero_en_caja: totalDineroEnCaja
+            total_dinero_en_caja: totalDineroEnCaja,
+            fecha_cierre: moment(caja.fecha_cierre).format('dddd, D MMMM YYYY, HH:mm:ss')
         };
-
         await datosCaja.save();
 
-        res.status(200).send('Caja cerrada correctamente.');
+        // Renderizar la vista con los datos actualizados
+        res.render('caja', { caja: datosCaja });
     } catch (error) {
         console.error(error);
         res.status(500).send('Error al cerrar la caja.');
