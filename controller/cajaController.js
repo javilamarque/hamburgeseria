@@ -96,7 +96,7 @@ exports.renderCajaPage = async (req, res) => {
             fecha_apertura: datosCaja.fecha_apertura ? datosCaja.fecha_apertura.toISOString() : ''
         }
 
-        res.render('caja', { caja });
+        res.render('caja', { caja, userRole: req.session.userRole });
     } catch (error) {
         console.error(error);
         res.status(500).send('Error al cargar la página de caja.');

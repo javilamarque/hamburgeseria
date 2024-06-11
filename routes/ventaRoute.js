@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const ventaController = require('../controller/ventaController');
 const comboController = require('../controller/comboController');
+const userController = require('../controller/userController')
 
 router.get('/sales', ventaController.renderSalePage);
 router.post('/sales', ventaController.createSale);
 
 router.get('/viewSales', ventaController.renderSaleViews);
+router.get('admin/home', userController.loginUser)
 
 router.get('/sales/products', ventaController.getProducts);
 router.get('/users', ventaController.getUsers);

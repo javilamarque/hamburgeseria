@@ -2,10 +2,11 @@ const User = require('../models/user');
 
 exports.loginUser = async (req, res) => {
     const { username, password } = req.body;
-
+    
     try {
         // Check if user exists in the database
         const user = await User.findOne({ username });
+        console.log("Role del usuario:", user.role);
 
         if (!user) {
             return res.status(404).json({ message: 'Usuario no Valido' });
@@ -18,8 +19,8 @@ exports.loginUser = async (req, res) => {
             return res.status(401).json({ message: 'Password Invalido' });
         }
 
-        
-        if (userRole === 'admin') {
+
+        if (user.role === 'admin') {
             return res.redirect('/admin/home');
         } else {
             return res.redirect('/empleado');

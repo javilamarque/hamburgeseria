@@ -86,12 +86,8 @@ exports.loginUser = async (req, res) => {
         // Almacenar rol de usuario en sesión
         req.session.userRole = user.role;
 
-        // Redirigir según rol del usuario
-        if (user.role === 'admin') {
-            return res.redirect('/admin');
-        } else {
-            return res.redirect('/empleado');
-        }
+        // Renderizar la vista con el rol del usuario
+        res.render('admin/home', { userRole: req.session.userRole });
     } catch (error) {
         console.error('Error al autenticar al usuario:', error);
         return res.send(`

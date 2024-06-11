@@ -1,29 +1,48 @@
 <div id="admin-header">
-    {{>header}}    
-    <h1>Bienvenido Admin</h1> 
+    {{>header}}
+    <h1>Bienvenido {{userRole}}</h1>
     <div class="text-center mt-5">
-        <a href="/newProduct" class="btn btn-success">Producto Nuevo</a>
-        <a href="/products" class="btn btn-success">Productos</a>
-        <a href="/caja" class="btn btn-success">Ver Caja</a>
-        <a href="/logout" class="btn btn-danger">Cerrar Sesion</a>
+        <button onclick="location.href='/newProduct'" class="btn btn-success" {{#unless (eq userRole 'admin' )}}disabled
+            class="disabled" {{/unless}}>Producto Nuevo</button>
+
+        <button onclick="location.href='/products'" class="btn btn-success" {{#unless (eq userRole 'admin' )}}disabled
+            class="disabled" {{/unless}}>Productos</button>
+
+        <button onclick="location.href='/caja'" class="btn btn-success" >Ver Caja</button>
+
+        <button onclick="location.href='/logout'" class="btn btn-danger">Cerrar Sesion</button>
     </div>
 
     <div class="container text-center mt-5">
-        <a href="/users" class="btn btn-success">Ver Usuarios</a>
-        <a href="/register" class="btn btn-success">Registrar Usuario</a>
-        <button id="abrir-caja-btn" class="btn btn-primary">Abrir Caja</button>
-        <a href="/viewSales" class="btn btn-success">Ver Ventas</a>
+        <button onclick="location.href='/users'" class="btn btn-success" {{#unless (eq userRole 'admin' ) 
+            }}disabled class="disabled" {{/unless}}>Ver Usuarios</button>
+        <button onclick="location.href='/register'" class="btn btn-success" {{#unless (eq userRole 'admin' )}}disabled
+            class="disabled" {{/unless}}>Registrar Usuario</button>
+        <button id="abrir-caja-btn" class="btn btn-primary" {{#unless (eq userRole 'admin' )}}disabled{{/unless}}>Abrir
+            Caja</button>
+        <button onclick="location.href='/viewSales'" class="btn btn-success" {{#unless (eq userRole 'admin' )}}disabled
+            class="disabled" {{/unless}}>Ver Ventas</button>
     </div>
 
     <div class="text-center mt-5">
-    <a href="/sales" class="btn btn-warning">Ventas</a>
-    <a href="/createCombo" class="btn btn-primary">Crear Combo</a>
-    <a href="/viewCombo" class="btn btn-danger">Ver y Editar Combos</a>
+        <button onclick="location.href='/sales'" class="btn btn-warning">Ventas</button>
+
+        <button onclick="location.href='/createCombo'" class="btn btn-primary" {{#unless (eq userRole 'admin'
+            )}}disabled class="disabled" {{/unless}}>Crear Combo</button>
+
+        <button onclick="location.href='/viewCombo'" class="btn btn-danger" {{#unless (eq userRole 'admin' )}}disabled
+            class="disabled" {{/unless}}>Ver y Editar Combos</button>
     </div>
-    
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="/js/abrirCaja.js"></script>
+
+<style>
+    .disabled {
+        pointer-events: none;
+        opacity: 0.6;
+    }
+</style>
 
 {{>footer}}

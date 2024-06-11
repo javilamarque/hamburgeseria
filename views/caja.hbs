@@ -30,15 +30,15 @@
             </tbody>
         </table>
     </div>
-
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cierreParcialModal">
-        Retiro Parcial
+    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#cierreParcialModal" {{#unless (eq
+        userRole 'admin' )}}disabled class="disabled" {{/unless}}>
+        Retiro Parcial Efectivo
     </button>
-
-    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#retiroTransferenciaModal">
+    
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cierreParcialModal" {{#unless (eq
+        userRole 'admin' )}}disabled class="disabled" {{/unless}}>
         Retiro Parcial Transferencia
     </button>
-
     <div class="modal fade" id="cierreParcialModal" tabindex="-1" aria-labelledby="cierreParcialModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
@@ -46,7 +46,7 @@
                 <div class="modal-body">
                     <form id="cierreParcialForm">
                         <div class="mb-3">
-                            <label for="cierre_parcial" class="form-label">Cierre Parcial</label>
+                            <label for="cierre_parcial" class="form-label ">Cierre Parcial</label>
                             <input type="number" class="form-control" id="cierre_parcial" name="cierre_parcial"
                                 required>
                         </div>
@@ -79,6 +79,13 @@
 
 </div>
 <button type="button" class="btn btn-danger" id="cancel-btn">Ir a Inicio</button>
+
+<style>
+    .disabled {
+        pointer-events: none;
+        opacity: 0.6;
+    }
+</style>
 
 <script>
     document.getElementById('cancel-btn').addEventListener('click', function () {

@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const cajaController = require('../controller/cajaController');
+const ensureAuthenticated = require('../middlewares/authMiddleware');
+
+// Usar el middleware para todas las rutas de caja
+router.use('/caja', ensureAuthenticated);
 
 // Ruta para manejar la solicitud POST para abrir la caja
 router.post('/caja/apertura', cajaController.abrirCaja);

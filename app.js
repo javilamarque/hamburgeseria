@@ -16,9 +16,15 @@ const handlebarsMoment = require('handlebars.moment');
 const app = express();
 
 handlebarsMoment.registerHelpers(hbs.handlebars);
+
 // Registro del helper eq en Handlebars
 hbs.registerHelper('eq', function (a, b) {
     return a === b;
+});
+
+// Definir el helper 'or'
+hbs.registerHelper('or', function (a, b) {
+    return a || b;
 });
 
 app.use(session({
@@ -29,17 +35,6 @@ app.use(session({
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URI || 'mongodb://localhost:27017/burger' })
 }));
 
-const authMiddleware = (role) => {
-    return (req, res, next) => {
-        if (!req.session.userRole) {
-            return res.redirect('/login');
-        }
-        if (role && req.session.userRole !== role) {
-            return res.status(403).send('No tienes permiso para acceder a esta página');
-        }
-        next();
-    };
-};
 
 app.use(cors());
 app.use(methodOverride('_method'));
@@ -53,12 +48,17 @@ app.use(express.static('public'));
 app.get('/', (req, res) => {
     res.render('login');
 });
-app.get('/admin', (req, res) => {
-    res.render('admin/home');
+
+//VISTA CON USE ROLE DE HOME
+app.get('/admin/home', (req, res) => {
+    if (!req.session.userRole) {
+        return res.redirect('/login');
+    }
+    res.render('admin/home', { userRole: req.session.userRole });
 });
-app.get('/empleado', (req, res) => {
-    res.render('empleado/empleado');
-});
+
+
+
 app.get('/newProduct', (req, res) => {
     res.render('newProduct');
 });
@@ -76,8 +76,7 @@ app.use('/', ventaRoute);
 app.use('/', logoutRoute);
 app.use('/', cajaRoute)
 app.use('/', comboRoute)
-app.use('/admin/home', authMiddleware('admin'));
-app.use('/empleado / empleado', authMiddleware('empleado'));
+
 
 require('dotenv').config({ path: './.env' });
 
