@@ -1,4 +1,5 @@
 const Caja = require('../models/caja');
+const cajaCerradas = require('../models/cajacerrada')
 const VentaModel = require('../models/venta');
 const moment = require('moment');
 
@@ -116,7 +117,11 @@ exports.renderCajaPage = async (req, res) => {
         };
         // Obtener la fecha de cierre de la caja desde los datos guardados
         const fechaCierre = datosCaja.cerrada ? datosCaja.cerrada.fecha_cierre : '';
-        res.render('caja', { caja, fechaCierre, userRole: req.session.userRole });
+
+        // Obtener todas las cajas cerradas y ordenarlas por fecha de cierre
+        const cajasCerradas = await cajaCerradas.find().sort({ fecha_cierre: -1 }).exec();
+
+        res.render('caja', { caja, cajasCerradas , fechaCierre, userRole: req.session.userRole });
     } catch (error) {
         console.error('Error al recuperar la caja:', error);
         res.status(500).json({ message: 'Error al recuperar la caja' });
@@ -179,6 +184,9 @@ exports.cerrarCaja = async (req, res) => {
 
         datosCaja.cierre_parcial = 0;
         datosCaja.retiro_parcial_transferencia = 0; 
+
+        // Guardar la caja cerrada en la base de datos
+        await cajaCerradas.create(datosCaja.cerrada);
 
         await datosCaja.save();
         await exports.updateCaja();

@@ -8,71 +8,77 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>Apertura</th>
+                    <th id="bg-apertura">Apertura</th>
                     <th>Ventas Transferencia</th>
-                    <th>Ventas Efectivo</th>
-                    <th>Retiro Efectivo</th>
+                    <th id="bg-apertura">Ventas Efectivo</th>
                     <th>Retiro Transferencia</th>
+                    <th id="bg-apertura">Retiro Efectivo</th>
                     <th>Total Transferencia</th>
-                    <th>Total Dinero en Caja</th>
+                    <th id="bg-apertura">Total Dinero en Caja</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>${{caja.abierta.apertura}}</td>
+                    <td id="bg-apertura"><strong>${{caja.abierta.apertura}}</strong></td>
                     <td>${{caja.abierta.t_transferencia}}</td>
-                    <td>${{caja.abierta.total_ventas_dia}}</td>
-                    <td>${{caja.abierta.cierre_parcial_efectivo}}</td>
+                    <td id="bg-apertura"><strong>${{caja.abierta.total_ventas_dia}}</strong></td>
                     <td>${{caja.abierta.retiro_parcial_transferencia}}</td>
+                    <td id="bg-apertura"><strong>${{caja.abierta.cierre_parcial_efectivo}}</strong></td>
                     <td>${{caja.abierta.total_transferencia}}</td>
-                    <td>${{caja.abierta.total_dinero_en_caja}}</td>
+                    <td id="bg-apertura"><strong>${{caja.abierta.total_dinero_en_caja}}</strong></td>
                 </tr>
             </tbody>
         </table>
     </div>
+    <div class="mt-2">
+        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#cierreParcialModal"
+            {{#unless (eq userRole 'admin' )}}disabled class="disabled" {{/unless}}>
+            Retiro Parcial Efectivo
+        </button>
 
-    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#cierreParcialModal" {{#unless
-        (eq userRole 'admin' )}}disabled class="disabled" {{/unless}}>
-        Retiro Parcial Efectivo
-    </button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#retiroTransferenciaModal"
+            {{#unless (eq userRole 'admin' )}}disabled class="disabled" {{/unless}}>
+            Retiro Parcial Transferencia
+        </button>
 
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#retiroTransferenciaModal"
-        {{#unless (eq userRole 'admin' )}}disabled class="disabled" {{/unless}}>
-        Retiro Parcial Transferencia
-    </button>
+        <button type="button" class="btn btn-danger" id="cerrarCajaBtn" {{#unless (eq userRole 'admin' )}}disabled
+            class="disabled" {{/unless}}>Cerrar Caja</button>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" id="cancel-btn">Ir a Inicio</button>
+    </div>
 
-    <button type="button" class="btn btn-danger" id="cerrarCajaBtn" {{#unless (eq userRole 'admin' )}}disabled
-        class="disabled" {{/unless}}>Cerrar Caja</button>
-
-    {{#if caja.cerrada}}
+    {{#each cajasCerradas}}
     <div class="row mt-4">
-        <h3>Estado de la Caja Cerrada ({{moment fechaCierre "DD/MM/YYYY HH:mm:ss"}})</h3>
-        <table class="table disabled">
-            <thead>
-                <tr>
-                    <th>Apertura</th>
-                    <th>Ventas Transferencia</th>
-                    <th>Ventas Efectivo</th>
-                    <th>Retiro Efectivo</th>
-                    <th>Retiro Transferencia</th>
-                    <th>Total Transferencia</th>
-                    <th>Total Dinero en Caja</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>${{caja.cerrada.apertura}}</td>
-                    <td>${{caja.cerrada.t_transferencia}}</td>
-                    <td>${{caja.cerrada.total_ventas_dia}}</td>
-                    <td>${{caja.cerrada.cierre_parcial_efectivo}}</td>
-                    <td>${{caja.cerrada.retiro_parcial_transferencia}}</td>
-                    <td>${{caja.cerrada.total_transferencia}}</td>
-                    <td>${{caja.cerrada.total_dinero_en_caja}}</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="table-container">
+        <h3 class="text-center">Historial de Caja Cerrada ({{moment this.fecha_cierre "DD/MM/YYYY HH:mm:ss"}})</h3>
+        
+            <table class="table disabled table-bordered mt-1">
+                <thead>
+                    <tr>
+                        <th>Apertura</th>
+                        <th>Ventas Transferencia</th>
+                        <th>Ventas Efectivo</th>
+                        <th>Retiro Efectivo</th>
+                        <th>Retiro Transferencia</th>
+                        <th>Total Transferencia</th>
+                        <th>Total Dinero en Caja</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>${{this.apertura}}</strong></td>
+                        <td><strong>${{this.t_transferencia}}</strong></td>
+                        <td><strong>${{this.total_ventas_dia}}</strong></td>
+                        <td><strong>${{this.cierre_parcial_efectivo}}</strong></td>
+                        <td><strong>${{this.retiro_parcial_transferencia}}</strong></td>
+                        <td><strong>${{this.total_transferencia}}</strong></td>
+                        <td><strong>${{this.total_dinero_en_caja}}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-    {{/if}}
+    {{/each}}
+
 
     <div class="modal fade" id="cierreParcialModal" tabindex="-1" aria-labelledby="cierreParcialModalLabel"
         aria-hidden="true">
@@ -111,9 +117,8 @@
             </div>
         </div>
     </div>
-
 </div>
-<button type="button" class="btn btn-danger" id="cancel-btn">Ir a Inicio</button>
+
 
 <style>
     .disabled {
@@ -198,4 +203,7 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-{{>footer}}
+
+<div class="footer">
+    {{> footer}}
+</div>

@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path'); 
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const hbs = require('hbs');
@@ -16,6 +17,8 @@ const handlebarsMoment = require('handlebars.moment');
 
 const app = express();
 
+// Configurar la ruta para archivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
 
 handlebarsMoment.registerHelpers(hbs.handlebars);
 
