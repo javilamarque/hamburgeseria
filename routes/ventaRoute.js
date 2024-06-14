@@ -25,4 +25,7 @@ router.get('/products/search', productController.searchProduct);
 // Nuevas rutas para manejar la apertura del modal y la selección de productos
 router.post('/selectProduct', ventaController.seleccionarProducto);
 
+// Ruta para eliminar facturas
+router.post('/sales/anular', ventaController.anularVenta);
+
 module.exports = router;

@@ -273,3 +273,65 @@ exports.getUsers = async (req, res) => {
         res.status(500).json({ message: 'Error al obtener los usuarios' });
     }
 };
+
+//ANULAR VENTAS
+exports.anularVenta = async (req, res) => {
+    const { fac_num } = req.body;
+
+    try {
+        if (!fac_num) {
+            return res.status(400).json({ message: 'Número de factura no válido' });
+        }
+
+        const venta = await VentaModel.findOne({ fac_num });
+
+
+        if (!venta) {
+            return res.status(404).json({ message: 'Venta no encontrada' });
+        }
+
+        // Calcular el tiempo transcurrido en horas desde la creación de la venta
+        const horasTranscurridas = Math.abs(new Date() - venta.createdAt) / 36e5;
+
+        if (horasTranscurridas > 24) {
+            return res.status(403).json({ message: 'No se puede anular la venta después de 24 horas' });
+        }
+
+        // Obtener los productos vendidos de la descripción
+        const descripcionProductos = venta.descripcion.split(',').map(item => item.trim());
+
+        // Actualizar el stock del producto
+        for (const descripcionProducto of descripcionProductos) {
+            const producto = await Product.findOne({ descripcion: descripcionProducto });
+            if (producto) {
+                // Aquí asumo que el campo `cantidad` de la venta representa la cantidad vendida de ese producto
+                producto.stock += venta.cantidad;
+                await producto.save();
+            }
+        }
+        // Actualizar la caja
+        const cajaAbierta = await Caja.findOne().sort({ fecha_apertura: -1 });
+
+        if (!cajaAbierta) {
+            return res.status(500).json({ message: 'No se encontró una caja abierta.' });
+        }
+
+        if (venta.tipo_pago === 'Efectivo') {
+            cajaAbierta.total_ventas_dia -= venta.total;
+            cajaAbierta.total_final -= venta.total;
+        } else if (venta.tipo_pago === 'Transferencia') {
+            cajaAbierta.total_transferencia -= venta.total;
+            cajaAbierta.total_final -= venta.total;
+        }
+
+        await cajaAbierta.save();
+
+        // Eliminar la venta de la base de datos
+        await VentaModel.deleteOne({ fac_num });
+
+        res.redirect('/viewSales'); // Redirigir de nuevo a la lista de ventas
+    } catch (error) {
+        console.error('Error al anular la venta:', error);
+        res.status(500).json({ message: 'Error al anular la venta', error });
+    }
+};

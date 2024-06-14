@@ -12,6 +12,7 @@
                 <th>Fecha</th>
                 <th>Vendedor</th>
                 <th>Pago</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -24,10 +25,17 @@
                 <td>{{f_factura}}</td>
                 <td>{{vendedor}}</td>
                 <td>{{tipo_pago}}</td>
+                <td>
+                    <form action="/sales/anular" method="POST">
+                        <input type="hidden" name="fac_num" value="{{fac_num}}">
+                        <button type="submit" class="btn btn-danger">Anular Venta</button>
+                    </form>
+                </td>
             </tr>
             {{/each}}
         </tbody>
     </table>
+    
     <div class="volver">
     <a href="/sales" class="btn btn-primary">Ir a Ventas</a>
     <a href="/admin/home" class="btn btn-warning">Ir a Inicio</a>
