@@ -25,16 +25,6 @@ const cajaSchema = new mongoose.Schema({
     }
 });
 
-
-
-
-// Definir el método para reiniciar las ventas en el modelo de mongoose
-cajaSchema.methods.reiniciarVentas = async function () {
-    this.total_ventas_dia = 0;
-    this.t_transferencia = 0;
-    await this.save();
-};
-
 module.exports = mongoose.model('Caja', cajaSchema);
 
 

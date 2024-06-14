@@ -81,6 +81,7 @@ app.use('/', ventaRoute);
 app.use('/', logoutRoute);
 app.use('/', cajaRoute)
 app.use('/', comboRoute)
+app.use('/sales', productRoute);
 
 
 require('dotenv').config({ path: './.env' });

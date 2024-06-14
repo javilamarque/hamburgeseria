@@ -24,21 +24,37 @@ exports.abrirCaja = async (req, res) => {
     try {
         const { apertura } = req.body;
 
+        if (apertura < 0) {
+            return res.status(400).json({ message: 'La apertura no puede estar en negativo' });
+        }
+
+        if (apertura === 0) {
+            return res.status(400).json({ message: 'La apertura es 0, se debe pedir al administrador que abra la caja' });
+        }
+
         // Obtener la caja cerrada más reciente
         const ultimaCajaCerrada = await Caja.findOne({ 'cerrada.total_dinero_en_caja': { $exists: true } }).sort({ 'cerrada.fecha_cierre': -1 });
-        const nuevaApertura = ultimaCajaCerrada ? ultimaCajaCerrada.cerrada.total_dinero_en_caja : 0;
+
+        let nuevaApertura = 0;
+        let transferenciaAnterior = 0;
+        let totalVentasDiaAjustado = 0;
+        if (ultimaCajaCerrada) {
+            nuevaApertura = ultimaCajaCerrada.cerrada.total_dinero_en_caja;
+            transferenciaAnterior = ultimaCajaCerrada.cerrada.total_transferencia;
+            totalVentasDiaAjustado = ultimaCajaCerrada.cerrada.total_ventas_dia - ultimaCajaCerrada.cerrada.cierre_parcial_efectivo;
+        }
 
         // Si no se proporciona un valor de apertura, usar el total de la última caja cerrada
         const aperturaFinal = apertura !== undefined && apertura !== null ? parseFloat(apertura) : nuevaApertura;
 
         const nuevaCaja = new Caja({
             apertura: aperturaFinal,
-            t_transferencia: 0,
-            total_ventas_dia: 0,
+            t_transferencia: transferenciaAnterior,
+            total_ventas_dia: totalVentasDiaAjustado,
             cierre_parcial: 0,
             retiro_parcial_transferencia: 0,
             total_transferencia: 0,
-            total_final: aperturaFinal,
+            total_final: aperturaFinal, // Inicializar total_final con el mismo valor que aperturaFinal
             cerrada: null  // No se ha cerrado todavía
         });
 
@@ -82,7 +98,7 @@ exports.renderCajaPage = async (req, res) => {
                 </script>
             `);
         }
-        
+
         const valorApertura = parseFloat(datosCaja.apertura) || 0;
         const totalEfectivo = parseFloat(datosCaja.total_ventas_dia) || 0;
         const totalTransferencia = parseFloat(datosCaja.t_transferencia) || 0;
@@ -121,7 +137,7 @@ exports.renderCajaPage = async (req, res) => {
         // Obtener todas las cajas cerradas y ordenarlas por fecha de cierre
         const cajasCerradas = await cajaCerradas.find().sort({ fecha_cierre: -1 }).exec();
 
-        res.render('caja', { caja, cajasCerradas , fechaCierre, userRole: req.session.userRole });
+        res.render('caja', { caja, cajasCerradas, fechaCierre, userRole: req.session.userRole });
     } catch (error) {
         console.error('Error al recuperar la caja:', error);
         res.status(500).json({ message: 'Error al recuperar la caja' });
@@ -167,30 +183,34 @@ exports.cerrarCaja = async (req, res) => {
         }
 
         const valorApertura = parseFloat(datosCaja.apertura);
-        const fechaApertura = datosCaja.fecha_apertura;
-        const { totalEfectivo, totalTransferencia } = await exports.calcularTotalesVentasDia(fechaApertura);
-        const totalDineroEnCaja = valorApertura + totalEfectivo - parseFloat(datosCaja.cierre_parcial);
+        const totalDineroEnCaja  = datosCaja.total_final
 
-        datosCaja.cerrada = {
+        // Crear objeto de caja cerrada con valores de caja abierta
+        const cajaCerrada = {
             apertura: valorApertura,
-            t_transferencia: totalTransferencia,
-            total_ventas_dia: totalEfectivo,
+            t_transferencia: datosCaja.t_transferencia,
+            total_ventas_dia: datosCaja.total_ventas_dia,
             cierre_parcial_efectivo: datosCaja.cierre_parcial,
             retiro_parcial_transferencia: datosCaja.retiro_parcial_transferencia,
-            total_transferencia: totalTransferencia,
-            total_dinero_en_caja: totalDineroEnCaja,
+            total_transferencia: datosCaja.total_transferencia,
+            total_dinero_en_caja: totalDineroEnCaja, // Ajustar total_dinero_en_caja
             fecha_cierre: moment().format('dddd, D MMMM YYYY, HH:mm:ss')
         };
 
-        datosCaja.cierre_parcial = 0;
-        datosCaja.retiro_parcial_transferencia = 0; 
+        datosCaja.cerrada = cajaCerrada;
+        
 
         // Guardar la caja cerrada en la base de datos
-        await cajaCerradas.create(datosCaja.cerrada);
+        await cajaCerradas.create(cajaCerrada);
+
+        // Resetear valores
+        datosCaja.cierre_parcial = 0;
+        datosCaja.retiro_parcial_transferencia = 0;
 
         await datosCaja.save();
+
         await exports.updateCaja();
-        await datosCaja.reiniciarVentas();
+
         res.render('caja', { caja: datosCaja });
     } catch (error) {
         console.error(error);
@@ -209,13 +229,17 @@ exports.updateCaja = async () => {
         const cajaCerrada = await Caja.findOne({ 'cerrada.total_dinero_en_caja': { $exists: true } }).sort({ 'cerrada.fecha_cierre': -1 });
 
         if (!cajaCerrada) {
-            throw new Error('No se encontró una caja cerrada.');
+            console.warn('No se encontró una caja cerrada updateCaja.');
+            return; // No hay caja cerrada, nada que actualizar
         }
 
         const totalDineroEnCaja = cajaCerrada.cerrada.total_dinero_en_caja;
+        const totalTransferencia = cajaCerrada.cerrada.total_transferencia;
+        const totalVentasDia = cajaCerrada.cerrada.total_ventas_dia - cajaCerrada.cerrada.cierre_parcial_efectivo
 
         cajaAbierta.apertura = totalDineroEnCaja;
-
+        cajaAbierta.t_transferencia = totalTransferencia;
+        cajaAbierta.total_ventas_dia = totalVentasDia;
         await cajaAbierta.save();
     } catch (error) {
         console.error('Error al actualizar la caja abierta:', error.message);

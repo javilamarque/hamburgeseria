@@ -162,28 +162,6 @@ exports.createSale = async (req, res) => {
     }
 };
 
-exports.searchProduct = async (req, res) => {
-    const { codigo } = req.body;
-    try {
-        const product = await Product.findOne({ cod_barra: codigo });
-        if (!product) {
-            return res.status(404).send(`
-                <script>
-                    alert('Código de producto inválido');
-                    window.location.href = '/newSale';
-                </script>
-            `);
-        }
-        res.json(product);
-    } catch (error) {
-        res.status(500).send(`
-            <script>
-                alert('Error al buscar el producto');
-                window.location.href = '/newSale';
-            </script>
-        `);
-    }
-};
 
 exports.addItemToInvoice = async (req, res) => {
     const { cod_barra, descripcion, precio } = req.body;

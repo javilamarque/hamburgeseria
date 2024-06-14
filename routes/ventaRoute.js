@@ -3,6 +3,8 @@ const router = express.Router();
 const ventaController = require('../controller/ventaController');
 const comboController = require('../controller/comboController');
 const userController = require('../controller/userController')
+const productController = require('../controller/productController');
+
 
 router.get('/sales', ventaController.renderSalePage);
 router.post('/sales', ventaController.createSale);
@@ -16,6 +18,9 @@ router.post('/modifyQuantity', ventaController.modifyQuantity);
 
 // Ruta para obtener los detalles de un combo específico
 router.get('/sales/combos/:id', comboController.getComboById);
+
+// Definir la ruta para buscar productos por descripción
+router.get('/products/search', productController.searchProduct);
 
 // Nuevas rutas para manejar la apertura del modal y la selección de productos
 router.post('/selectProduct', ventaController.seleccionarProducto);

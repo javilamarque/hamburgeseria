@@ -57,8 +57,8 @@
                         <th>Apertura</th>
                         <th>Ventas Transferencia</th>
                         <th>Ventas Efectivo</th>
-                        <th>Retiro Efectivo</th>
                         <th>Retiro Transferencia</th>
+                        <th>Retiro Efectivo</th>                        
                         <th>Total Transferencia</th>
                         <th>Total Dinero en Caja</th>
                     </tr>
@@ -68,8 +68,8 @@
                         <td><strong>${{this.apertura}}</strong></td>
                         <td><strong>${{this.t_transferencia}}</strong></td>
                         <td><strong>${{this.total_ventas_dia}}</strong></td>
-                        <td><strong>${{this.cierre_parcial_efectivo}}</strong></td>
                         <td><strong>${{this.retiro_parcial_transferencia}}</strong></td>
+                        <td><strong>${{this.cierre_parcial_efectivo}}</strong></td>                        
                         <td><strong>${{this.total_transferencia}}</strong></td>
                         <td><strong>${{this.total_dinero_en_caja}}</strong></td>
                     </tr>
@@ -193,7 +193,7 @@
 
             if (response.ok) {
                 alert('Caja cerrada correctamente.');
-                window.location.href = '/caja';  // Redirigir a la vista de la caja
+                window.location.href = '/caja'; 
             } else {
                 alert('Error al cerrar la caja.');
             }

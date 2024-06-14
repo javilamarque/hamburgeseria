@@ -87,6 +87,13 @@
                 <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <!-- Añadir input de búsqueda -->
+                <div class="form-group">
+                    <label for="searchProduct">Buscar Producto</label>
+                    <input type="text" class="form-control" id="searchProduct"
+                        placeholder="Escriba una descripción del producto">
+                    <button type="button" class="btn btn-primary mt-2" id="searchProductBtn">Buscar</button>
+                </div>
                 <table class="table">
                     <thead>
                         <tr>
@@ -200,6 +207,31 @@
                 alert('Error al cargar los combos');
             });
         }
+
+        $('#searchProductBtn').click(function () {
+            let descripcion = $('#searchProduct').val();
+            $.get(`/sales/products/search?descripcion=${descripcion}`, function (products) {
+                $('#productList').empty();
+                products.forEach(function (product) {
+                    let row = `
+                    <tr>
+                        <td>${product.cod_barra}</td>
+                        <td>${product.descripcion}</td>
+                        <td>${product.precio_venta}</td>
+                        <td>${product.stock}</td>
+                        <td>
+                            <button type="button" class="btn btn-primary seleccionar-producto" data-cod_barra="${product.cod_barra}" data-descripcion="${product.descripcion}" data-precio="${product.precio_venta}" data-stock="${product.stock}">
+                                Seleccionar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                    $('#productList').append(row);
+                });
+            }).fail(function () {
+                alert('Error al buscar productos');
+            });
+        });
 
         $(document).on('click', '.seleccionar-producto', function () {
             let cod_barra = $(this).data('cod_barra');
@@ -339,6 +371,5 @@
 
 
 {{>footer}}
-
 
 
