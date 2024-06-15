@@ -1,6 +1,10 @@
 const Product = require('../models/product');
 const moment = require('moment');
 
+const formatMoney = (amount) => {
+    return `$${amount.toFixed(2)}`; // Ajusta a 2 decimales y agrega "$"
+};
+
 // Obtener todos los productos
 exports.getAllProducts = async (req, res) => {
     try {
@@ -124,6 +128,7 @@ exports.renderProductsPage = async (req, res) => {
             const formattedDate = moment(product.fecha).format('dddd, D MMMM YYYY, HH:mm:ss');
             return {
                 ...product._doc,
+                precio_venta: formatMoney(product.precio_venta),
                 fecha: formattedDate
             };
         });

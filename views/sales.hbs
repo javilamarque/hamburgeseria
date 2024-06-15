@@ -157,11 +157,13 @@
             $.get('/sales/products', function (products) {
                 $('#productList').empty();
                 products.forEach(function (product) {
+                    // Formatear el precio con signo "$" y dos decimales
+                    let formattedPrecio = `$${parseFloat(product.precio_venta).toFixed(2)}`;
                     let row = `
                     <tr>
                         <td>${product.cod_barra}</td>
                         <td>${product.descripcion}</td>
-                        <td>${product.precio_venta}</td>
+                        <td>${formattedPrecio}</td>
                         <td>${product.stock}</td>
                         <td>
                             <button type="button" class="btn btn-primary seleccionar-producto" data-cod_barra="${product.cod_barra}" data-descripcion="${product.descripcion}" data-precio="${product.precio_venta}" data-stock="${product.stock}">
@@ -182,6 +184,7 @@
             $.get('/sales/combos', function (combos) {
                 $('#comboList').empty();
                 combos.forEach(function (combo) {
+                    let formattedPrecio = `$${parseFloat(combo.precio).toFixed(2)}`;
                     let stockInsuficiente = combo.productos.some(producto => producto.stock <= 0);
 
                     let row = `
@@ -192,7 +195,7 @@
                             ${combo.productos.map(producto => `<li>${producto.descripcion} (Stock: ${producto.stock})</li>`).join('')}
                         </ul>
                     </td>
-                    <td>${combo.precio}</td>
+                    <td>${formattedPrecio}</td>
                     <td>
                         <button type="button" class="btn btn-primary seleccionar-combo" data-combo-id="${combo._id}" data-combo-precio="${combo.precio}" data-combo-cod_barra="combo_${combo.codigoBarra}" ${stockInsuficiente ? 'disabled' : ''}>
                             ${stockInsuficiente ? 'Stock Insuficiente' : 'Seleccionar'}
@@ -213,11 +216,13 @@
             $.get(`/sales/products/search?descripcion=${descripcion}`, function (products) {
                 $('#productList').empty();
                 products.forEach(function (product) {
+                    // Formatear el precio con signo "$" y dos decimales
+                    let formattedPrecio = `$${parseFloat(product.precio_venta).toFixed(2)}`;
                     let row = `
                     <tr>
                         <td>${product.cod_barra}</td>
                         <td>${product.descripcion}</td>
-                        <td>${product.precio_venta}</td>
+                        <td>${formattedPrecio}</td>
                         <td>${product.stock}</td>
                         <td>
                             <button type="button" class="btn btn-primary seleccionar-producto" data-cod_barra="${product.cod_barra}" data-descripcion="${product.descripcion}" data-precio="${product.precio_venta}" data-stock="${product.stock}">
@@ -243,6 +248,8 @@
                 alert('El producto no tiene stock');
                 return;
             }
+
+            
 
             let tbody = $('#productosEncontrados');
             let row = `

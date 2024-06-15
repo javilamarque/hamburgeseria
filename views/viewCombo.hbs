@@ -36,23 +36,27 @@
             <div class="modal-body">
                 <input type="hidden" id="edit-combo-id">
                 <div class="mb-3">
+                    <label>Nombre del Combo</label>
                     <input type="text" id="edit-nombre-combo" class="form-control" placeholder="Nombre del Combo"
                         required>
                 </div>
                 <div class="mb-3">
+                    <label>Codigo de Barra</label>
                     <input type="text" id="edit-codigo-barra" class="form-control" placeholder="Código de Barra"
                         required>
                 </div>
                 <div class="mb-3">
-                    <input type="number" id="edit-precio-combo" class="form-control" placeholder="Precio del Combo"
+                    <label>Precio</label>
+                    <input type="text" id="edit-precio-combo" class="form-control" placeholder="Precio del Combo"
                         required>
                 </div>
                 <div id="edit-productos-container"></div>
                 <button type="button" id="edit-agregar-producto-btn" class="btn btn-secondary mt-2">Agregar
                     Producto</button>
-                    <!-- Botón para guardar cambios de un solo combo en el modal -->
-                    <button type="button" class="btn btn-primary" id="saveComboChangesBtn">Guardar Cambios</button>
-                    
+                <!-- Botón para guardar cambios de un solo combo en el modal -->
+                <button type="button" class="btn btn-primary" id="saveComboChangesBtn">Guardar Cambios</button>
+
+
             </div>
         </div>
     </div>
@@ -90,13 +94,13 @@
 
 <script>
     $(document).ready(function () {
-            // Obtener y mostrar todos los combos
-            function loadCombos() {
-                $.get('/combos', function (combos) {
-                    const tableBody = $('#combos-table-body');
-                    tableBody.empty();
-                    combos.forEach(function (combo) {
-                        const comboRow = `
+        // Obtener y mostrar todos los combos
+        function loadCombos() {
+            $.get('/combos', function (combos) {
+                const tableBody = $('#combos-table-body');
+                tableBody.empty();
+                combos.forEach(function (combo) {
+                    const comboRow = `
                     <tr data-combo-id="${combo._id}">
                         <td>${combo.nombre}</td>
                         <td>${combo.codigoBarra}</td>
@@ -110,47 +114,48 @@
                         </td>
                     </tr>
                 `;
-                        tableBody.append(comboRow);
-                    });
-                }).fail(function () {
-                    alert('Error al obtener los combos');
+                    tableBody.append(comboRow);
                 });
-            }
+            }).fail(function () {
+                alert('Error al obtener los combos');
+            });
+        }
 
+        loadCombos();
+
+        // Funcionalidad del botón "Guardar"
+        $('#saveAllCombosBtn').click(function () {
+            alert('Se han guardado las modificaciones');
             loadCombos();
+        });
 
-            // Funcionalidad del botón "Guardar"
-            $('#saveAllCombosBtn').click(function () {
-                alert('Se han guardado las modificaciones');
-                loadCombos();
-            });
+        // Abrir modal para editar combo
+        window.openEditModal = function (comboId) {
+            $.get(`/combos/${comboId}`, function (combo) {
+                let formattedPrecio = `$${parseFloat(combo.precio).toFixed(2)}`;
+                $('#edit-combo-id').val(combo._id);
+                $('#edit-nombre-combo').val(combo.nombre);
+                $('#edit-codigo-barra').val(combo.codigoBarra);
+                $('#edit-precio-combo').val(formattedPrecio);
+                $('#edit-productos-container').empty();
 
-            // Abrir modal para editar combo
-            window.openEditModal = function (comboId) {
-                $.get(`/combos/${comboId}`, function (combo) {
-                    $('#edit-combo-id').val(combo._id);
-                    $('#edit-nombre-combo').val(combo.nombre);
-                    $('#edit-codigo-barra').val(combo.codigoBarra);
-                    $('#edit-precio-combo').val(combo.precio);
-                    $('#edit-productos-container').empty();
-
-                    combo.productos.forEach(function (producto) {
-                        addEditProductRow(producto.descripcion, producto.cod_barra);
-                    });
-
-                    $('#editComboModal').modal('show');
-                }).fail(function () {
-                    alert('Error al obtener los detalles del combo');
+                combo.productos.forEach(function (producto) {
+                    addEditProductRow(producto.descripcion, producto.cod_barra);
                 });
-            }
 
-            // Añadir nuevo campo de producto en el modal de edición
-            $('#edit-agregar-producto-btn').click(function () {
-                addEditProductRow();
+                $('#editComboModal').modal('show');
+            }).fail(function () {
+                alert('Error al obtener los detalles del combo');
             });
+        }
 
-            function addEditProductRow(description = '', codigoBarra = '') {
-                const productoRow = `
+        // Añadir nuevo campo de producto en el modal de edición
+        $('#edit-agregar-producto-btn').click(function () {
+            addEditProductRow();
+        });
+
+        function addEditProductRow(description = '', codigoBarra = '') {
+            const productoRow = `
             <div class="row justify-content-center align-items-center mt-2">
                 <div class="col-md-6">
                     <input type="text" class="form-control mb-2 edit-producto-seleccionado" value="${description}" data-codigo-barra="${codigoBarra}" placeholder="Seleccione un producto" readonly>
@@ -160,109 +165,108 @@
                 </div>
             </div>
         `;
-                $('#edit-productos-container').append(productoRow);
-            }
+            $('#edit-productos-container').append(productoRow);
+        }
 
-            // Evento para seleccionar un producto
-            $('#edit-productos-container').on('click', '.seleccionar-producto-btn', function () {
-                const $input = $(this).closest('.row').find('.edit-producto-seleccionado');
-                $('#selectProductModal').data('targetInput', $input);
-                loadProductos();
-                $('#selectProductModal').modal('show');
-            });
+        // Evento para seleccionar un producto
+        $('#edit-productos-container').on('click', '.seleccionar-producto-btn', function () {
+            const $input = $(this).closest('.row').find('.edit-producto-seleccionado');
+            $('#selectProductModal').data('targetInput', $input);
+            loadProductos();
+            $('#selectProductModal').modal('show');
+        });
 
-            function loadProductos() {
-                $.get('/sales/products', function (productos) {
-                    const listContainer = $('#productos-table-body');
-                    listContainer.empty();
-                    productos.forEach(function (producto) {
-                        const productItem = `
+        function loadProductos() {
+            $.get('/sales/products', function (productos) {
+                const listContainer = $('#productos-table-body');
+                listContainer.empty();
+                productos.forEach(function (producto) {
+                    const productItem = `
                     <tr>
                         <td>${producto.descripcion}</td>
                         <td>
                             <button class="btn btn-primary seleccionar-producto-btn" data-codigo-barra="${producto.cod_barra}">Seleccionar</button>
                         </td>
                     </tr>`;
-                        listContainer.append(productItem);
-                    });
-                }).fail(function () {
-                    alert('Error al obtener los productos');
+                    listContainer.append(productItem);
                 });
-            }
-
-            // Evento para seleccionar un producto de la lista
-            $('#productos-table-body').on('click', '.seleccionar-producto-btn', function () {
-                const descripcion = $(this).closest('tr').find('td:first').text();
-                const $targetInput = $('#selectProductModal').data('targetInput');
-                if ($targetInput) {
-                    $targetInput.val(descripcion);
-                    $targetInput.data('codigo-barra', $(this).data('codigo-barra'));
-                }
-                $('#selectProductModal').modal('hide');
+            }).fail(function () {
+                alert('Error al obtener los productos');
             });
+        }
 
-            // Eliminar combo
-            window.deleteCombo = function (comboId) {
-                if (confirm('¿Está seguro de que desea eliminar este combo?')) {
-                    $.ajax({
-                        type: 'DELETE',
-                        url: `/combos/${comboId}`,
-                        success: function () {
-                            alert('Combo eliminado exitosamente');
-                            loadCombos();
-                        },
-                        error: function (error) {
-                            alert('Error al eliminar el combo');
-                            console.error(error);
-                        }
-                    });
-                }
+        // Evento para seleccionar un producto de la lista
+        $('#productos-table-body').on('click', '.seleccionar-producto-btn', function () {
+            const descripcion = $(this).closest('tr').find('td:first').text();
+            const $targetInput = $('#selectProductModal').data('targetInput');
+            if ($targetInput) {
+                $targetInput.val(descripcion);
+                $targetInput.data('codigo-barra', $(this).data('codigo-barra'));
             }
+            $('#selectProductModal').modal('hide');
+        });
 
-            // Actualizar combo (Guardar cambios desde el modal)
-            $('#saveComboChangesBtn').on('click', function () {
-                const comboId = $('#edit-combo-id').val();
-                const nombreCombo = $('#edit-nombre-combo').val();
-                const codigoBarra = $('#edit-codigo-barra').val();
-                const precioCombo = $('#edit-precio-combo').val();
-                const productos = [];
-
-                $('#edit-productos-container .edit-producto-seleccionado').each(function () {
-                    if ($(this).val() !== '') {
-                        productos.push({ codigoBarra: $(this).data('codigo-barra') });
-                    }
-                });
-
-                if (!nombreCombo || !codigoBarra || !precioCombo || productos.length === 0) {
-                    alert('Por favor complete todos los campos.');
-                    return;
-                }
-
-                const comboData = {
-                    nombre: nombreCombo,
-                    codigoBarra: codigoBarra,
-                    precio: precioCombo,
-                    productos: productos
-                };
-
+        // Eliminar combo
+        window.deleteCombo = function (comboId) {
+            if (confirm('¿Está seguro de que desea eliminar este combo?')) {
                 $.ajax({
-                    type: 'PUT',
+                    type: 'DELETE',
                     url: `/combos/${comboId}`,
-                    data: JSON.stringify(comboData),
-                    contentType: 'application/json',
                     success: function () {
-                        alert('Combo actualizado exitosamente');
-                        $('#editComboModal').modal('hide');
+                        alert('Combo eliminado exitosamente');
                         loadCombos();
                     },
                     error: function (error) {
-                        alert('Error al actualizar el combo');
+                        alert('Error al eliminar el combo');
                         console.error(error);
                     }
                 });
+            }
+        }
+
+        // Actualizar combo (Guardar cambios desde el modal)
+        $('#saveComboChangesBtn').on('click', function () {
+            const comboId = $('#edit-combo-id').val();
+            const nombreCombo = $('#edit-nombre-combo').val();
+            const codigoBarra = $('#edit-codigo-barra').val();
+            const precioCombo = $('#edit-precio-combo').val();
+            const productos = [];
+
+            $('#edit-productos-container .edit-producto-seleccionado').each(function () {
+                if ($(this).val() !== '') {
+                    productos.push({ codigoBarra: $(this).data('codigo-barra') });
+                }
+            });
+
+            if (!nombreCombo || !codigoBarra || !precioCombo || productos.length === 0) {
+                alert('Por favor complete todos los campos.');
+                return;
+            }
+
+            const comboData = {
+                nombre: nombreCombo,
+                codigoBarra: codigoBarra,
+                precio: precioCombo,
+                productos: productos
+            };
+
+            $.ajax({
+                type: 'PUT',
+                url: `/combos/${comboId}`,
+                data: JSON.stringify(comboData),
+                contentType: 'application/json',
+                success: function () {
+                    alert('Combo actualizado exitosamente');
+                    $('#editComboModal').modal('hide');
+                    loadCombos();
+                },
+                error: function (error) {
+                    alert('Error al actualizar el combo');
+                    console.error(error);
+                }
             });
         });
+    });
 </script>
 
 {{>footer}}
-

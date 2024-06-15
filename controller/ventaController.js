@@ -5,6 +5,10 @@ const Caja = require('../models/caja');
 const moment = require('moment');
 const Combo = require('../models/combo');
 
+const formatMoney = (amount) => {
+    return `$${amount.toFixed(2)}`; // Ajusta a 2 decimales y agrega "$"
+};
+
 exports.seleccionarProducto = async (req, res) => {
     const { cod_barra, descripcion, precio } = req.body;
     req.session.invoiceItems = req.session.invoiceItems || [];
@@ -43,9 +47,7 @@ exports.renderSalePage = async (req, res) => {
     }
 };
 
-const formatMoney = (amount) => {
-    return `$${amount.toFixed(2)}`; // Ajusta a 2 decimales y agrega "$"
-};
+
 exports.renderSaleViews = async (req, res) => {
     try {
         const ventas = await VentaModel.find({}).sort({ fac_num: -1 });
