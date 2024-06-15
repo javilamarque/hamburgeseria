@@ -26,7 +26,7 @@
                 <td>{{vendedor}}</td>
                 <td>{{tipo_pago}}</td>
                 <td>
-                    <form action="/sales/anular" method="POST">
+                    <form class="anular-venta-form" action="/sales/anular" method="POST">
                         <input type="hidden" name="fac_num" value="{{fac_num}}">
                         <button type="submit" class="btn btn-danger">Anular Venta</button>
                     </form>
@@ -41,6 +41,17 @@
     <a href="/admin/home" class="btn btn-warning">Ir a Inicio</a>
     </div>
 </div>
+
+<script>
+    document.querySelectorAll('.anular-venta-form').forEach(form => {
+        form.addEventListener('submit', function (event) {
+            if (!confirm('¿Estás seguro que deseas anular la venta?')) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
+
 
 
 <style>

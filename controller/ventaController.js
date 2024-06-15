@@ -43,12 +43,16 @@ exports.renderSalePage = async (req, res) => {
     }
 };
 
+const formatMoney = (amount) => {
+    return `$${amount.toFixed(2)}`; // Ajusta a 2 decimales y agrega "$"
+};
 exports.renderSaleViews = async (req, res) => {
     try {
-        const ventas = await VentaModel.find({});
+        const ventas = await VentaModel.find({}).sort({ fac_num: -1 });
         moment.locale('es');
         const ventasFormatted = ventas.map(venta => ({
             ...venta._doc,
+            total: formatMoney(venta.total), // Formatea el total con "$"
             f_factura: moment(venta.f_factura).format('dddd, D MMMM YYYY, HH:mm:ss')
         }));
 
@@ -317,13 +321,28 @@ exports.anularVenta = async (req, res) => {
         }
 
         if (venta.tipo_pago === 'Efectivo') {
+            if (cajaAbierta.total_ventas_dia - venta.total < 0) {
+                return res.send(`
+                <script>
+                    alert('No se puede anular la venta porque no hay suficiente ventas en el dia');
+                    window.location.href = '/viewSales';
+                </script>
+                `);
+            }
             cajaAbierta.total_ventas_dia -= venta.total;
             cajaAbierta.total_final -= venta.total;
         } else if (venta.tipo_pago === 'Transferencia') {
+            if (cajaAbierta.total_transferencia - venta.total < 0) {
+                return res.send(`
+                    <script>
+                        alert('No se puede anular la venta porque las transferencias quedarían en negativo');
+                        window.location.href = '/viewSales';
+                    </script>
+                `);
+            }
             cajaAbierta.total_transferencia -= venta.total;
             cajaAbierta.total_final -= venta.total;
         }
-
         await cajaAbierta.save();
 
         // Eliminar la venta de la base de datos
