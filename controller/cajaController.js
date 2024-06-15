@@ -94,7 +94,7 @@ exports.renderCajaPage = async (req, res) => {
             return res.status(500).send(`
                 <script>
                     alert('No se encontró una caja abierta');
-                    window.location.href = '/sales';
+                    window.location.href = '../admin/home';
                 </script>
             `);
         }
