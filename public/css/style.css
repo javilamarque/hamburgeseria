@@ -154,3 +154,20 @@ body {
     overflow: auto;
     /* Para manejar el desbordamiento si la tabla es muy grande */
 }
+
+
+
+/*-------------------------------------------------------------------------TOTAL A COBRAR----------------------------------------------------------------------------------------------------*/
+#total-cobrar{
+    width: 300px;
+    margin-left: 997px;
+    background-color: #9ccce6;
+}
+
+
+
+#codigo-barra-busqueda{
+    margin-left: 93px;
+    font-size: 18px;
+    
+}

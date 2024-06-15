@@ -3,7 +3,7 @@
 <div class="container">
     <h1>Facturación</h1>
     <form id="sale-form" action="/sales" method="POST">
-        <div class="form-group row">
+        <div class="form-group row fw-bolder">
             <label for="factura" class="col-sm-2 col-form-label">Factura Numero:</label>
             <div class="col-sm-4">
                 <input type="number" class="form-control" id="factura" name="factura" value="{{nextFactura}}" readonly>
@@ -18,7 +18,7 @@
             </div>
         </div>
 
-        <div class="form-group row">
+        <div class="form-group row fw-bolder">
             <label for="pago" class="col-sm-2 col-form-label">Tipo de Pago</label>
             <div class="col-sm-4">
                 <select class="form-control" id="pago" name="pago" required>
@@ -46,12 +46,19 @@
             <!-- Items will be added here dynamically using JavaScript -->
         </div>
 
-        <div class="total-container">
+        <div class="total-container" id="total-cobrar">
             <h3>Total a Cobrar: $<span id="totalCobrar">0.00</span></h3>
             <input type="hidden" id="total" name="total" value="">
         </div>
 
-        <table class="table">
+        <div class="form-group row fw-bolder">
+            <label for="" id="codigo-barra-busqueda">Codigo de Barra</label>
+            <div class="col-sm-3">
+                <input type="number" class="form-control" id="cod_barra" name="cod_barra">
+            </div>
+        </div>
+        
+        <table class="table mt-3">
             <thead>
                 <tr>
                     <th>Cant</th>
@@ -376,6 +383,22 @@
     });
 </script>
 
+
+
+                                                    {{!-- ELIMINAR LAS FLECHAS DE LOS INPUT --}}
+<style>
+    /* Para Webkit (Chrome, Safari, Opera) */
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Para Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+</style>
 
 {{>footer}}
 
