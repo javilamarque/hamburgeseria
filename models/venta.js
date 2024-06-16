@@ -4,7 +4,7 @@ const AutoIncrement = require('mongoose-sequence')(mongoose);
 mongoose.connect('mongodb://localhost:27017/burger');
 
 const itemSchema = new mongoose.Schema({
-    cod_barra: { type: Number, required: true },
+    cod_barra: { type: String, required: true },
     descripcion: { type: String, required: true },
     cantidad: { type: Number, required: true },
     precio: { type: Number, required: true },

@@ -67,22 +67,25 @@ exports.renderSaleViews = async (req, res) => {
 
 exports.createSale = async (req, res) => {
     const { vendedor, pago, items } = req.body;
-    const ventaTotal = parseFloat(req.body.total);
+    const ventaTotal = parseFloat(req.body.total.replace('$', ''));
 
     try {
+
         if (!items || items.length === 0) {
+            console.error('No se recibieron ítems');
             return res.status(400).json({ message: 'Datos de venta no válidos' });
         }
 
         const processedItems = items.map(item => ({
-            cod_barra: item.cod_barra,
+            cod_barra: item.cod_barra.toString(),
             descripcion: item.descripcion,
             cantidad: parseFloat(item.cantidad),
-            precio: parseFloat(item.precio),
-            total: parseFloat(item.total)
+            precio: parseFloat(item.precio.replace('$', '')),
+            total: parseFloat(item.total.replace('$', ''))
         }));
 
         if (processedItems.some(item => isNaN(item.cantidad) || isNaN(item.precio) || isNaN(item.total))) {
+            console.error('Datos de ítems inválidos:', processedItems);
             return res.status(400).json({ message: 'Datos de venta no válidos' });
         }
 
@@ -104,6 +107,7 @@ exports.createSale = async (req, res) => {
                 const combo = await Combo.findOne({ codigoBarra: comboCodigoBarra }).populate('productos');
 
                 if (!combo) {
+                    console.error(`Combo con ID ${comboCodigoBarra} no encontrado`);
                     return res.status(404).json({ message: `Combo con ID ${comboCodigoBarra} no encontrado` });
                 }
 
@@ -111,6 +115,7 @@ exports.createSale = async (req, res) => {
                     const productInDb = await Product.findOne({ cod_barra: product.cod_barra });
 
                     if (!productInDb) {
+                        console.error(`Producto con código ${product.cod_barra} no encontrado`);
                         return res.status(404).json({ message: `Producto con código ${product.cod_barra} no encontrado` });
                     }
 
@@ -121,6 +126,7 @@ exports.createSale = async (req, res) => {
                 const product = await Product.findOne({ cod_barra: item.cod_barra });
 
                 if (!product) {
+                    console.error(`Producto con código ${item.cod_barra} no encontrado`);
                     return res.status(404).json({ message: `Producto con código ${item.cod_barra} no encontrado` });
                 }
 
@@ -133,9 +139,10 @@ exports.createSale = async (req, res) => {
         const caja = await Caja.findOne().sort({ fecha_apertura: -1 }).exec();
 
         if (!caja) {
+            console.error('No se encontró una caja abierta');
             return res.status(500).send(`
                 <script>
-                    alert('No se Encontro una Caja Abierta');
+                    alert('No se encontró una caja abierta');
                     window.location.href = '/sales';
                 </script>
             `);

@@ -26,6 +26,22 @@ exports.getAllProductsCombo = async (req, res) => {
     }
 };
 
+// Función para buscar un producto por código de barras
+exports.getProductByBarcode = async (req, res) => {
+    const cod_barra = req.params.cod_barra.trim();
+    try {
+        const product = await Product.findOne({ cod_barra: cod_barra });
+        if (!product) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+        res.json(product);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error al buscar el producto', error });
+    }
+};
+
+
 // Crear un nuevo producto
 exports.createProduct = async (req, res) => {
     const { cod_barra, descripcion, stock, costo, precio_venta, fecha } = req.body;
@@ -63,22 +79,25 @@ exports.createProduct = async (req, res) => {
 
 
 
-// Obtener la página de edición de productos
+// Obtener la página de edición del producto
 exports.getEditProductPage = async (req, res) => {
     try {
         const codigoDeBarras = req.params.codigoDeBarras;
+
         const product = await Product.findOne({ cod_barra: codigoDeBarras });
+
         if (!product) {
             return res.status(400).json({ message: 'Producto no encontrado' });
         }
+
         res.render('editProduct', { product });
     } catch (error) {
+        console.error('Error al obtener producto para editar:', error);
         res.status(500).json({ message: 'Error al obtener producto para editar' });
     }
 };
 
 
-// Actualizar un producto por su código de barras
 exports.updateProduct = async (req, res) => {
     const codigoDeBarras = req.params.codigoDeBarras;
     const updateData = {
@@ -91,11 +110,14 @@ exports.updateProduct = async (req, res) => {
     };
 
     try {
+        // Encuentra el producto original por su código de barras actual
         const updatedProduct = await Product.findOneAndUpdate({ cod_barra: codigoDeBarras }, updateData, { new: true });
+
         if (!updatedProduct) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
+            return res.status(404).json({ message: 'Producto no encontrado para actualizar' });
         }
-        res.json(updatedProduct); // Devolver el producto actualizado como respuesta
+
+        res.json(updatedProduct); // Devuelve el producto actualizado como respuesta
     } catch (error) {
         console.error('Error al actualizar el producto:', error);
         res.status(500).json({ message: 'Error al actualizar el producto' });

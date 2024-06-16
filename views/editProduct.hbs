@@ -6,7 +6,7 @@
         <!-- Campos del formulario para editar el producto -->
         <div class="form-group">
             <label for="cod_barra">Código de Barras:</label>
-            <input type="number" class="form-control" id="cod_barra" name="cod_barra" value="{{product.cod_barra}}"
+            <input type="text" class="form-control" id="cod_barra" name="cod_barra" value="{{product.cod_barra}}"
                 required>
         </div>
         <div class="form-group">
@@ -20,11 +20,12 @@
         </div>
         <div class="form-group">
             <label for="costo">Costo:</label>
-            <input type="number" class="form-control" id="costo" name="costo" value="{{product.costo}}" required>
+            <input type="number" step="0.01" class="form-control" id="costo" name="costo" value="{{product.costo}}"
+                required>
         </div>
         <div class="form-group">
             <label for="precio_venta">Precio de Venta:</label>
-            <input type="number" class="form-control" id="precio_venta" name="precio_venta"
+            <input type="number" step="0.01" class="form-control" id="precio_venta" name="precio_venta"
                 value="{{product.precio_venta}}" required>
         </div>
         <button type="button" onclick="updateProduct()" class="btn btn-primary">Guardar Cambios</button>
@@ -33,31 +34,31 @@
 
 <script>
     async function updateProduct() {
-            const cod_barra = document.getElementById('cod_barra').value;
-            const descripcion = document.getElementById('descripcion').value;
-            const stock = document.getElementById('stock').value;
-            const costo = document.getElementById('costo').value;
-            const precio_venta = document.getElementById('precio_venta').value;
+        const cod_barra = document.getElementById('cod_barra').value;
+        const descripcion = document.getElementById('descripcion').value;
+        const stock = document.getElementById('stock').value;
+        const costo = document.getElementById('costo').value;
+        const precio_venta = document.getElementById('precio_venta').value;
 
-            // Construir la URL con el código de barras del producto
-            const url = `/products/${cod_barra}`; // Aquí va la declaración de la URL
-            const method = 'PUT';
-            const headers = { 'Content-Type': 'application/json' };
-            const body = JSON.stringify({ cod_barra, descripcion, stock, costo, precio_venta });
+        const url = `/products/${cod_barra}`; // Asegúrate de que la URL sea correcta
+        const method = 'PUT';
+        const headers = { 'Content-Type': 'application/json' };
+        const body = JSON.stringify({ cod_barra, descripcion, stock, costo, precio_venta });
 
-            try {
+        try {
             const response = await fetch(url, { method, headers, body });
             if (response.ok) {
                 alert('Producto actualizado exitosamente');
                 window.location.href = '/products'; // Redirigir a la lista de productos
             } else {
-                const errorMessage = await response.text(); // Aquí obtenemos el mensaje de error
-                throw new Error(errorMessage); // Aquí lanzamos el error con el mensaje
+                const errorMessage = await response.text();
+                throw new Error(errorMessage);
             }
         } catch (error) {
+            console.error('Error al actualizar el producto:', error);
             alert('Error al actualizar el producto. Consulte la consola para obtener más detalles.');
         }
-        }
+    }
 </script>
 
 {{> footer}}

@@ -51,13 +51,14 @@
             <input type="hidden" id="total" name="total" value="">
         </div>
 
+        {{!-- CODIGO DE BARRA --}}
         <div class="form-group row fw-bolder">
-            <label for="" id="codigo-barra-busqueda">Codigo de Barra</label>
+            <label for="cod_barra" id="codigo-barra-busqueda">Codigo de Barra</label>
             <div class="col-sm-3">
-                <input type="number" class="form-control" id="cod_barra" name="cod_barra">
+                <input type="text" class="form-control" id="cod_barra" name="cod_barra">
             </div>
         </div>
-        
+
         <table class="table mt-3">
             <thead>
                 <tr>
@@ -133,6 +134,7 @@
                 <table class="table">
                     <thead>
                         <tr>
+                            <th>Código de Barras</th>
                             <th>Nombre del Combo</th>
                             <th>Articulos del Combo</th>
                             <th>Precio</th>
@@ -187,6 +189,61 @@
             });
         }
 
+        //--------------------------------------------------------------BUSCAR PRODUCTO POR CODIGO DE BARRA----------------------------------------------------------------------------
+        document.getElementById('cod_barra').addEventListener('keydown', async function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const cod_Barra = this.value.trim(); // Asegúrate de que cod_Barra es una cadena de texto
+                console.log('string', cod_Barra); // Verifica que el valor sea el esperado
+                if (!cod_Barra) {
+                    alert('Por favor, ingrese un código de barra');
+                    return;
+                }
+                try {
+                    const response = await fetch(`/product/barcode/${cod_Barra}`);
+                    if (response.ok) {
+                        const product = await response.json();
+                        agregarProductoATabla(product);
+                        this.value = ''; // Reiniciar el campo después de agregar el producto
+                    } else {
+                        alert('Producto no encontrado');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert('Error al buscar el producto');
+                }
+            }
+        });
+
+        function agregarProductoATabla(product) {
+            let tbody = $('#productosEncontrados');
+            let precio = parseFloat(product.precio_venta).toFixed(2);
+            let precioConSigno = '$' + precio;
+
+            let row = `
+        <tr data-cod_barra="${product.cod_barra}" data-precio="${precio}">
+            <td class="cantidad">1</td>
+            <td class="cod_barra">${product.cod_barra}</td>
+            <td class="descripcion">${product.descripcion}</td>
+            <td class="precio">${precioConSigno}</td>
+            <td class="total">${precioConSigno}</td>
+            <td><button type="button" onclick="editarCantidad('${product.cod_barra}')" class="btn btn-primary">Editar Cantidad</button></td>
+            <td><button type="button" onclick="borrarArticulo(this)" class="btn btn-danger">Borrar</button></td>
+        </tr>
+    `;
+
+            tbody.append(row);
+            actualizarTotal();
+            toggleConfirmButton();
+        }
+
+
+        //-----------------------------------------------------------------------------------------------FIN DE BUSQUEDA DE PRODUCTO POR CODIGO DE BARRA----------------------------------------
+
+
+
+
+
         function abrirModalCombo() {
             $.get('/sales/combos', function (combos) {
                 $('#comboList').empty();
@@ -196,6 +253,7 @@
 
                     let row = `
                 <tr>
+                    <td>${combo.codigoBarra}</td>
                     <td>${combo.nombre}</td>
                     <td>
                         <ul>
@@ -248,7 +306,7 @@
         $(document).on('click', '.seleccionar-producto', function () {
             let cod_barra = $(this).data('cod_barra');
             let descripcion = $(this).data('descripcion');
-            let precio = $(this).data('precio');
+            let precio = parseFloat($(this).data('precio')).toFixed(2);
             let stock = $(this).data('stock');
 
             if (stock <= 0) {
@@ -256,45 +314,49 @@
                 return;
             }
 
-            
-
+            let precioConSigno = '$' + precio;
             let tbody = $('#productosEncontrados');
             let row = `
-            <tr data-cod_barra="${cod_barra}">
-                <td class="cantidad">1</td>
-                <td class="cod_barra">${cod_barra}</td>
-                <td class="descripcion">${descripcion}</td>
-                <td class="precio">${precio}</td>
-                <td class="total">${precio}</td>
-                <td><button type="button" onclick="editarCantidad('${cod_barra}')" class="btn btn-primary">Editar Cantidad</button></td>
-                <td><button type="button" onclick="borrarArticulo(this)" class="btn btn-danger">Borrar</button></td>
-            </tr>
-        `;
+        <tr data-cod_barra="${cod_barra}" data-precio="${precio}">
+            <td class="cantidad">1</td>
+            <td class="cod_barra">${cod_barra}</td>
+            <td class="descripcion">${descripcion}</td>
+            <td class="precio">${precioConSigno}</td>
+            <td class="total">${precioConSigno}</td>
+            <td><button type="button" onclick="editarCantidad('${cod_barra}')" class="btn btn-primary">Editar Cantidad</button></td>
+            <td><button type="button" onclick="borrarArticulo(this)" class="btn btn-danger">Borrar</button></td>
+        </tr>
+    `;
+
             tbody.append(row);
             $('#productModal').modal('hide');
             actualizarTotal();
             toggleConfirmButton();
         });
 
+
+
+
+
         $(document).on('click', '.seleccionar-combo', function () {
             let comboId = $(this).data('combo-id');
             let comboPrecio = $(this).data('combo-precio');
-            let comboCodBarra = $(this).data('combo-cod_barra');
+            let comboCodBarra = $(this).data('combo-cod_barra'); // Directamente sin prefijo
 
             $.get(`/sales/combos/${comboId}`, function (combo) {
                 let productosDescripcion = combo.productos.map(producto => producto.descripcion).join(', ');
                 let tbody = $('#productosEncontrados');
                 let row = `
-                    <tr data-cod_barra="${comboCodBarra}">
-                        <td class="cantidad">1</td>
-                        <td class="cod_barra">${comboCodBarra}</td>
-                        <td class="descripcion">${productosDescripcion}</td>
-                        <td class="precio">${comboPrecio}</td>
-                        <td class="total">${comboPrecio}</td>
-                        <td><button type="button" onclick="editarCantidad('${comboCodBarra}')" class="btn btn-primary">Editar Cantidad</button></td>
-                        <td><button type="button" onclick="borrarArticulo(this)" class="btn btn-danger">Borrar</button></td>
-                    </tr>
-                `;
+            <tr data-cod_barra="${comboCodBarra}">
+                <td class="cantidad">1</td>
+                <td class="cod_barra">${comboCodBarra}</td>
+                <td class="descripcion">${productosDescripcion}</td>
+                <td class="precio">${comboPrecio}</td>
+                <td class="total">${comboPrecio}</td>
+                <td><button type="button" onclick="editarCantidad('${comboCodBarra}')" class="btn btn-primary">Editar Cantidad</button></td>
+                <td><button type="button" onclick="borrarArticulo(this)" class="btn btn-danger">Borrar</button></td>
+            </tr>
+        `;
                 tbody.append(row);
                 $('#comboModal').modal('hide');
                 actualizarTotal();
@@ -313,14 +375,22 @@
         });
 
         window.editarCantidad = function (cod_barra) {
-            let cantidad = prompt('Ingrese la nueva cantidad:');
-            if (cantidad !== null && cantidad > 0) {
-                let row = $(`tr[data-cod_barra='${cod_barra}']`);
-                let precio = parseFloat(row.find('.precio').text());
-                row.find('.cantidad').text(cantidad);
-                row.find('.total').text(precio * cantidad);
-                actualizarTotal();
+            let row = $(`tr[data-cod_barra='${cod_barra}']`);
+            let cantidad = parseInt(prompt('Ingrese la nueva cantidad:', row.find('.cantidad').text()));
+
+            if (isNaN(cantidad) || cantidad <= 0) {
+                alert('Cantidad inválida');
+                return;
             }
+
+            let precio = parseFloat(row.data('precio'));
+            let total = (cantidad * precio).toFixed(2);
+            let totalConSigno = '$' + total;
+
+            row.find('.cantidad').text(cantidad);
+            row.find('.total').text(totalConSigno);
+
+            actualizarTotal();
         }
 
         window.borrarArticulo = function (button) {
@@ -336,12 +406,18 @@
 
             $('#productosEncontrados tr').each(function () {
                 let cantidad = parseFloat($(this).find('.cantidad').text());
-                let precio = parseFloat($(this).find('.precio').text());
-                total += cantidad * precio;
+                let precioString = $(this).find('.precio').text(); // Obtener el precio como string
+                let precio = parseFloat(precioString.replace('$', '').trim()); // Eliminar el signo $ y convertir a número
+
+                if (!isNaN(cantidad) && !isNaN(precio)) {
+                    total += cantidad * precio;
+                }
             });
 
-            totalCobrarElement.text(total.toFixed(2));
-            $('#total').val(total.toFixed(2));
+            totalCobrarElement.text(total.toFixed(2)); // Mostrar el total con el signo $
+            $('#total').val(total.toFixed(2)); // Actualizar el valor del campo oculto
+
+            // Si necesitas hacer algo más con el total, puedes hacerlo aquí
         }
 
         function toggleConfirmButton() {
@@ -385,7 +461,7 @@
 
 
 
-                                                    {{!-- ELIMINAR LAS FLECHAS DE LOS INPUT --}}
+{{!-- ELIMINAR LAS FLECHAS DE LOS INPUT --}}
 <style>
     /* Para Webkit (Chrome, Safari, Opera) */
     input[type=number]::-webkit-outer-spin-button,
@@ -401,5 +477,3 @@
 </style>
 
 {{>footer}}
-
-
