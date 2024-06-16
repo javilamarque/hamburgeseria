@@ -28,17 +28,21 @@
                 <td>
                     <form class="anular-venta-form" action="/sales/anular" method="POST">
                         <input type="hidden" name="fac_num" value="{{fac_num}}">
+                        {{#if (gt (divide (subtract (now) (date f_factura 'x')) 3600000) 24)}}
+                        <button type="submit" class="btn btn-danger" disabled>Venta Expirada</button>
+                        {{else}}
                         <button type="submit" class="btn btn-danger">Anular Venta</button>
+                        {{/if}}
                     </form>
                 </td>
             </tr>
             {{/each}}
         </tbody>
     </table>
-    
+
     <div class="volver">
-    <a href="/sales" class="btn btn-primary">Ir a Ventas</a>
-    <a href="/admin/home" class="btn btn-warning">Ir a Inicio</a>
+        <a href="/sales" class="btn btn-primary">Ir a Ventas</a>
+        <a href="/admin/home" class="btn btn-warning">Ir a Inicio</a>
     </div>
 </div>
 

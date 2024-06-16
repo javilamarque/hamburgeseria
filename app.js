@@ -13,6 +13,8 @@ const ventaRoute = require('./routes/ventaRoute');
 const cajaRoute = require('./routes/cajaRoute')
 const comboRoute = require('./routes/comboRoute')
 const handlebarsMoment = require('handlebars.moment');
+const Handlebars = require('handlebars');
+const moment = require('moment');
 
 
 const app = express();
@@ -21,6 +23,13 @@ const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 
 handlebarsMoment.registerHelpers(hbs.handlebars);
+
+// Registro de helpers personalizados en Handlebars
+hbs.registerHelper('now', () => new Date().getTime());
+hbs.registerHelper('date', (date, format) => moment(date).format(format));
+hbs.registerHelper('subtract', (a, b) => a - b);
+hbs.registerHelper('divide', (a, b) => a / b);
+hbs.registerHelper('gt', (a, b) => a > b);
 
 // Registro del helper eq en Handlebars
 hbs.registerHelper('eq', function (a, b) {
