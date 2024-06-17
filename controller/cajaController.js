@@ -148,10 +148,21 @@ exports.procesarCierreParcial = async (req, res) => {
     try {
         const { cierre_parcial } = req.body;
         const caja = await Caja.findOne().sort({ fecha_apertura: -1 });
+
         if (!caja) {
             return res.status(404).json({ message: 'No se encontró la caja' });
         }
-        caja.cierre_parcial += parseFloat(cierre_parcial);
+
+        const nuevoCierreParcial = caja.cierre_parcial + parseFloat(cierre_parcial);
+        const nuevoTotalFinal = caja.apertura + caja.total_ventas_dia - nuevoCierreParcial;
+
+        if (nuevoTotalFinal < 0) {
+            return res.status(400).json({ message: 'El cierre parcial no puede dejar el total final en negativo' });
+        }
+
+        caja.cierre_parcial = nuevoCierreParcial;
+        caja.total_final = nuevoTotalFinal;
+
         await caja.save();
         await exports.obtenerDatosCaja(req, res);
     } catch (error) {
@@ -161,11 +172,26 @@ exports.procesarCierreParcial = async (req, res) => {
 };
 
 exports.procesarRetiroTransferencia = async (req, res) => {
-    const { retiro_transferencia } = req.body;
     try {
+        const { retiro_transferencia } = req.body;
         const caja = await Caja.findOne().sort({ fecha_apertura: -1 });
-        caja.retiro_parcial_transferencia += parseFloat(retiro_transferencia);
-        caja.total_transferencia = caja.t_transferencia - caja.retiro_parcial_transferencia;
+
+        if (!caja) {
+            return res.status(404).json({ message: 'No se encontró la caja' });
+        }
+
+        const nuevoRetiroParcialTransferencia = caja.retiro_parcial_transferencia + parseFloat(retiro_transferencia);
+        const nuevoTotalTransferencia = caja.t_transferencia - nuevoRetiroParcialTransferencia;
+        const nuevoTotalFinal = caja.apertura + caja.total_ventas_dia - caja.cierre_parcial - nuevoRetiroParcialTransferencia;
+
+        if (nuevoTotalTransferencia < 0) {
+            return res.status(400).json({ message: 'El retiro parcial de transferencia no puede dejar Total Transferencia en negativo' });
+        }
+
+        caja.retiro_parcial_transferencia = nuevoRetiroParcialTransferencia;
+        caja.total_transferencia = nuevoTotalTransferencia;
+        caja.total_final = nuevoTotalFinal;
+
         await caja.save();
         res.status(200).json({ message: 'Retiro parcial transferencia procesado correctamente.' });
     } catch (error) {
@@ -183,7 +209,7 @@ exports.cerrarCaja = async (req, res) => {
         }
 
         const valorApertura = parseFloat(datosCaja.apertura);
-        const totalDineroEnCaja  = datosCaja.total_final
+        const totalDineroEnCaja = datosCaja.total_final
 
         // Crear objeto de caja cerrada con valores de caja abierta
         const cajaCerrada = {
@@ -198,7 +224,7 @@ exports.cerrarCaja = async (req, res) => {
         };
 
         datosCaja.cerrada = cajaCerrada;
-        
+
 
         // Guardar la caja cerrada en la base de datos
         await cajaCerradas.create(cajaCerrada);
