@@ -51,13 +51,14 @@
             <input type="hidden" id="total" name="total" value="">
         </div>
 
-        {{!-- CODIGO DE BARRA --}}
+        {{!-- CODIGO DE BARRA PRODUCTOS--}}
         <div class="form-group row fw-bolder">
             <label for="cod_barra" id="codigo-barra-busqueda">Codigo de Barra</label>
             <div class="col-sm-3">
                 <input type="text" class="form-control" id="cod_barra" name="cod_barra">
             </div>
         </div>
+        
 
         <table class="table mt-3">
             <thead>
@@ -189,28 +190,37 @@
             });
         }
 
-        //--------------------------------------------------------------BUSCAR PRODUCTO POR CODIGO DE BARRA----------------------------------------------------------------------------
+        //--------------------------------------------------------------BUSCAR PRODUCTO y COMBOS POR CODIGO DE BARRA----------------------------------------------------------------------------
         document.getElementById('cod_barra').addEventListener('keydown', async function (event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
-                const cod_Barra = this.value.trim(); // Asegúrate de que cod_Barra es una cadena de texto
-                console.log('string', cod_Barra); // Verifica que el valor sea el esperado
+                const cod_Barra = this.value.trim();
+                console.log('string', cod_Barra);
                 if (!cod_Barra) {
                     alert('Por favor, ingrese un código de barra');
                     return;
                 }
                 try {
-                    const response = await fetch(`/product/barcode/${cod_Barra}`);
+                    // Intentar buscar el combo primero
+                    let response = await fetch(`/combos/barcode/${cod_Barra}`);
                     if (response.ok) {
-                        const product = await response.json();
-                        agregarProductoATabla(product);
-                        this.value = ''; // Reiniciar el campo después de agregar el producto
+                        const combo = await response.json();
+                        agregarComboATabla(combo);
+                        this.value = '';
                     } else {
-                        alert('Producto no encontrado');
+                        // Si no se encuentra el combo, intentar buscar el producto
+                        response = await fetch(`/product/barcode/${cod_Barra}`);
+                        if (response.ok) {
+                            const product = await response.json();
+                            agregarProductoATabla(product);
+                            this.value = '';
+                        } else {
+                            alert('Producto o combo no encontrado');
+                        }
                     }
                 } catch (error) {
                     console.error(error);
-                    alert('Error al buscar el producto');
+                    alert('Error al buscar el producto o combo');
                 }
             }
         });
@@ -228,6 +238,34 @@
             <td class="precio">${precioConSigno}</td>
             <td class="total">${precioConSigno}</td>
             <td><button type="button" onclick="editarCantidad('${product.cod_barra}')" class="btn btn-primary">Editar Cantidad</button></td>
+            <td><button type="button" onclick="borrarArticulo(this)" class="btn btn-danger">Borrar</button></td>
+        </tr>
+    `;
+
+            tbody.append(row);
+            actualizarTotal();
+            toggleConfirmButton();
+        }
+
+        function agregarComboATabla(combo) {
+            let tbody = $('#productosEncontrados');
+
+            // Combinar las descripciones de todos los productos del combo
+            let descripcionCombo = combo.productos.map(product => product.descripcion).join(', ');
+
+            // Calcular el precio total del combo
+            let precioTotalCombo = parseFloat(combo.precio).toFixed(2);
+            let precioTotalConSigno = '$' + precioTotalCombo;
+            let codigoBarraConPrefijo = `combo_${combo.codigoBarra}`;
+
+            let row = `
+        <tr data-cod_barra="${combo.codigoBarra}" data-precio="${precioTotalCombo}">
+            <td class="cantidad">1</td>
+            <td class="cod_barra">${codigoBarraConPrefijo}</td>
+            <td class="descripcion">${descripcionCombo}</td>
+            <td class="precio">${precioTotalConSigno}</td>
+            <td class="total">${precioTotalConSigno}</td>
+            <td><button type="button" onclick="editarCantidad('${combo.codigoBarra}')" class="btn btn-primary">Editar Cantidad</button></td>
             <td><button type="button" onclick="borrarArticulo(this)" class="btn btn-danger">Borrar</button></td>
         </tr>
     `;
@@ -262,7 +300,7 @@
                     </td>
                     <td>${formattedPrecio}</td>
                     <td>
-                        <button type="button" class="btn btn-primary seleccionar-combo" data-combo-id="${combo._id}" data-combo-precio="${combo.precio}" data-combo-cod_barra="combo_${combo.codigoBarra}" ${stockInsuficiente ? 'disabled' : ''}>
+                        <button type="button" class="btn btn-primary seleccionar-combo" data-combo-id="${combo._id}" data-combo-precio="${formattedPrecio}" data-combo-cod_barra="combo_${combo.codigoBarra}" ${stockInsuficiente ? 'disabled' : ''}>
                             ${stockInsuficiente ? 'Stock Insuficiente' : 'Seleccionar'}
                         </button>
                     </td>

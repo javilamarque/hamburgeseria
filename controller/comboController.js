@@ -3,6 +3,7 @@ const Combo = require('../models/combo');
 const Product = require('../models/product');
 // Crear un nuevo combo
 // Crear un nuevo combo
+// Crear un nuevo combo
 exports.createCombo = async (req, res) => {
     try {
         const { nombre, codigoBarra, precio, productos } = req.body;
@@ -132,5 +133,21 @@ exports.getAllProducts = async (req, res) => { // Actualizado
         res.json(products);
     } catch (error) {
         res.status(500).json({ message: 'Error al obtener los productos' });
+    }
+};
+
+
+
+exports.getComboByBarcode = async (req, res) => {
+    const codigoBarra = req.params.cod_barra.trim();
+    try {
+        const combo = await Combo.findOne({ codigoBarra: codigoBarra }).populate('productos', 'descripcion cod_barra precio_venta');
+        if (!combo) {
+            return res.status(404).json({ message: 'Combo no encontrado' });
+        }
+        res.json(combo);
+    } catch (error) {
+        console.error('Error al obtener los detalles del combo:', error);
+        res.status(500).json({ message: 'Error al obtener los detalles del combo' });
     }
 };

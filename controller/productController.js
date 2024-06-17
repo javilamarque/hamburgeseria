@@ -182,10 +182,6 @@ exports.seleccionarProducto = async (req, res) => {
     }
 };
 
-exports.rendeComboPage = async (req, res) => {
-    res.rende('createCombo')
-}
-
 
 //-----------------------------------------------------------------------------------------------------BUSQUEDA DE PRODUCTO------------------------------------------------------
 exports.searchProduct = async (req, res) => {
