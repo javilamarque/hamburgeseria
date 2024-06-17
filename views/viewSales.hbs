@@ -26,6 +26,7 @@
                 <td>{{vendedor}}</td>
                 <td>{{tipo_pago}}</td>
                 <td>
+
                     <form class="anular-venta-form" action="/sales/anular" method="POST">
                         <input type="hidden" name="fac_num" value="{{fac_num}}">
                         {{#if (gt (divide (subtract (now) (date f_factura 'x')) 3600000) 24)}}
@@ -34,6 +35,15 @@
                         <button type="submit" class="btn btn-danger">Anular Venta</button>
                         {{/if}}
                     </form>
+
+                    {{!-- <form class="anular-venta-form" action="/sales/anular" method="POST">
+                        <input type="hidden" name="fac_num" value="{{fac_num}}">
+                        {{#if (gt (divide (subtract (now) (date f_factura 'x')) 3600000) 24)}}
+                        <button type="submit" class="btn btn-danger" disabled>Venta Expirada</button>
+                        {{else}}
+                        <button type="submit" class="btn btn-danger">Anular Venta</button>
+                        {{/if}}
+                    </form> --}}
                 </td>
             </tr>
             {{/each}}

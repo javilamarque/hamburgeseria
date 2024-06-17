@@ -2,8 +2,6 @@ const mongoose = require('mongoose');
 const Combo = require('../models/combo');
 const Product = require('../models/product');
 // Crear un nuevo combo
-// Crear un nuevo combo
-// Crear un nuevo combo
 exports.createCombo = async (req, res) => {
     try {
         const { nombre, codigoBarra, precio, productos } = req.body;

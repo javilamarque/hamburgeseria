@@ -13,7 +13,6 @@ const ventaRoute = require('./routes/ventaRoute');
 const cajaRoute = require('./routes/cajaRoute')
 const comboRoute = require('./routes/comboRoute')
 const handlebarsMoment = require('handlebars.moment');
-const Handlebars = require('handlebars');
 const moment = require('moment');
 
 
@@ -26,7 +25,21 @@ handlebarsMoment.registerHelpers(hbs.handlebars);
 
 // Registro de helpers personalizados en Handlebars
 hbs.registerHelper('now', () => new Date().getTime());
-hbs.registerHelper('date', (date, format) => moment(date).format(format));
+hbs.registerHelper('date', (date, format) => {
+    let momentDate;
+    // Intentar crear un objeto moment con la fecha proporcionada
+    momentDate = moment(date, ["YYYY-MM-DDTHH:mm:ssZ", "DD-MM-YYYY", "DD/MM/YYYY", moment.ISO_8601, "LLLL"], true);
+    // Si la fecha no es válida, caer en el objeto Date de JavaScript
+    if (!momentDate.isValid()) {
+        momentDate = moment(new Date(date));
+    }
+    // Si todavía no es válida, usar la fecha actual
+    if (!momentDate.isValid()) {
+        momentDate = moment();
+    }
+    return momentDate.format(format);
+});
+
 hbs.registerHelper('subtract', (a, b) => a - b);
 hbs.registerHelper('divide', (a, b) => a / b);
 hbs.registerHelper('gt', (a, b) => a > b);
