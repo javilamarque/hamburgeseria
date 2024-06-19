@@ -27,6 +27,11 @@ PARA INICIAR NUEVAMENTE
 pm2 start 0
 
 
+INSTALAR MONGO SERVER Y DEPENDENCIAS NECESARIAS COMO:
+"mongoose": "^7.2.2",
+"mongoose-sequence": "^6.0.1",
+
+
 
 												PARA EJECUTAR AL INICIO DE SECCION DE WINDOWS
 pm2 startup
