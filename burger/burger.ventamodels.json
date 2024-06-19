@@ -1,0 +1,368 @@
+[{
+  "_id": {
+    "$oid": "666c3eaff7bd2a1848c3d198"
+  },
+  "descripcion": "salchicha",
+  "total": 300,
+  "f_factura": {
+    "$date": "2024-06-14T12:59:27.801Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Mercado Pago",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 252,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666cfa01bbfed645476b221d"
+  },
+  "descripcion": "cerveza",
+  "total": 1000,
+  "f_factura": {
+    "$date": "2024-06-15T02:18:41.062Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 256,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666cfa38bbfed645476b223a"
+  },
+  "descripcion": "pepsi",
+  "total": 200,
+  "f_factura": {
+    "$date": "2024-06-15T02:19:36.682Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": false,
+  "fac_num": 257,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666cfa4dbbfed645476b224b"
+  },
+  "descripcion": "salchicha",
+  "total": 300,
+  "f_factura": {
+    "$date": "2024-06-15T02:19:57.288Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 258,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666dd2ecef5f4cc632a0b204"
+  },
+  "descripcion": "Agua Mineral",
+  "total": 3260,
+  "f_factura": {
+    "$date": "2024-06-15T17:44:12.164Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 260,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666f6399fc5caad2f8d8d863"
+  },
+  "descripcion": "hamburguesa, Levite Saborizado",
+  "total": 1000,
+  "f_factura": {
+    "$date": "2024-06-16T22:13:45.990Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": false,
+  "fac_num": 261,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666f63a5fc5caad2f8d8d86c"
+  },
+  "descripcion": "hamburguesa, salchicha",
+  "total": 4560,
+  "f_factura": {
+    "$date": "2024-06-16T22:13:57.835Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": false,
+  "fac_num": 262,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666f66becf32d5bba87b8a63"
+  },
+  "descripcion": "hamburguesa",
+  "total": 150,
+  "f_factura": {
+    "$date": "2024-06-16T22:27:10.636Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 263,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666f66cfcf32d5bba87b8a6f"
+  },
+  "descripcion": "Agua Mineral",
+  "total": 3260,
+  "f_factura": {
+    "$date": "2024-06-16T22:27:27.966Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 264,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666f746dc1d7cffca58b96ae"
+  },
+  "descripcion": "hamburguesa",
+  "total": 150,
+  "f_factura": {
+    "$date": "2024-06-16T23:25:33.863Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 265,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666f7678deaf11666349ac08"
+  },
+  "descripcion": "Levite Saborizado",
+  "total": 200,
+  "f_factura": {
+    "$date": "2024-06-16T23:34:16.635Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Mercado Pago",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 266,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666f76d8deaf11666349ac29"
+  },
+  "descripcion": "hamburguesa",
+  "total": 150,
+  "f_factura": {
+    "$date": "2024-06-16T23:35:52.560Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 267,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666f786cdeaf11666349ac58"
+  },
+  "descripcion": "hamburguesa",
+  "total": 150,
+  "f_factura": {
+    "$date": "2024-06-16T23:42:36.210Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 268,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666f7bbbd25573c218fd234b"
+  },
+  "descripcion": "hamburguesa",
+  "total": 150,
+  "f_factura": {
+    "$date": "2024-06-16T23:56:43.792Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 269,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666f7cae07bac170cdb1da9b"
+  },
+  "descripcion": "Levite Saborizado",
+  "total": 200,
+  "f_factura": {
+    "$date": "2024-06-17T00:00:46.302Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 270,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666f7d6e5d9d19efe0868afe"
+  },
+  "descripcion": "Levite Saborizado",
+  "total": 200,
+  "f_factura": {
+    "$date": "2024-06-17T00:03:58.754Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 271,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666f7e0346db6ef78fb55482"
+  },
+  "descripcion": "pepsi",
+  "total": 200,
+  "f_factura": {
+    "$date": "2024-06-17T00:06:27.768Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 272,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666f7ec10ae943095c590478"
+  },
+  "descripcion": "pepsi",
+  "total": 200,
+  "f_factura": {
+    "$date": "2024-06-17T00:09:37.234Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 273,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666f800da73dad0efaf51b57"
+  },
+  "descripcion": "Levite Saborizado",
+  "total": 200,
+  "f_factura": {
+    "$date": "2024-06-17T00:15:09.986Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 274,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666f81dba8cc2e64c9564424"
+  },
+  "descripcion": "hamburguesa",
+  "total": 150,
+  "f_factura": {
+    "$date": "2024-06-17T00:22:51.358Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Mercado Pago",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 275,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666fa7a67ae0e7bcb20daba0"
+  },
+  "descripcion": "hamburguesa",
+  "total": 150,
+  "f_factura": {
+    "$date": "2024-06-17T03:04:06.751Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Mercado Pago",
+  "cantidad": 1,
+  "procesada": true,
+  "fac_num": 276,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6670b3c1a8f328384a0e8d7d"
+  },
+  "descripcion": "salchicha, cerveza fria",
+  "total": 1300,
+  "f_factura": {
+    "$date": "2024-06-17T22:08:01.164Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Efectivo",
+  "cantidad": 2,
+  "procesada": true,
+  "fac_num": 277,
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6670b44ba8f328384a0e8d8e"
+  },
+  "descripcion": "Levite Saborizado",
+  "total": 400,
+  "f_factura": {
+    "$date": "2024-06-17T22:10:19.698Z"
+  },
+  "vendedor": "admin",
+  "tipo_pago": "Mercado Pago",
+  "cantidad": 2,
+  "procesada": true,
+  "fac_num": 278,
+  "__v": 0
+}]

@@ -1,0 +1,98 @@
+[{
+  "_id": {
+    "$oid": "6653dbf728c30d9683180aa4"
+  },
+  "cod_barra": "11110000",
+  "descripcion": "Agua Mineral",
+  "stock": 39,
+  "costo": 50,
+  "precio_venta": 3260,
+  "fecha": {
+    "$date": "2024-06-17T03:06:42.699Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6653e2a528c30d9683180ad4"
+  },
+  "cod_barra": "123456789",
+  "descripcion": "hamburguesa",
+  "stock": 33,
+  "costo": 100,
+  "precio_venta": 150,
+  "fecha": {
+    "$date": "2024-06-16T05:25:41.871Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6655db6bbac6b38296f44947"
+  },
+  "cod_barra": "120",
+  "descripcion": "Levite Saborizado",
+  "stock": 32,
+  "costo": 100,
+  "precio_venta": 200,
+  "fecha": {
+    "$date": "2024-06-10T01:06:19.888Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6655f9d77f9c304847e2b1b3"
+  },
+  "cod_barra": "555555",
+  "descripcion": "salchicha",
+  "stock": 18,
+  "costo": 150,
+  "precio_venta": 300,
+  "fecha": {
+    "$date": "2024-06-10T01:06:26.229Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "665882450ed8a9ee2aba7a40"
+  },
+  "cod_barra": "22",
+  "descripcion": "pepsi",
+  "stock": 37,
+  "costo": 100,
+  "precio_venta": 200,
+  "fecha": {
+    "$date": "2024-06-10T01:06:32.532Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "665d25f81eaf644d5fbe8ff9"
+  },
+  "cod_barra": "987654",
+  "descripcion": "cerveza fria",
+  "stock": 26,
+  "costo": 800,
+  "precio_venta": 1000,
+  "fecha": {
+    "$date": "2024-06-16T02:36:25.359Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6670b560a8f328384a0e8d9b"
+  },
+  "cod_barra": "12349876",
+  "descripcion": "soda",
+  "stock": 10,
+  "costo": 200,
+  "precio_venta": 280,
+  "fecha": {
+    "$date": "2024-06-17T22:14:56.386Z"
+  },
+  "__v": 0
+}]

@@ -1,0 +1,18 @@
+[{
+  "_id": {
+    "$oid": "6670b318a8f328384a0e8d74"
+  },
+  "apertura": 1000,
+  "t_transferencia": 400,
+  "total_ventas_dia": 1300,
+  "cierre_parcial": 0,
+  "retiro_parcial_transferencia": 0,
+  "total_transferencia": 0,
+  "total_final": 2300,
+  "cerrada": {
+    "fecha_cierre": {
+      "$date": "2024-06-17T22:05:12.624Z"
+    }
+  },
+  "__v": 0
+}]

@@ -1,0 +1,186 @@
+EJECUTAR PM2 EN OTRA PC
+
+INSTALAR PM2
+ npm i -g pm2@latest
+
+VERIFICAR LA VERSION
+pm2 --version     
+
+CORRER TU APP.JS PARA QUE SIEMPRER SE EJECUTE SOLA 
+ pm2 start app.js --name hamburgueseria
+
+VER SI ESTA BIEN
+pm2 logs 0
+
+
+
+SI PM2 NO RECONOCE LAS VARIABLES DE ENTORNO, HACEMOS LOS SIGUIENTE 
+pm2 start app.js --node-args="-r dotenv/config
+
+
+
+PARA DETENER LA APLICACION
+pm2 stop 0
+
+
+PARA INICIAR NUEVAMENTE
+pm2 start 0
+
+
+
+												PARA EJECUTAR AL INICIO DE SECCION DE WINDOWS
+pm2 startup
+
+
+SI ESTO NOS DA UN ERROR 
+
+El error que estás viendo indica que PM2 no encuentra el sistema de inicio correcto para configurar el arranque automático en tu entorno de Windows. Para solucionar esto, podemos utilizar una alternativa creando una tarea programada en Windows para que se ejecute al inicio del sistema.
+
+Crear una tarea programada en Windows
+Sigue estos pasos para crear una tarea programada que inicie tu aplicación Node.js automáticamente cuando inicies sesión en Windows:
+
+Abrir el Programador de Tareas de Windows:
+
+Presiona Win + R, escribe taskschd.msc y presiona Enter.
+Crear una nueva tarea básica:
+
+En el Programador de tareas, haz clic en "Crear tarea básica" en el panel derecho.
+Configurar la tarea:
+
+Nombre y descripción: Dale un nombre y descripción a tu tarea, como "Iniciar Hamburguesería".
+Desencadenador: Selecciona "Al iniciar sesión" para que la tarea se ejecute cuando inicies sesión en Windows.
+Acción: Selecciona "Iniciar un programa".
+Configurar la acción:
+
+En el campo "Programa/script", ingresa la ruta al ejecutable de Node.js. Por lo general, será algo como C:\Program Files\nodejs\node.exe.
+En el campo "Agregar argumentos (opcional)", ingresa la ruta a tu archivo app.js y usa PM2 para iniciar la aplicación. Por ejemplo:
+lua
+Copiar código
+C:\Users\Javier\AppData\Roaming\npm\node_modules\pm2\bin\pm2.js start E:\Utn\hamburgeseria\ecosystem.config.js --env development
+En el campo "Iniciar en (opcional)", ingresa el directorio donde se encuentra tu proyecto. Por ejemplo:
+makefile
+Copiar código
+E:\Utn\hamburgeseria
+Finalizar la tarea:
+
+Revisa los detalles y haz clic en "Finalizar".
+Alternativa: Archivo por Lotes (Batch File)
+Otra opción es crear un archivo por lotes que ejecute PM2 con tu configuración y luego crear una tarea programada que ejecute este archivo por lotes.
+
+Crear un archivo por lotes:
+
+Abre un editor de texto (como Notepad) y escribe lo siguiente:
+batch
+Copiar código
+@echo off
+cd E:\Utn\hamburgeseria
+pm2 start ecosystem.config.js --env development
+Guarda este archivo con un nombre significativo, como start-hamburgueseria.bat.
+Crear una tarea programada para el archivo por lotes:
+
+Sigue los mismos pasos para crear una tarea programada, pero en lugar de especificar node.exe y argumentos, selecciona el archivo por lotes que acabas de crear.
+Verificar la configuración
+Reinicia tu computadora y verifica que tu aplicación Node.js se inicie automáticamente y esté disponible en el navegador. Puedes revisar el estado de tu aplicación y los logs con PM2:
+
+bash
+Copiar código
+pm2 list
+pm2 logs hamburgueseria
+Con estos pasos, deberías poder configurar tu aplicación Node.js para que se inicie automáticamente al arrancar Windows.
+
+
+
+
+
+
+
+
+
+											CONFIGURAR PM2 PARA QUE SE INICIE CON WINDOWS
+
+
+Configurar PM2 como un Servicio en Windows sin pm2-windows-service
+A continuación se describen los pasos para configurar PM2 como un servicio en Windows:
+
+Instalar pm2 globalmente (si no está instalado):
+
+sh
+Copiar código
+npm install -g pm2
+Crear un archivo de lote para iniciar PM2 al inicio del sistema:
+
+a. Abre el Bloc de notas y pega el siguiente contenido:
+
+batch
+Copiar código
+@echo off
+pm2 resurrect
+b. Guarda este archivo con el nombre pm2_start.bat en una ubicación accesible, por ejemplo, C:\pm2_start.bat.
+
+Crear una tarea programada para ejecutar este archivo de lote al inicio:
+
+a. Abre el Programador de tareas (puedes buscar "Programador de tareas" en el menú de inicio de Windows).
+
+b. Haz clic en "Crear tarea" en el panel de la derecha.
+
+c. En la pestaña "General":
+
+Dale un nombre a la tarea, por ejemplo, "PM2 Startup".
+Marca "Ejecutar con los privilegios más altos".
+d. En la pestaña "Disparadores":
+
+Haz clic en "Nuevo".
+Configura el disparador para que la tarea se ejecute "Al iniciar el sistema".
+e. En la pestaña "Acciones":
+
+Haz clic en "Nuevo".
+Configura la acción para que "Inicie un programa" y selecciona el archivo pm2_start.bat que creaste.
+f. En la pestaña "Condiciones":
+
+Asegúrate de que la opción "Iniciar la tarea solo si el equipo está conectado a la corriente alterna" no esté marcada (a menos que esto sea necesario para tu caso).
+g. En la pestaña "Configuración":
+
+Asegúrate de que "Permitir que la tarea se ejecute a pedido" esté marcada.
+Guardar y Cerrar el Programador de Tareas:
+
+Después de configurar la tarea programada, guarda y cierra el Programador de tareas.
+
+Verificar la Configuración
+Reinicia tu computadora y verifica que PM2 se inicia automáticamente y restaura los procesos guardados.
+
+Iniciar tu aplicación con PM2 y guardar el estado:
+
+sh
+Copiar código
+pm2 start app.js
+pm2 save
+Verificar el estado de los procesos:
+
+sh
+Copiar código
+pm2 status
+Ejemplo Completo
+Aquí tienes un resumen de los pasos:
+
+Crear el archivo de lote pm2_start.bat con el contenido:
+
+batch
+Copiar código
+@echo off
+pm2 resurrect
+Crear una tarea programada en el Programador de tareas de Windows para ejecutar pm2_start.bat al inicio del sistema.
+
+Guardar y cerrar el Programador de tareas.
+
+Iniciar tu aplicación con PM2 y guardar el estado:
+
+sh
+Copiar código
+pm2 start app.js
+pm2 save
+Reiniciar la computadora para verificar que PM2 se inicia automáticamente.
+
+Este método permite configurar PM2 para que se ejecute automáticamente al inicio del sistema en Windows sin necesidad de un paquete adicional.
+
+
+

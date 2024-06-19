@@ -1,0 +1,51 @@
+[{
+  "_id": {
+    "$oid": "665cdcf5d4c00ea1159b1135"
+  },
+  "nombre": "Bebidas",
+  "codigoBarra": "22",
+  "precio": "1000",
+  "productos": [
+    {
+      "$oid": "6653e2a528c30d9683180ad4"
+    },
+    {
+      "$oid": "6655db6bbac6b38296f44947"
+    }
+  ],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "665ce01dd860fba45812ddf5"
+  },
+  "nombre": "comida",
+  "codigoBarra": "33",
+  "precio": "4850",
+  "productos": [
+    {
+      "$oid": "6653e2a528c30d9683180ad4"
+    },
+    {
+      "$oid": "6655f9d77f9c304847e2b1b3"
+    }
+  ],
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "665ce2426552f6e7cc04260f"
+  },
+  "nombre": "nada",
+  "codigoBarra": "55",
+  "precio": "4560",
+  "productos": [
+    {
+      "$oid": "6653e2a528c30d9683180ad4"
+    },
+    {
+      "$oid": "6655f9d77f9c304847e2b1b3"
+    }
+  ],
+  "__v": 0
+}]

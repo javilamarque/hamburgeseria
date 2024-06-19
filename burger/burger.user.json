@@ -1,0 +1,36 @@
+[{
+  "_id": {
+    "$oid": "66661fb70866165683734697"
+  },
+  "username": "admin",
+  "password": "$2b$10$9.p8Tjq4ExqCaIbz5PD5auult13MMnD4BwbgKoYmuhUfGOzcj8FOq",
+  "role": "admin",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "66662120a3055897e15f2d9b"
+  },
+  "username": "javi",
+  "password": "$2b$10$azvHiPaoQ3GHJxeFCrM5dujaZlyzGxPhWLSkp6QXTTSmyUAIJgPdy",
+  "role": "empleado",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666621b84eef292fe5088f51"
+  },
+  "username": "alan",
+  "password": "$2b$10$Xnnek9qA6RjZTLZ28SXFIejk8PIJg8slM0vQWIG8hWb7hyDkb32UC",
+  "role": "empleado",
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "666628e6bccc8b161d9f6fbd"
+  },
+  "username": "cuzco",
+  "password": "$2b$10$d4PxuqMf8j9K3QaekUfr0.2r1P/wUx0fExsrdKZLeXjqLjznYQJ6O",
+  "role": "admin",
+  "__v": 0
+}]
