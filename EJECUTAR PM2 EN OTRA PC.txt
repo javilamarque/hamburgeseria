@@ -185,6 +185,77 @@ pm2 start app.js
 pm2 save
 Reiniciar la computadora para verificar que PM2 se inicia automáticamente.
 
+
+
+
+									OTRA FORMA
+
+Paso 1: Inicia tu Aplicación y Guarda el Estado
+Inicia tu aplicación:
+
+bash
+Copiar código
+pm2 start app.js --name hamburgueseria
+Guarda el estado actual:
+
+bash
+Copiar código
+pm2 save
+Paso 2: Crear un Script de Inicio en Windows
+Crea un archivo de script llamado pm2_startup.bat en un lugar accesible, como tu escritorio o una carpeta específica para scripts de inicio. Abre un editor de texto (por ejemplo, Notepad) y añade el siguiente contenido:
+
+batch
+Copiar código
+@echo off
+:: Set the environment path if necessary
+set PATH=%PATH%;C:\Program Files\nodejs
+:: Start PM2 and resurrect saved processes
+pm2 resurrect
+Guarda el archivo con la extensión .bat.
+
+Paso 3: Agregar el Script a la Carpeta de Inicio de Windows
+Abre el cuadro de diálogo "Ejecutar" presionando Win + R.
+
+Escribe shell:startup y presiona Enter. Esto abrirá la carpeta de inicio de Windows.
+
+Copia el archivo pm2_startup.bat que creaste y pégalo en la carpeta de inicio.
+
+Paso 4: Verificar la Configuración
+Reinicia tu computadora y verifica que PM2 restaure los procesos automáticamente.
+
+Reinicia tu computadora.
+
+Abre una terminal de comandos (CMD) después de iniciar sesión y ejecuta:
+
+batch
+Copiar código
+pm2 list
+Tu aplicación debería aparecer en la lista de procesos de PM2.
+
+Paso 5: Verificación Adicional
+Si la aplicación no se inicia automáticamente, revisa lo siguiente:
+
+Permisos del archivo pm2_startup.bat: Asegúrate de que el archivo tenga permisos de ejecución.
+
+Logs de PM2: Verifica los logs de PM2 para obtener más información sobre posibles errores.
+
+bash
+Copiar código
+pm2 logs
+Variables de entorno: Asegúrate de que la variable de entorno PATH en el script pm2_startup.bat incluya la ruta a Node.js y PM2 si es necesario.
+
+Conclusión
+Siguiendo estos pasos, deberías poder asegurarte de que tu aplicación Node.js se inicie automáticamente con PM2 al arrancar tu sistema en Windows. La clave es sincronizar la lista de procesos de PM2 guardando el estado actual con pm2 save y crear un script de inicio que ejecute pm2 resurrect.
+
+
+
+
+
+
+
+
+
+
 Este método permite configurar PM2 para que se ejecute automáticamente al inicio del sistema en Windows sin necesidad de un paquete adicional.
 
 
