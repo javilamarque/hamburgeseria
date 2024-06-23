@@ -1,7 +1,7 @@
 {{>header}}
 
 <div class="container">
-    <h1 class="mt-5">Caja</h1>
+    <h1 class="mt-5 text-center">Caja</h1>
 
     <div class="row mt-4">
         <h3>Estado de la Caja Abierta</h3>
@@ -32,18 +32,18 @@
     </div>
     <div class="mt-2">
         <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#cierreParcialModal"
-            {{#unless (eq userRole 'admin' )}}disabled class="disabled" {{/unless}}>
+            {{#unless (eq userRole 'admin' )}}disabled class="disabled" {{/unless}}> <img src="/icons/retiro-de-efectivo.png" alt="">
             Retiro Parcial Efectivo
         </button>
 
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#retiroTransferenciaModal"
-            {{#unless (eq userRole 'admin' )}}disabled class="disabled" {{/unless}}>
+            {{#unless (eq userRole 'admin' )}}disabled class="disabled" {{/unless}}> <img src="/icons/transferencia-movil.png" alt="">
             Retiro Parcial Transferencia
         </button>
 
         <button type="button" class="btn btn-danger" id="cerrarCajaBtn" {{#unless (eq userRole 'admin' )}}disabled
-            class="disabled" {{/unless}}>Cerrar Caja</button>
-        <button type="button" class="btn btn-danger" data-bs-toggle="modal" id="cancel-btn">Ir a Inicio</button>
+            class="disabled" {{/unless}}> <img src="/icons/cerrar-caja.png" alt=""> Cerrar Caja</button>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" id="cancel-btn"> <img src="/icons/flecha-hacia-atras.png" alt=""> Ir a Inicio</button>
     </div>
 
     
@@ -206,6 +206,4 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-<div class="footer">
-    {{> footer}}
-</div>
+{{>footer}}

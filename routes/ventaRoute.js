@@ -28,4 +28,6 @@ router.post('/selectProduct', ventaController.seleccionarProducto);
 // Ruta para eliminar facturas
 router.post('/sales/anular', ventaController.anularVenta);
 
+router.get('/reportes', ventaController.reportesVentasProductosCombos);
+
 module.exports = router;

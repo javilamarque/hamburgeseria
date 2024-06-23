@@ -1,7 +1,7 @@
 {{>header}}
 
-<div class="container">
-    <h1>Facturación</h1>
+<div class="container mt-5" id="table-sales-form">
+    <h1 id="title-factura">Facturación</h1>
     <form id="sale-form" action="/sales" method="POST">
         <div class="form-group row fw-bolder">
             <label for="factura" class="col-sm-2 col-form-label">Factura Numero:</label>
@@ -36,8 +36,8 @@
 
         <div class="form-group row">
             <div class="col-md-6">
-                <button type="button" id="buscar-btn" class="btn btn-primary mt-2">Buscar Producto</button>
-                <button type="button" id="buscar-combo-btn" class="btn btn-warning mt-2">Buscar Combo</button>
+                <button type="button" id="buscar-btn" class="btn btn-primary mt-2"> <img src="/icons/buscar.png" alt=""> Buscar Producto</button>
+                <button type="button" id="buscar-combo-btn" class="btn btn-warning mt-2"> <img src="/icons/buscar-combo.png" alt=""> Buscar Combo</button>
             </div>
         </div>
 
@@ -63,13 +63,13 @@
         <table class="table mt-3">
             <thead>
                 <tr>
-                    <th>Cant</th>
-                    <th>Código de Barras</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
-                    <th>Total</th>
-                    <th>Editar</th>
-                    <th>Eliminar</th>
+                    <th id="title-table-sales">Cant</th>
+                    <th id="title-table-sales">Código de Barras</th>
+                    <th id="title-table-sales">Descripción</th>
+                    <th id="title-table-sales">Precio</th>
+                    <th id="title-table-sales">Total</th>
+                    <th id="title-table-sales">Editar</th>
+                    <th id="title-table-sales">Eliminar</th>
                 </tr>
             </thead>
             <tbody id="productosEncontrados">
@@ -77,12 +77,12 @@
             </tbody>
         </table>
         <div class="text-center">
-            <button type="button" id="confirmar-venta-btn" class="btn btn-success mt-2" style="display:none;">Confirmar
+            <button type="button" id="confirmar-venta-btn" class="btn btn-success mt-2" style="display:none;"> <img src="/icons/confirmacion.png" alt=""> Confirmar
                 Venta</button>
         </div>
     </form>
     <div class="mt-5">
-        <a href="/admin/home" class="btn btn-success">Ir a Pagina Pricipal</a>
+        <a href="/admin/home" class="btn btn-success"> <img src="/icons/flecha-hacia-atras.png" alt=""> Ir a Pagina Pricipal</a>
     </div>
 </div>
 
@@ -497,21 +497,4 @@
     });
 </script>
 
-
-
-{{!-- ELIMINAR LAS FLECHAS DE LOS INPUT --}}
-<style>
-    /* Para Webkit (Chrome, Safari, Opera) */
-    input[type=number]::-webkit-outer-spin-button,
-    input[type=number]::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-
-    /* Para Firefox */
-    input[type=number] {
-        -moz-appearance: textfield;
-    }
-</style>
-
-{{>footer}}
+{{> footer}}

@@ -12,6 +12,7 @@ const itemSchema = new mongoose.Schema({
 });
 
 const ventaSchema = new mongoose.Schema({
+    items: [itemSchema],
     descripcion: { type: String, required: true },
     total: { type: Number, required: true },
     f_factura: { type: Date, default: Date.now, required: true },

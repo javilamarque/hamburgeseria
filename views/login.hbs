@@ -1,25 +1,24 @@
-
 {{> header}}
 
 <div class="background"></div>
-<div class="card">
-    <div class="logo">
-    <img src="image/burger.png" alt="burger" >
-    <img src="image/hotdog.png" alt="">
+    <div class="card mt-5" id="card-loging">
+        <div class="logo">
+            <img src="image/burger.png" alt="burger">
+            <img src="image/hotdog.png" alt="burger">
+        </div>
+        <h2>Bienvenido a Burger Ariel</h2>
+        <form class="form" action="/login" method="post">
+            <label for="username"></label>
+            <input id="username" name="username" type="text" placeholder="Ingrese su Alias" required>
+            <!-- Utiliza una etiqueta <label> para describir el campo de usuario -->
+
+            <label for="password"></label>
+            <input id="password" name="password" type="password" placeholder="Ingrese su Contraseña" required>
+            <!-- Utiliza una etiqueta <label> para describir el campo de contraseña -->
+
+            <button class="mt-3" type="submit">Entrar</button>
+        </form>
     </div>
-    <h2>Bienvenido a Burger Ariel</h2>
-    <form class="form" action="/login" method="post">
-        <label for="username"></label>
-        <input id="username" name="username" type="text" placeholder="Ingrese su Alias" required>
-        <!-- Utiliza una etiqueta <label> para describir el campo de usuario -->
-
-        <label for="password"></label>
-        <input id="password" name="password" type="password" placeholder="Ingrese su Contraseña" required>
-        <!-- Utiliza una etiqueta <label> para describir el campo de contraseña -->
-
-        <button type="submit">Entrar</button>
-    </form>
-</div>
 
 <script>
     // Obtener el mensaje de alerta pasado desde el router
@@ -31,3 +30,4 @@
     }
 </script>
 
+{{> footer}}

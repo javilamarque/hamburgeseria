@@ -1,12 +1,25 @@
+@font-face{
+    font-family: 'honk';
+    src: url(../fonts/PlaywriteES-ExtraLight.ttf);
+}
+
+html {
+    min-height: 100%;
+    position: relative;
+}
+
 body {
     display: grid;
     place-items: center;
     gap: 50px;
     margin: 0;
+    margin-bottom: 40px;
     height: 100vh;
     padding: 0 32px;
     background: #eff9ff;
     font-family: "Poppins";
+    width: 100%;
+    height: 100%;
 }
 
 @media (width >=500px) {
@@ -134,14 +147,17 @@ body {
 
 
 /*------------------------------------------------------------------------------ADMIN--------------------------------------------------------------------------------------------------*/
+#title-home{
+    margin-top: 25px;
+}
+
 #admin-header {
     width: 100%;
-    height: 100%;
-    background-color: #fafafa;
+    padding: 8%;
 }
 
 
-#bg-apertura{
+#bg-apertura {
     background-color: #919191;
     color: rgb(8, 0, 0);
 }
@@ -156,18 +172,106 @@ body {
 }
 
 
-
-/*-------------------------------------------------------------------------TOTAL A COBRAR----------------------------------------------------------------------------------------------------*/
-#total-cobrar{
-    width: 300px;
-    margin-left: 997px;
-    background-color: #9ccce6;
+/*--------------------------------------------------------------------------CARD LOGIN----------------------------------------------------------------------------------------*/
+#card-loging{
+    margin-bottom: -10%;
 }
 
 
+/*-------------------------------------------------------------------------INPUT CODIGO DE BARRAS----------------------------------------------------------------------------------------------------*/
 
-#codigo-barra-busqueda{
+#codigo-barra-busqueda {
     margin-left: 93px;
     font-size: 18px;
-    
+
 }
+
+
+
+/*----------------------------------------------------------------------FORMULARIO Y TABLA DE VENTAS-----------------------------------------------------------------------------------*/
+#table-sales-form {
+    display: grid;
+    margin-top: -10%;
+    max-width: 75%;
+    padding: 15px;
+}
+
+#title-factura{
+    text-align: center;
+    color: #000000;
+}
+
+.form-group {
+    margin-top: 10px;
+}
+
+table.table {
+    margin-top: 20px;
+}
+
+#total-cobrar{
+    margin-left: 55vw;
+    width: 20vw;
+    background-color: #baddf0;
+    text-align: start;
+    border-style: inset;    
+}
+
+@media (max-width: 800px){
+    #total-cobrar{
+        display: grid;
+        background-color: #216ce7;
+    }
+}
+
+
+
+/*-----------------------ENCABEZADO DE TABLA VENTAS-----------*/
+#title-table-sales{
+    background-color: #e0dcdc;
+}
+
+
+
+/*----------------------------------------FOOTER--------------------------*/
+#footer-init{
+    position: absolute;
+        bottom: 10%;
+        width: 100%;
+        height: 40px;
+        color: rgb(17, 0, 0);
+}
+
+#footer-burger{
+    text-align: center;
+    width: 100%;
+}
+
+#burger-title{
+    font-family: 'honk';
+    font-size: 45px;
+}
+
+
+
+
+/*----------------------------------------------------------------------------------------VIEW SALES--------------------------------------------------------------------------*/
+#pie-view-sales{
+    margin-top: 4%;
+    padding-bottom: 10%;
+}
+
+
+
+/*------------------------------------------------------------------------------------------NEW PRODUCTS----------------------------------------------------------------------*/
+#new-products{
+    margin-top: 6%;    
+}
+
+#title-new-products{
+    text-align: center;
+}
+
+
+
+/*------------------------------------------------------------------------------------------CAJA-------------------------------------------------------------------------*/

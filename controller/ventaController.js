@@ -47,30 +47,11 @@ exports.renderSalePage = async (req, res) => {
     }
 };
 
-
-exports.renderSaleViews = async (req, res) => {
-    try {
-        const ventas = await VentaModel.find({}).sort({ fac_num: -1 });
-        moment.locale('es');
-        const ventasFormatted = ventas.map(venta => ({
-            ...venta._doc,
-            total: formatMoney(venta.total), // Formatea el total con "$"
-            f_factura: moment(venta.f_factura).format('dddd, D MMMM YYYY, HH:mm:ss')
-        }));
-
-        res.render('viewSales', { ventas: ventasFormatted });
-    } catch (error) {
-        console.error('Error al obtener las ventas:', error);
-        res.status(500).send('Error al obtener las ventas.');
-    }
-};
-
 exports.createSale = async (req, res) => {
     const { vendedor, pago, items } = req.body;
     const ventaTotal = parseFloat(req.body.total.replace('$', ''));
 
     try {
-
         if (!items || items.length === 0) {
             console.error('No se recibieron ítems');
             return res.status(400).json({ message: 'Datos de venta no válidos' });
@@ -96,7 +77,8 @@ exports.createSale = async (req, res) => {
             vendedor,
             tipo_pago: pago,
             cantidad: processedItems.reduce((acc, item) => acc + item.cantidad, 0),
-            procesada: false // Inicialmente no procesada
+            procesada: false, // Inicialmente no procesada
+            items: processedItems // Aquí agregamos los items
         });
 
         await nuevaVenta.save();
@@ -361,5 +343,94 @@ exports.anularVenta = async (req, res) => {
     } catch (error) {
         console.error('Error al anular la venta:', error);
         res.status(500).json({ message: 'Error al anular la venta', error });
+    }
+};
+
+exports.renderSaleViews = async (req, res) => {
+    try {
+        const ventas = await VentaModel.find({}).sort({ fac_num: -1 });
+        moment.locale('es');
+        const ventasFormatted = ventas.map(venta => ({
+            ...venta._doc,
+            total: formatMoney(venta.total), // Formatea el total con "$"
+            f_factura: moment(venta.f_factura).format('dddd, D MMMM YYYY, HH:mm:ss')
+        }));
+
+        res.render('viewSales', { ventas: ventasFormatted });
+    } catch (error) {
+        console.error('Error al obtener las ventas:', error);
+        res.status(500).send('Error al obtener las ventas.');
+    }
+};
+
+
+exports.reportesVentasProductosCombos = async (req, res) => {
+    try {
+        const ventas = await VentaModel.find({});
+
+        if (!ventas || ventas.length === 0) {
+            return res.render('reportes', {
+                ventas: [],
+                totalGeneral: '0.00'
+            });
+        }
+
+        const ventasAgrupadas = ventas.reduce(async (accPromise, venta) => {
+            const acc = await accPromise;
+
+            if (!venta.items || venta.items.length === 0) return acc;
+
+            for (let item of venta.items) {
+                if (!item.cod_barra.startsWith('combo_')) {
+                    // Si no es un combo, simplemente usar la descripción del item
+                    if (!acc[item.descripcion]) {
+                        acc[item.descripcion] = {
+                            cantidad: 0,
+                            descripcion: item.descripcion,
+                            precio: item.precio,
+                            total: 0
+                        };
+                    }
+                    acc[item.descripcion].cantidad += item.cantidad;
+                    acc[item.descripcion].total += item.total;
+                } else {
+                    // Si es un combo, buscar el nombre del combo
+                    const comboCodigoBarra = item.cod_barra.split('_')[1];
+                    const combo = await Combo.findOne({ codigoBarra: comboCodigoBarra }).populate('productos');
+
+                    if (!combo) {
+                        console.error(`Combo con ID ${comboCodigoBarra} no encontrado`);
+                        continue;
+                    }
+
+                    const comboDescripcion = combo.nombre;
+
+                    if (!acc[comboDescripcion]) {
+                        acc[comboDescripcion] = {
+                            cantidad: 0,
+                            descripcion: comboDescripcion,
+                            precio: item.precio,
+                            total: 0
+                        };
+                    }
+                    acc[comboDescripcion].cantidad += item.cantidad;
+                    acc[comboDescripcion].total += item.total;
+                }
+            }
+
+            return acc;
+        }, Promise.resolve({}));
+
+        const ventasAgrupadasFinal = await ventasAgrupadas;
+        const ventasArray = Object.values(ventasAgrupadasFinal);
+        const totalGeneral = ventasArray.reduce((acc, item) => acc + item.total, 0);
+
+        res.render('reportes', {
+            ventas: ventasArray,
+            totalGeneral: totalGeneral.toFixed(2)
+        });
+    } catch (error) {
+        console.error('Error al obtener el reporte de ventas:', error);
+        res.status(500).send('Error al obtener el reporte de ventas.');
     }
 };

@@ -1,0 +1,36 @@
+{{>header}}
+
+<div class="container mt-5">
+    <h1 class="text-center">Reporte de Ventas por Artículos y Combos</h1>
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>CANT</th>
+                <th>DESCRIPCION</th>
+                <th>P/UNIT</th>
+                <th>TOTAL</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each ventas}}
+            <tr>
+                <td>{{this.cantidad}}</td>
+                <td>{{this.descripcion}}</td>
+                <td>${{this.precio}}</td>
+                <td>${{this.total}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <div class="text-end mt-4">
+        <h4>Total General: ${{totalGeneral}}</h4>
+    </div>
+
+    <div class="text-center">
+        <a href="/admin/home" class="btn btn-danger">
+            <img src="/icons/cancelar.png" alt=""> Cancelar
+        </a>
+    </div>
+</div>
+
+{{>footer}}

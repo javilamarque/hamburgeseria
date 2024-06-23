@@ -1,37 +1,45 @@
-<div id="admin-header">
-    {{>header}}
-    <h1>Bienvenido {{userRole}}</h1>
+{{>header}}
+<h1 id="title-home">Bienvenido {{userRole}}</h1>
+<div id="admin-header">    
+    
     <div class="text-center mt-5">
         <button onclick="location.href='/newProduct'" class="btn btn-success" {{#unless (eq userRole 'admin' )}}disabled
-            class="disabled" {{/unless}}>Producto Nuevo</button>
+            class="disabled" {{/unless}}> <img src="/icons/nuevo-producto.png" alt=""> Producto Nuevo</button>
 
         <button onclick="location.href='/products'" class="btn btn-success" {{#unless (eq userRole 'admin' )}}disabled
-            class="disabled" {{/unless}}>Productos</button>
+            class="disabled" {{/unless}}> <img src="/icons/pancho.png" alt=""> Productos</button>
 
-        <button onclick="location.href='/caja'" class="btn btn-success" >Ver Caja</button>
+        <button onclick="location.href='/caja'" class="btn btn-success" ><img src="/icons/dinero.png" alt=""> Ver Caja</button>
 
-        <button onclick="location.href='/logout'" class="btn btn-danger">Cerrar Sesion</button>
+        <button onclick="location.href='/logout'" class="btn btn-danger"><img src="/icons/cerrar-sesion.png" alt=""> Cerrar Sesion</button>
     </div>
 
     <div class="container text-center mt-5">
         <button onclick="location.href='/users'" class="btn btn-success" {{#unless (eq userRole 'admin' ) 
-            }}disabled class="disabled" {{/unless}}>Ver Usuarios</button>
+            }}disabled class="disabled" {{/unless}}> <img src="/icons/crear-usuario.png" alt="">Ver Usuarios</button>
+
         <button onclick="location.href='/register'" class="btn btn-success" {{#unless (eq userRole 'admin' )}}disabled
-            class="disabled" {{/unless}}>Registrar Usuario</button>
-        <button id="abrir-caja-btn" class="btn btn-primary" {{#unless (eq userRole 'admin' )}}disabled{{/unless}}>Abrir
+            class="disabled" {{/unless}}> <img src="/icons/ver-usuario.png" alt="">Registrar Usuario</button>
+
+        <button id="abrir-caja-btn" class="btn btn-primary" {{#unless (eq userRole 'admin' )}}disabled{{/unless}}> <img src="/icons/abrir-caja.png" alt=""> Abrir
             Caja</button>
         <button onclick="location.href='/viewSales'" class="btn btn-success" {{#unless (eq userRole 'admin' )}}disabled
-            class="disabled" {{/unless}}>Ver Ventas</button>
+            class="disabled" {{/unless}}> <img src="/icons/bienes.png" alt=""> Ver Ventas</button>
     </div>
 
     <div class="text-center mt-5">
-        <button onclick="location.href='/sales'" class="btn btn-warning">Ventas</button>
+        <button onclick="location.href='/sales'" class="btn btn-warning"><img src="/icons/ventas.png" alt=""> Ventas</button>
 
         <button onclick="location.href='/createCombo'" class="btn btn-primary" {{#unless (eq userRole 'admin'
-            )}}disabled class="disabled" {{/unless}}>Crear Combo</button>
+            )}}disabled class="disabled" {{/unless}}>
+            <img src="/icons/comida.png" alt="">
+            Crear Combo</button>
 
         <button onclick="location.href='/viewCombo'" class="btn btn-danger" {{#unless (eq userRole 'admin' )}}disabled
-            class="disabled" {{/unless}}>Ver y Editar Combos</button>
+            class="disabled" {{/unless}}> <img src="/icons/hamburguesa.png" alt=""> Ver y Editar Combos</button>
+
+        <button onclick="location.href='/reportes'" class="btn btn-danger" {{#unless (eq userRole 'admin' )}}disabled
+            class="disabled" {{/unless}}>Ropertes Articulos</button>
     </div>
 </div>
 
@@ -45,4 +53,4 @@
     }
 </style>
 
-{{>footer}}
+{{> footer}}
