@@ -28,6 +28,10 @@ router.post('/selectProduct', ventaController.seleccionarProducto);
 // Ruta para eliminar facturas
 router.post('/sales/anular', ventaController.anularVenta);
 
+//REPORTES DE COMBOS Y PRODUCTOS SUMADOS CANTIDAD
 router.get('/reportes', ventaController.reportesVentasProductosCombos);
+
+// Ruta para exportar a Excel
+router.get('/exportar-excel', ventaController.exportarExcel);
 
 module.exports = router;

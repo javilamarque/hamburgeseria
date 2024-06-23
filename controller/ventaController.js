@@ -4,6 +4,7 @@ const User = require('../models/user');
 const Caja = require('../models/caja');
 const moment = require('moment');
 const Combo = require('../models/combo');
+const ExcelJS = require('exceljs');
 
 const formatMoney = (amount) => {
     return `$${amount.toFixed(2)}`; // Ajusta a 2 decimales y agrega "$"
@@ -425,6 +426,8 @@ exports.reportesVentasProductosCombos = async (req, res) => {
         const ventasArray = Object.values(ventasAgrupadasFinal);
         const totalGeneral = ventasArray.reduce((acc, item) => acc + item.total, 0);
 
+        
+
         res.render('reportes', {
             ventas: ventasArray,
             totalGeneral: totalGeneral.toFixed(2)
@@ -432,5 +435,111 @@ exports.reportesVentasProductosCombos = async (req, res) => {
     } catch (error) {
         console.error('Error al obtener el reporte de ventas:', error);
         res.status(500).send('Error al obtener el reporte de ventas.');
+    }
+};
+
+
+exports.exportarExcel = async (req, res) => {
+    try {
+        const ventas = await VentaModel.find({});
+
+        if (!ventas || ventas.length === 0) {
+            return res.status(404).send('No hay datos para exportar');
+        }
+
+        // Agrupar ventas por descripción (similar a tu función reportesVentasProductosCombos)
+
+        const ventasAgrupadas = ventas.reduce(async (accPromise, venta) => {
+            const acc = await accPromise;
+
+            if (!venta.items || venta.items.length === 0) return acc;
+
+            for (let item of venta.items) {
+                if (!item.cod_barra.startsWith('combo_')) {
+                    // Si no es un combo, simplemente usar la descripción del item
+                    if (!acc[item.descripcion]) {
+                        acc[item.descripcion] = {
+                            cantidad: 0,
+                            descripcion: item.descripcion,
+                            precio: item.precio,
+                            total: 0
+                        };
+                    }
+                    acc[item.descripcion].cantidad += item.cantidad;
+                    acc[item.descripcion].total += item.total;
+                } else {
+                    // Si es un combo, buscar el nombre del combo
+                    const comboCodigoBarra = item.cod_barra.split('_')[1];
+                    const combo = await Combo.findOne({ codigoBarra: comboCodigoBarra }).populate('productos');
+
+                    if (!combo) {
+                        console.error(`Combo con ID ${comboCodigoBarra} no encontrado`);
+                        continue;
+                    }
+
+                    const comboDescripcion = combo.nombre;
+
+                    if (!acc[comboDescripcion]) {
+                        acc[comboDescripcion] = {
+                            cantidad: 0,
+                            descripcion: comboDescripcion,
+                            precio: item.precio,
+                            total: 0
+                        };
+                    }
+                    acc[comboDescripcion].cantidad += item.cantidad;
+                    acc[comboDescripcion].total += item.total;
+                }
+            }
+
+            return acc;
+        }, Promise.resolve({}));
+
+        const ventasAgrupadasFinal = await ventasAgrupadas;
+        const ventasArray = Object.values(ventasAgrupadasFinal);
+        const totalGeneral = ventasArray.reduce((acc, item) => acc + item.total, 0).toFixed(2);
+
+        // Crear un nuevo workbook de Excel
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Reporte de Ventas');
+
+        // Definir las columnas en la hoja de cálculo
+        worksheet.columns = [
+            { header: 'CANT', key: 'cantidad', width: 10 },
+            { header: 'DESCRIPCION', key: 'descripcion', width: 40 },
+            { header: 'P/UNIT', key: 'precio', width: 15 },
+            { header: 'TOTAL', key: 'total', width: 15 }
+        ];
+
+        // Agregar los datos de ventas al worksheet
+        ventasArray.forEach(venta => {
+            worksheet.addRow({
+                cantidad: venta.cantidad,
+                descripcion: venta.descripcion,
+                precio: `$${venta.precio.toFixed(2)}`,
+                total: `$${venta.total.toFixed(2)}`
+            });
+        });
+
+        // Agregar fila para el total general
+        worksheet.addRow(['', 'Total General', '', `$${totalGeneral}`]);
+
+        // Definir estilos para encabezados y celdas
+        worksheet.getRow(1).eachCell(cell => {
+            cell.font = { bold: true };
+            cell.alignment = { horizontal: 'center' };
+        });
+
+        // Generar un archivo Excel en memoria
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=reporte_ventas.xlsx');
+
+        // Escribir el workbook en el response
+        await workbook.xlsx.write(res);
+        res.end();
+
+    } catch (error) {
+        console.error('Error al exportar a Excel:', error);
+        res.status(500).send('Error al exportar a Excel.');
     }
 };
