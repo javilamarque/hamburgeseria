@@ -1,7 +1,7 @@
 {{>header}}
 
 <div class="container mt-5">
-    <h1 class="text-center">Reporte de Ventas por Artículos y Combos</h1>
+    <h1 class="text-center">Reporte de Ventas por Artículos y Combos Abierto</h1>
     <table class="table table-striped mt-4">
         <thead>
             <tr>
@@ -26,15 +26,77 @@
         <h4>Total General: ${{totalGeneral}}</h4>
     </div>
 
-    <div class="text-center">
-        <!-- Botón para exportar a Excel -->
+    <div class="text-center mt-5">
         <a href="/exportar-excel" class="btn btn-success">
             <img src="/icons/excel.png" alt=""> Exportar a Excel
         </a>
-        <a href="/admin/home" class="btn btn-danger">
-            <img src="/icons/cancelar.png" alt=""> Cancelar
+        <a href="/admin/home" class="btn btn-primary">
+            <img src="/icons/cancelar.png" alt=""> Volver
+        </a>
+        <a href="/cerrar-reporte" class="btn btn-warning">
+            <img src="/icons/excel.png" alt=""> Cerrar Reportes
         </a>
     </div>
 </div>
 
-{{>footer}}
+
+<div class="container mt-5 text-center">
+    <div id="historiales-container"></div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '/api/reportes-cerrados',
+            method: 'GET',
+            success: function (historiales) {
+                const container = $('#historiales-container');
+
+                historiales.forEach(historial => {
+                    const fechaCierre = new Date(historial.fechaCierre);
+                    const horaCierre = `${fechaCierre.getHours().toString().padStart(2, '0')}:${fechaCierre.getMinutes().toString().padStart(2, '0')}:${fechaCierre.getSeconds().toString().padStart(2, '0')}`;
+                    const historialHtml = `
+                        <div class="mt-5">
+                            <h2>Historial de Reportes Cerrados ${fechaCierre.toLocaleDateString()}, ${horaCierre}</h2>
+                            <table class="table table-striped mt-4">
+                                <thead>
+                                    <tr>
+                                        <th>CANT</th>
+                                        <th>DESCRIPCION</th>
+                                        <th>P/UNIT</th>
+                                        <th>TOTAL</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${historial.ventas.map(venta => `
+                                        <tr>
+                                            <td>${venta.cantidad}</td>
+                                            <td>${venta.descripcion}</td>
+                                            <td>$${venta.precio.toFixed(2)}</td>
+                                            <td>$${venta.total.toFixed(2)}</td>
+                                        </tr>
+                                    `).join('')}
+                                    <tr>
+                                        <td colspan="3" class="text-end"><strong>Total General:</strong></td>
+                                        <td><strong>$${historial.totalGeneral.toFixed(2)}</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                    container.append(historialHtml);
+                });
+
+                if (historiales.length === 0) {
+                    container.html('<p class="text-center">No hay reportes cerrados disponibles.</p>');
+                }
+            },
+            error: function (error) {
+                console.error('Error al obtener los reportes cerrados:', error);
+                $('#historiales-container').html('<p class="text-center text-danger">Error al obtener los reportes cerrados.</p>');
+            }
+        });
+    });
+</script>

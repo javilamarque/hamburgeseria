@@ -217,6 +217,14 @@ table.table {
     border-style: inset;    
 }
 
+#total-cobrar-reportes{
+    margin-left: 55vw;
+        width: 13vw;
+        background-color: #baddf0;
+        text-align: center;
+        border-style: inset;
+}
+
 @media (max-width: 800px){
     #total-cobrar{
         display: grid;
