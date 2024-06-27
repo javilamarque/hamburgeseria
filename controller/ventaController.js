@@ -560,7 +560,12 @@ exports.cerrarReporte = async (req, res) => {
         const ventas = await VentaModel.find({});
 
         if (!ventas || ventas.length === 0) {
-            return res.status(404).send('No hay datos para cerrar el reporte');
+            return res.status(500).send(`
+                <script>
+                    alert('No se encontraron reportes para exportar');
+                    window.location.href = '/reportes';
+                </script>
+            `);
         }
 
         const ventasAgrupadas = ventas.reduce(async (accPromise, venta) => {
