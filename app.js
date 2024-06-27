@@ -52,6 +52,7 @@ hbs.registerHelper('json', function (context) {
 });
 
 app.set('view engine', 'hbs');
+app.set('views', path.join(__dirname, 'views'));
 
 // Configuración de la sesión
 app.use(session({
@@ -68,29 +69,52 @@ app.use(methodOverride('_method'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// Middleware para deshabilitar la caché
+const disableCache = (req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    next();
+};
+
+app.use(disableCache);
+
+// Middleware para verificar la autenticación
+const isAuthenticated = (req, res, next) => {
+    if (req.session && req.session.userRole) {
+        return next();
+    } else {
+        res.redirect('/login');
+    }
+};
+
+
 // Rutas
-app.get('/', (req, res) => {
+app.get('/',  (req, res) => {
     res.render('login');
 });
 
-app.get('/admin/home', (req, res) => {
+app.get('/admin/home', disableCache, isAuthenticated, (req, res) => {
     if (!req.session.userRole) {
         return res.redirect('/login');
     }
     res.render('admin/home', { userRole: req.session.userRole });
 });
 
-app.get('/newProduct', (req, res) => {
+app.get('/newProduct', disableCache, isAuthenticated, (req, res) => {
     res.render('newProduct');
 });
 
-app.get('/login', (req, res) => {
+app.get('/login',  (req, res) => {
     res.render('login');
 });
 
-app.get('/createCombo', (req, res) => {
+app.get('/createCombo', disableCache, isAuthenticated, (req, res) => {
     res.render('createCombo');
 });
+
+
+
 
 
 app.use('/', userRoute);

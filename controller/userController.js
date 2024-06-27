@@ -87,7 +87,7 @@ exports.loginUser = async (req, res) => {
         req.session.userRole = user.role;
 
         // Renderizar la vista con el rol del usuario
-        res.render('admin/home', { userRole: req.session.userRole });
+        res.redirect('/admin/home');
     } catch (error) {
         console.error('Error al autenticar al usuario:', error);
         return res.send(`
@@ -147,4 +147,15 @@ exports.editUserById = async (req, res) => {
             </script >`
         );
     }
+};
+
+
+exports.logout = (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).send('Error al cerrar sesión');
+        }
+        res.clearCookie('connect.sid', { path: '/' }); // Ajustar el nombre de la cookie según tu configuración
+        res.redirect('/login');
+    });
 };

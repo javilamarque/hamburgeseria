@@ -23,8 +23,7 @@
 
         <button id="abrir-caja-btn" class="btn btn-primary" {{#unless (eq userRole 'admin' )}}disabled{{/unless}}> <img src="/icons/abrir-caja.png" alt=""> Abrir
             Caja</button>
-        <button onclick="location.href='/viewSales'" class="btn btn-success" {{#unless (eq userRole 'admin' )}}disabled
-            class="disabled" {{/unless}}> <img src="/icons/bienes.png" alt=""> Ver Ventas</button>
+        <button onclick="location.href='/viewSales'" class="btn btn-success"> <img src="/icons/bienes.png" alt=""> Ver Ventas</button>
     </div>
 
     <div class="text-center mt-5">
@@ -38,8 +37,7 @@
         <button onclick="location.href='/viewCombo'" class="btn btn-danger" {{#unless (eq userRole 'admin' )}}disabled
             class="disabled" {{/unless}}> <img src="/icons/hamburguesa.png" alt=""> Ver y Editar Combos</button>
 
-        <button onclick="location.href='/reportes'" class="btn btn-danger" {{#unless (eq userRole 'admin' )}}disabled
-            class="disabled" {{/unless}}>Ropertes Articulos</button>
+        <button onclick="location.href='/reportes'" class="btn btn-danger">Ropertes Articulos</button>
     </div>
 </div>
 

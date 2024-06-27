@@ -49,8 +49,8 @@ exports.abrirCaja = async (req, res) => {
 
         const nuevaCaja = new Caja({
             apertura: aperturaFinal,
-            t_transferencia: transferenciaAnterior,
-            total_ventas_dia: totalVentasDiaAjustado,
+            t_transferencia: 0,
+            total_ventas_dia: 0,
             cierre_parcial: 0,
             retiro_parcial_transferencia: 0,
             total_transferencia: 0,
@@ -232,6 +232,8 @@ exports.cerrarCaja = async (req, res) => {
         // Resetear valores
         datosCaja.cierre_parcial = 0;
         datosCaja.retiro_parcial_transferencia = 0;
+        datosCaja.total_ventas_dia = 0;
+        datosCaja.t_transferencia = 0;
 
         await datosCaja.save();
 
@@ -260,12 +262,10 @@ exports.updateCaja = async () => {
         }
 
         const totalDineroEnCaja = cajaCerrada.cerrada.total_dinero_en_caja;
-        const totalTransferencia = cajaCerrada.cerrada.total_transferencia;
-        const totalVentasDia = cajaCerrada.cerrada.total_ventas_dia - cajaCerrada.cerrada.cierre_parcial_efectivo
 
         cajaAbierta.apertura = totalDineroEnCaja;
-        cajaAbierta.t_transferencia = totalTransferencia;
-        cajaAbierta.total_ventas_dia = totalVentasDia;
+        cajaAbierta.t_transferencia = 0;
+        cajaAbierta.total_ventas_dia = 0;
         await cajaAbierta.save();
     } catch (error) {
         console.error('Error al actualizar la caja abierta:', error.message);

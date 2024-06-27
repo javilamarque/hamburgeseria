@@ -132,7 +132,7 @@
         // Abrir modal para editar combo
         window.openEditModal = function (comboId) {
             $.get(`/combos/${comboId}`, function (combo) {
-                let formattedPrecio = `$${parseFloat(combo.precio).toFixed(2)}`;
+                let formattedPrecio = `${parseFloat(combo.precio).toFixed(2)}`;
                 $('#edit-combo-id').val(combo._id);
                 $('#edit-nombre-combo').val(combo.nombre);
                 $('#edit-codigo-barra').val(combo.codigoBarra);
@@ -268,5 +268,3 @@
         });
     });
 </script>
-
-{{>footer}}

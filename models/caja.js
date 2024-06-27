@@ -21,7 +21,7 @@ const cajaSchema = new mongoose.Schema({
         retiro_parcial_transferencia: { type: Number },
         total_transferencia: { type: Number },
         total_dinero_en_caja: { type: Number },
-        fecha_cierre: { type: Date, default: Date.now, required: true },
+        fecha_cierre: { type: Date, default: Date.now },
     }
 });
 
