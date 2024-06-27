@@ -33,9 +33,29 @@
         <a href="/admin/home" class="btn btn-danger">
             <img src="/icons/cancelar.png" alt=""> Cancelar
         </a>
-        <a href="/cerrar-reporte" class="btn btn-warning">
+        <a href="/cerrar-reporte" class="btn btn-warning" id="closeReportsBtn">
             <img src="/icons/excel.png" alt=""> Cerrar Reportes
         </a>
+    </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="confirmCloseModal" tabindex="-1" aria-labelledby="confirmCloseModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmCloseModalLabel">Confirmar Cierre de Reportes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro que quieres cerrar los reportes?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmCloseBtn">Aceptar</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -46,8 +66,20 @@
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.3/js/bootstrap.min.js"></script>
 <script>
     $(document).ready(function () {
+        // Abre el modal de confirmación al hacer clic en el botón "Cerrar Reportes"
+        $('#closeReportsBtn').click(function (event) {
+            event.preventDefault();
+            $('#confirmCloseModal').modal('show');
+        });
+
+        // Maneja la acción del botón de confirmación dentro del modal
+        $('#confirmCloseBtn').click(function () {
+            window.location.href = '/cerrar-reporte';
+        });
         $.ajax({
             url: '/api/reportes-cerrados',
             method: 'GET',
@@ -100,3 +132,5 @@
         });
     });
 </script>
+
+{{>footer}}

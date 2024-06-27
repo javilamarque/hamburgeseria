@@ -109,7 +109,7 @@ app.get('/login',  (req, res) => {
     res.render('login');
 });
 
-app.get('/createCombo', disableCache, isAuthenticated, (req, res) => {
+app.get('/createCombo', (req, res) => {
     res.render('createCombo');
 });
 
