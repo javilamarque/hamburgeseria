@@ -72,6 +72,19 @@ exports.createSale = async (req, res) => {
             return res.status(400).json({ message: 'Datos de venta no válidos' });
         }
 
+        // Actualizar la caja solo si la venta no ha sido procesada
+        const caja = await Caja.findOne().sort({ fecha_apertura: -1 }).exec();
+
+        if (!caja || caja.cerrada) {
+            console.error('No se encontró una caja abierta');
+            return res.status(500).send(`
+                <script>
+                    alert('No se encontró una caja abierta');
+                    window.location.href = '/sales';
+                </script>
+            `);
+        }
+
         const nuevaVenta = new VentaModel({
             descripcion: processedItems.map(item => item.descripcion).join(', '),
             total: ventaTotal,
@@ -119,18 +132,7 @@ exports.createSale = async (req, res) => {
             }
         }
 
-        // Actualizar la caja solo si la venta no ha sido procesada
-        const caja = await Caja.findOne().sort({ fecha_apertura: -1 }).exec();
-
-        if (!caja) {
-            console.error('No se encontró una caja abierta');
-            return res.status(500).send(`
-                <script>
-                    alert('No se encontró una caja abierta');
-                    window.location.href = '/sales';
-                </script>
-            `);
-        }
+        
 
         if (!nuevaVenta.procesada) {
             if (pago === 'Mercado Pago') {
