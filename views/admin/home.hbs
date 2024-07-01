@@ -27,7 +27,7 @@
     </div>
 
     <div class="text-center mt-5">
-        <button onclick="location.href='/sales'" class="btn btn-warning"><img src="/icons/ventas.png" alt=""> Ventas</button>
+        <button id="ventas-btn" onclick="location.href='/sales'" class="btn btn-warning"><img src="/icons/ventas.png" alt=""> Ventas</button>
 
         <button onclick="location.href='/createCombo'" class="btn btn-primary" {{#unless (eq userRole 'admin'
             )}}disabled class="disabled" {{/unless}}>
@@ -43,6 +43,27 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="/js/abrirCaja.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '/verificarCajaAbierta',
+            method: 'GET',
+            success: function (response) {
+                if (response.abierta) {
+                    $('#ventas-btn').prop('disabled', false).removeClass('disabled');
+                } else {
+                    $('#ventas-btn').prop('disabled', true).addClass('disabled');
+                }
+            },
+            error: function (error) {
+                console.error('Error al verificar el estado de la caja:', error);
+                $('#ventas-btn').prop('disabled', true).addClass('disabled');
+            }
+        });
+    });
+</script>
+
 
 <style>
     .disabled {

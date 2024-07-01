@@ -88,7 +88,6 @@ const isAuthenticated = (req, res, next) => {
     }
 };
 
-
 // Rutas
 app.get('/',  (req, res) => {
     res.render('login');

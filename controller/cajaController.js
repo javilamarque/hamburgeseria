@@ -271,3 +271,18 @@ exports.updateCaja = async () => {
         console.error('Error al actualizar la caja abierta:', error.message);
     }
 };
+
+//PARA HABILITAR BOTON DE VENTAS 
+exports.verificarCajaAbierta = async (req, res) => {
+    try {
+        const cajaAbierta = await Caja.findOne({ cerrada: null });
+        if (cajaAbierta) {
+            res.json({ abierta: true });
+        } else {
+            res.json({ abierta: false });
+        }
+    } catch (error) {
+        console.error('Error al verificar el estado de la caja:', error);
+        res.status(500).json({ error: 'Error al verificar el estado de la caja' });
+    }
+};
