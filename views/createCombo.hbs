@@ -157,7 +157,8 @@
                 if ($(this).val() !== '') {
                     productos.push({
                         descripcion: $(this).val(),
-                        codigoBarra: Number($(this).closest('.row').find('.cod_barra').val()) // Convertir a número
+                        codigoBarra: $(this).closest('.row').find('.cod_barra').val() // Mantener como cadena de texto
+                        //codigoBarra: Number($(this).closest('.row').find('.cod_barra').val()) // Convertir a número
                     });
                 }
             });
