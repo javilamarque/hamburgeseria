@@ -6,7 +6,7 @@ exports.loginUser = async (req, res) => {
     try {
         // Check if user exists in the database
         const user = await User.findOne({ username });
-        console.log("Role del usuario:", user.role);
+        
 
         if (!user) {
             return res.status(404).json({ message: 'Usuario no Valido' });

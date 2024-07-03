@@ -1,43 +1,96 @@
 {{>header}}
 <h1 id="title-home">Bienvenido {{userRole}}</h1>
-<div id="admin-header">    
-    
-    <div class="text-center mt-5">
-        <button onclick="location.href='/newProduct'" class="btn btn-success" {{#unless (eq userRole 'admin' )}}disabled
-            class="disabled" {{/unless}}> <img src="/icons/nuevo-producto.png" alt=""> Producto Nuevo</button>
 
-        <button onclick="location.href='/products'" class="btn btn-success" {{#unless (eq userRole 'admin' )}}disabled
-            class="disabled" {{/unless}}> <img src="/icons/pancho.png" alt=""> Productos</button>
 
-        <button onclick="location.href='/caja'" class="btn btn-success" ><img src="/icons/dinero.png" alt=""> Ver Caja</button>
+<div id="admin-header" class="container">
+    <!-- Primera fila de botones -->
+    <div class="row text-center mt-5">
+        
+        <div class="col-md-3 mb-3">
+            <button onclick="location.href='/newProduct'" class="btn btn-success w-100" {{#unless (eq userRole 'admin'
+                )}}disabled class="disabled" {{/unless}}>
+                <img src="/icons/nuevo-producto.png" alt=""> Producto Nuevo
+            </button>
+        </div>
 
-        <button onclick="location.href='/logout'" class="btn btn-danger"><img src="/icons/cerrar-sesion.png" alt=""> Cerrar Sesion</button>
+        <div class="col-md-3 mb-3">
+            <button onclick="location.href='/products'" class="btn btn-info w-100" {{#unless (eq userRole 'admin'
+                )}}disabled class="disabled" {{/unless}}>
+                <img src="/icons/pancho.png" alt=""> Productos
+            </button>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <button onclick="location.href='/caja'" class="btn btn-dark w-100">
+                <img src="/icons/dinero.png" alt=""> Ver Caja
+            </button>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <button onclick="location.href='/logout'" class="btn btn-danger w-100">
+                <img src="/icons/cerrar-sesion.png" alt=""> Cerrar Sesion
+            </button>
+        </div>
     </div>
 
-    <div class="container text-center mt-5">
-        <button onclick="location.href='/users'" class="btn btn-success" {{#unless (eq userRole 'admin' ) 
-            }}disabled class="disabled" {{/unless}}> <img src="/icons/crear-usuario.png" alt="">Ver Usuarios</button>
+    <!-- Segunda fila de botones -->
+    <div class="row text-center mt-5">
 
-        <button onclick="location.href='/register'" class="btn btn-success" {{#unless (eq userRole 'admin' )}}disabled
-            class="disabled" {{/unless}}> <img src="/icons/ver-usuario.png" alt="">Registrar Usuario</button>
+        <div class="col-md-3 mb-3">
+            <button onclick="location.href='/register'" class="btn btn-success w-100" {{#unless (eq userRole 'admin'
+                )}}disabled class="disabled" {{/unless}}>
+                <img src="/icons/ver-usuario.png" alt=""> Registrar Usuario
+            </button>
+        </div>
+        <div class="col-md-3 mb-3">
+            <button onclick="location.href='/users'" class="btn btn-info w-100" {{#unless (eq userRole 'admin'
+                )}}disabled class="disabled" {{/unless}}>
+                <img src="/icons/crear-usuario.png" alt=""> Ver Usuarios
+            </button>
+        </div>
 
-        <button id="abrir-caja-btn" class="btn btn-primary" {{#unless (eq userRole 'admin' )}}disabled{{/unless}}> <img src="/icons/abrir-caja.png" alt=""> Abrir
-            Caja</button>
-        <button onclick="location.href='/viewSales'" class="btn btn-success"> <img src="/icons/bienes.png" alt=""> Ver Ventas</button>
+        <div class="col-md-3 mb-3">
+            <button onclick="location.href='/viewSales'" class="btn btn-dark w-100">
+                <img src="/icons/bienes.png" alt=""> Ver Ventas
+            </button>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <button id="abrir-caja-btn" class="btn btn-primary w-100" {{#unless (eq userRole 'admin' )}}disabled{{/unless}}>
+                <img src="/icons/abrir-caja.png" alt=""> Abrir Caja
+            </button>            
+        </div>
     </div>
 
-    <div class="text-center mt-5">
-        <button onclick="location.href='/sales'" class="btn btn-warning"><img src="/icons/ventas.png" alt=""> Ventas</button>
+    <!-- Tercera fila de botones -->
+    <div class="row text-center mt-5">
 
-        <button onclick="location.href='/createCombo'" class="btn btn-primary" {{#unless (eq userRole 'admin'
-            )}}disabled class="disabled" {{/unless}}>
-            <img src="/icons/comida.png" alt="">
-            Crear Combo</button>
+        <div class="col-md-3 mb-3">
+            <button onclick="location.href='/createCombo'" class="btn btn-success w-100" {{#unless (eq userRole 'admin' )}}disabled
+                class="disabled" {{/unless}}>
+                <img src="/icons/comida.png" alt=""> Crear Combo
+            </button>
+            
+        </div>
 
-        <button onclick="location.href='/viewCombo'" class="btn btn-danger" {{#unless (eq userRole 'admin' )}}disabled
-            class="disabled" {{/unless}}> <img src="/icons/hamburguesa.png" alt=""> Ver y Editar Combos</button>
+        <div class="col-md-3 mb-3">
+            <button onclick="location.href='/viewCombo'" class="btn btn-info w-100" {{#unless (eq userRole 'admin' )}}disabled
+                class="disabled" {{/unless}}>
+                <img src="/icons/hamburguesa.png" alt=""> Ver y Editar Combos
+            </button>
+        </div>
 
-        <button onclick="location.href='/reportes'" class="btn btn-danger">Ropertes Articulos</button>
+        <div class="col-md-3 mb-3">
+            <button onclick="location.href='/reportes'" class="btn btn-dark w-100">
+                Reportes Artículos
+            </button>            
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <button onclick="location.href='/sales'" class="btn btn-warning w-100">
+                <img src="/icons/ventas.png" alt=""> Ventas
+            </button>            
+        </div>
     </div>
 </div>
 

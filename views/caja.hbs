@@ -31,28 +31,32 @@
         </table>
     </div>
     <div class="mt-2">
-        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#cierreParcialModal"
-            {{#unless (eq userRole 'admin' )}}disabled class="disabled" {{/unless}}> <img src="/icons/retiro-de-efectivo.png" alt="">
+        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#cierreParcialModal"> <img
+                src="/icons/retiro-de-efectivo.png" alt="">
             Retiro Parcial Efectivo
         </button>
 
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#retiroTransferenciaModal"
-            {{#unless (eq userRole 'admin' )}}disabled class="disabled" {{/unless}} disabled> <img src="/icons/transferencia-movil.png" alt="">
+            {{#unless (eq userRole 'admin' )}}disabled class="disabled" {{/unless}} disabled> <img
+                src="/icons/transferencia-movil.png" alt="">
             Retiro Parcial Transferencia
         </button>
 
-        <button type="button" class="btn btn-danger" id="cerrarCajaBtn" {{#unless (eq userRole 'admin' )}}disabled
-            class="disabled" {{/unless}}> <img src="/icons/cerrar-caja.png" alt=""> Cerrar Caja</button>
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" id="cancel-btn"> <img src="/icons/flecha-hacia-atras.png" alt=""> Ir a Inicio</button>
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" id="cancel-btn"> <img
+                src="/icons/flecha-hacia-atras.png" alt=""> Ir a Inicio</button>
+
+        <button type="button" class="btn btn-danger" style="margin-left: 35%;" id="cerrarCajaBtn"> <img src="/icons/cerrar-caja.png" alt="">
+            Cerrar Caja</button>
+        
     </div>
 
-    
+
 
     {{#each cajasCerradas}}
     <div class="row mt-4">
         <div class="table-container">
-        <h3 class="text-center">Historial de Caja Cerrada ({{moment this.fecha_cierre "DD/MM/YYYY HH:mm:ss"}})</h3>
-        
+            <h3 class="text-center">Historial de Caja Cerrada ({{moment this.fecha_cierre "DD/MM/YYYY HH:mm:ss"}})</h3>
+
             <table class="table disabled table-bordered mt-1">
                 <thead>
                     <tr>
@@ -60,7 +64,7 @@
                         <th>Ventas Transferencia</th>
                         <th>Ventas Efectivo</th>
                         <th>Retiro Transferencia</th>
-                        <th>Retiro Efectivo</th>                        
+                        <th>Retiro Efectivo</th>
                         <th>Total Transferencia</th>
                         <th>Total Dinero en Caja</th>
                     </tr>
@@ -71,7 +75,7 @@
                         <td><strong>${{this.t_transferencia}}</strong></td>
                         <td><strong>${{this.total_ventas_dia}}</strong></td>
                         <td><strong>${{this.retiro_parcial_transferencia}}</strong></td>
-                        <td><strong>${{this.cierre_parcial_efectivo}}</strong></td>                        
+                        <td><strong>${{this.cierre_parcial_efectivo}}</strong></td>
                         <td><strong>${{this.total_transferencia}}</strong></td>
                         <td><strong>${{this.total_dinero_en_caja}}</strong></td>
                     </tr>
@@ -186,18 +190,22 @@
         });
 
         document.getElementById('cerrarCajaBtn').addEventListener('click', async function () {
-            const response = await fetch('/cerrarCaja', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+            const userConfirmed = confirm('¿Estás seguro que quieres cerrar la caja?');
 
-            if (response.ok) {
-                alert('Caja cerrada correctamente.');
-                window.location.href = '/caja'; 
-            } else {
-                alert('Error al cerrar la caja.');
+            if (userConfirmed) {
+                const response = await fetch('/cerrarCaja', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    alert('Caja cerrada correctamente.');
+                    window.location.href = '/caja';
+                } else {
+                    alert('Error al cerrar la caja.');
+                }
             }
         });
     });
