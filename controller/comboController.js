@@ -10,6 +10,18 @@ exports.createCombo = async (req, res) => {
             return res.status(400).json({ message: 'Todos los campos son requeridos' });
         }
 
+        // Verificar si el código de barras ya existe en la colección de combos
+        const comboExists = await Combo.findOne({ codigoBarra });
+        if (comboExists) {
+            return res.status(400).json({ message: `Ya existe un combo con el código de barras ${codigoBarra}` });
+        }
+
+        // Verificar si el código de barras ya existe en la colección de productos
+        const productExists = await Product.findOne({ cod_barra: codigoBarra });
+        if (productExists) {
+            return res.status(400).json({ message: `Ya existe un producto con el código de barras ${codigoBarra}` });
+        }
+
         const productIds = [];
         for (const producto of productos) {
             const foundProduct = await Product.findOne({ cod_barra: producto.codigoBarra });

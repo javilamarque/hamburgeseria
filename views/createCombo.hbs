@@ -157,7 +157,7 @@
                 if ($(this).val() !== '') {
                     productos.push({
                         descripcion: $(this).val(),
-                        codigoBarra: Number($(this).closest('.row').find('.cod_barra').val()) // Convertir a número
+                        codigoBarra: $(this).closest('.row').find('.cod_barra').val() 
                     });
                 }
             });
@@ -183,10 +183,14 @@
                     alert('Combo guardado exitosamente');
                     window.location.href = '/viewCombo';
                 },
-                error: function (error) {
-                    alert('Error al guardar el combo');
-                    console.error(error);
-                }
+                error: function (xhr, status, error) {
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        alert('Error al guardar el combo: ' + xhr.responseJSON.message);
+                    } else {
+                        alert('Error al guardar el combo');
+                        console.error(xhr, status, error);
+                    }
+                }    
             });
         });
 

@@ -223,6 +223,7 @@ exports.cerrarCaja = async (req, res) => {
             fecha_cierre: moment().format('dddd, D MMMM YYYY, HH:mm:ss')
         };
 
+
         datosCaja.cerrada = cajaCerrada;
 
 
@@ -272,17 +273,3 @@ exports.updateCaja = async () => {
     }
 };
 
-//PARA HABILITAR BOTON DE VENTAS 
-exports.verificarCajaAbierta = async (req, res) => {
-    try {
-        const cajaAbierta = await Caja.findOne({ cerrada: null });
-        if (cajaAbierta) {
-            res.json({ abierta: true });
-        } else {
-            res.json({ abierta: false });
-        }
-    } catch (error) {
-        console.error('Error al verificar el estado de la caja:', error);
-        res.status(500).json({ error: 'Error al verificar el estado de la caja' });
-    }
-};

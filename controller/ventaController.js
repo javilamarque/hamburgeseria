@@ -6,6 +6,7 @@ const moment = require('moment');
 const Combo = require('../models/combo');
 const HistorialReporte = require('../models/historialReporte');
 const ExcelJS = require('exceljs');
+const mongoose = require('mongoose');
 
 const formatMoney = (amount) => {
     return `$${amount.toFixed(2)}`; // Ajusta a 2 decimales y agrega "$"
