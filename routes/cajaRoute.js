@@ -19,6 +19,6 @@ router.post('/cerrarCaja', cajaController.cerrarCaja);
 
 router.post('/actualizarCajaAbierta', cajaController.updateCaja);
 
-
+router.get('/caja/status', cajaController.estadoCaja);
 
 module.exports = router;

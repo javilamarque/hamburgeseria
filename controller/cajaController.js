@@ -24,6 +24,12 @@ exports.abrirCaja = async (req, res) => {
     try {
         const { apertura } = req.body;
 
+        // Verificar si ya hay una caja abierta
+        const cajaAbierta = await Caja.findOne({ cerrada: null });
+        if (cajaAbierta) {
+            return res.status(400).json({ message: 'La caja ya está abierta' });
+        }
+
         if (apertura < 0) {
             return res.status(400).json({ message: 'La apertura no puede estar en negativo' });
         }
@@ -273,3 +279,16 @@ exports.updateCaja = async () => {
     }
 };
 
+exports.estadoCaja = async (req, res) => {
+    try {
+        const cajaAbierta = await Caja.findOne({ cerrada: null });
+        if (cajaAbierta) {
+            return res.status(200).json({ abierta: true });
+        } else {
+            return res.status(200).json({ abierta: false });
+        }
+    } catch (error) {
+        console.error('Error al verificar el estado de la caja:', error);
+        res.status(500).json({ message: 'Error al verificar el estado de la caja.', error });
+    }
+};
