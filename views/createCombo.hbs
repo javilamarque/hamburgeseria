@@ -157,7 +157,12 @@
                 if ($(this).val() !== '') {
                     productos.push({
                         descripcion: $(this).val(),
+<<<<<<< HEAD
                         codigoBarra: $(this).closest('.row').find('.cod_barra').val() 
+=======
+                        codigoBarra: $(this).closest('.row').find('.cod_barra').val() // Mantener como cadena de texto
+                        //codigoBarra: Number($(this).closest('.row').find('.cod_barra').val()) // Convertir a número
+>>>>>>> e3d974c31dffe1930558ece502339de730b9f171
                     });
                 }
             });
