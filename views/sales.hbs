@@ -469,30 +469,34 @@
         document.getElementById('confirmar-venta-btn').addEventListener('click', (event) => {
             event.preventDefault();
 
-            const itemsContainer = document.getElementById('items-container');
-            itemsContainer.innerHTML = '';
-            const rows = document.querySelectorAll('#productosEncontrados tr');
+            // Mostrar el mensaje de confirmación
+            const userConfirmed = confirm('¿Confirmar venta?');
+            if (userConfirmed) {
+                const itemsContainer = document.getElementById('items-container');
+                itemsContainer.innerHTML = '';
+                const rows = document.querySelectorAll('#productosEncontrados tr');
 
-            rows.forEach((row, index) => {
-                const cod_barra = row.querySelector('.cod_barra') ? row.querySelector('.cod_barra').textContent : null;
-                const descripcion = row.querySelector('.descripcion') ? row.querySelector('.descripcion').textContent : null;
-                const cantidad = row.querySelector('.cantidad') ? row.querySelector('.cantidad').textContent : null;
-                const precio = row.querySelector('.precio') ? row.querySelector('.precio').textContent : null;
-                const total = row.querySelector('.total') ? row.querySelector('.total').textContent : null;
+                rows.forEach((row, index) => {
+                    const cod_barra = row.querySelector('.cod_barra') ? row.querySelector('.cod_barra').textContent : null;
+                    const descripcion = row.querySelector('.descripcion') ? row.querySelector('.descripcion').textContent : null;
+                    const cantidad = row.querySelector('.cantidad') ? row.querySelector('.cantidad').textContent : null;
+                    const precio = row.querySelector('.precio') ? row.querySelector('.precio').textContent : null;
+                    const total = row.querySelector('.total') ? row.querySelector('.total').textContent : null;
 
-                if (cod_barra && descripcion && cantidad && precio && total) {
-                    itemsContainer.innerHTML += `
-                <input type="hidden" name="items[${index}][cod_barra]" value="${cod_barra}">
-                <input type="hidden" name="items[${index}][descripcion]" value="${descripcion}">
-                <input type="hidden" name="items[${index}][cantidad]" value="${cantidad}">
-                <input type="hidden" name="items[${index}][precio]" value="${precio}">
-                <input type="hidden" name="items[${index}][total]" value="${total}">
-            `;
-                }
-            });
+                    if (cod_barra && descripcion && cantidad && precio && total) {
+                        itemsContainer.innerHTML += `
+                    <input type="hidden" name="items[${index}][cod_barra]" value="${cod_barra}">
+                    <input type="hidden" name="items[${index}][descripcion]" value="${descripcion}">
+                    <input type="hidden" name="items[${index}][cantidad]" value="${cantidad}">
+                    <input type="hidden" name="items[${index}][precio]" value="${precio}">
+                    <input type="hidden" name="items[${index}][total]" value="${total}">
+                `;
+                    }
+                });
 
-            document.getElementById('total').value = document.getElementById('totalCobrar').textContent;
-            document.getElementById('sale-form').submit();
+                document.getElementById('total').value = document.getElementById('totalCobrar').textContent;
+                document.getElementById('sale-form').submit();
+            }
         });
     });
 </script>
