@@ -34,6 +34,9 @@ exports.getProductByBarcode = async (req, res) => {
         if (!product) {
             return res.status(404).json({ message: 'Producto no encontrado' });
         }
+        if (product.stock === 0) {
+            return res.status(400).json({ message: `El producto "${product.descripcion}" no tiene stock` });
+        }
         res.json(product);
     } catch (error) {
         console.error(error);
@@ -76,7 +79,6 @@ exports.createProduct = async (req, res) => {
         `);
     }
 };
-
 
 
 // Obtener la página de edición del producto
