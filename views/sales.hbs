@@ -211,15 +211,20 @@
                         agregarComboATabla(combo);
                         this.value = '';
                     } else {
-                        // Si no se encuentra el combo, intentar buscar el producto
-                        response = await fetch(`/product/barcode/${cod_Barra}`);
-                        if (response.ok) {
-                            const product = await response.json();
-                            agregarProductoATabla(product);
-                            this.value = '';
+                        const errorData = await response.json();
+                        if (errorData.message.includes('no tiene stock')) {
+                            alert(errorData.message);
                         } else {
-                            const errorData = await response.json();
-                            alert(errorData.message || 'Producto o combo no encontrado');
+                            // Si no se encuentra el combo, intentar buscar el producto
+                            response = await fetch(`/product/barcode/${cod_Barra}`);
+                            if (response.ok) {
+                                const product = await response.json();
+                                agregarProductoATabla(product);
+                                this.value = '';
+                            } else {
+                                const errorData = await response.json();
+                                alert(errorData.message || 'Producto o combo no encontrado');
+                            }
                         }
                     }
                 } catch (error) {

@@ -148,13 +148,23 @@ exports.getAllProducts = async (req, res) => { // Actualizado
 
 
 
+
+
 exports.getComboByBarcode = async (req, res) => {
     const codigoBarra = req.params.cod_barra.trim();
     try {
-        const combo = await Combo.findOne({ codigoBarra: codigoBarra }).populate('productos', 'descripcion cod_barra precio_venta');
+        const combo = await Combo.findOne({ codigoBarra: codigoBarra }).populate('productos', 'descripcion cod_barra precio_venta stock');
         if (!combo) {
             return res.status(404).json({ message: 'Combo no encontrado' });
         }
+
+        // Verificar el stock de cada producto en el combo
+        for (const producto of combo.productos) {
+            if (producto.stock === 0) {
+                return res.status(400).json({ message: `El producto "${producto.descripcion}" en el combo no tiene stock` });
+            }
+        }
+
         res.json(combo);
     } catch (error) {
         console.error('Error al obtener los detalles del combo:', error);

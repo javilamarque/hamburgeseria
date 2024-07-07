@@ -5,7 +5,7 @@
 <div id="admin-header" class="container">
     <!-- Primera fila de botones -->
     <div class="row text-center mt-5">
-        
+
         <div class="col-md-3 mb-3">
             <button onclick="location.href='/newProduct'" class="btn btn-success w-100" {{#unless (eq userRole 'admin'
                 )}}disabled class="disabled" {{/unless}}>
@@ -56,9 +56,10 @@
         </div>
 
         <div class="col-md-3 mb-3">
-            <button id="abrir-caja-btn" class="btn btn-secondary w-100" {{#unless (eq userRole 'admin' )}}disabled{{/unless}}>
+            <button id="abrir-caja-btn" class="btn btn-secondary w-100" {{#unless (eq userRole 'admin'
+                )}}disabled{{/unless}}>
                 <img src="/icons/abrir-caja.png" alt=""> Abrir Caja
-            </button>            
+            </button>
         </div>
     </div>
 
@@ -66,16 +67,16 @@
     <div class="row text-center mt-5">
 
         <div class="col-md-3 mb-3">
-            <button onclick="location.href='/createCombo'" class="btn btn-success w-100" {{#unless (eq userRole 'admin' )}}disabled
-                class="disabled" {{/unless}}>
+            <button onclick="location.href='/createCombo'" class="btn btn-success w-100" {{#unless (eq userRole 'admin'
+                )}}disabled class="disabled" {{/unless}}>
                 <img src="/icons/comida.png" alt=""> Crear Combo
             </button>
-            
+
         </div>
 
         <div class="col-md-3 mb-3">
-            <button onclick="location.href='/viewCombo'" class="btn btn-info w-100" {{#unless (eq userRole 'admin' )}}disabled
-                class="disabled" {{/unless}}>
+            <button onclick="location.href='/viewCombo'" class="btn btn-info w-100" {{#unless (eq userRole 'admin'
+                )}}disabled class="disabled" {{/unless}}>
                 <img src="/icons/hamburguesa.png" alt=""> Ver y Editar Combos
             </button>
         </div>
@@ -83,13 +84,13 @@
         <div class="col-md-3 mb-3">
             <button onclick="location.href='/reportes'" class="btn btn-dark w-100">
                 Reportes Artículos
-            </button>            
+            </button>
         </div>
 
         <div class="col-md-3 mb-3">
             <button onclick="location.href='/sales'" class="btn btn-warning w-100">
                 <img src="/icons/ventas.png" alt=""> Ventas
-            </button>            
+            </button>
         </div>
     </div>
 </div>
