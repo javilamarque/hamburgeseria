@@ -268,13 +268,13 @@
             let codigoBarraConPrefijo = `combo_${combo.codigoBarra}`;
 
             let row = `
-        <tr data-cod_barra="${combo.codigoBarra}" data-precio="${precioTotalCombo}">
+        <tr data-cod_barra="${combo.codigoBarra}" data-precio="${precioTotalCombo}" data-es-combo="true">
             <td class="cantidad">1</td>
             <td class="cod_barra">${codigoBarraConPrefijo}</td>
             <td class="descripcion">${descripcionCombo}</td>
             <td class="precio">${precioTotalConSigno}</td>
             <td class="total">${precioTotalConSigno}</td>
-            <td><button type="button" onclick="editarCantidad('${combo.codigoBarra}')" class="btn btn-primary">Editar Cantidad</button></td>
+            <td><button type="button" onclick="editarCantidad('${combo.codigoBarra}', true)" class="btn btn-primary">Editar Cantidad</button></td>
             <td><button type="button" onclick="borrarArticulo(this)" class="btn btn-danger">Borrar</button></td>
         </tr>
     `;
@@ -421,23 +421,64 @@
             abrirModalCombo();
         });
 
-        window.editarCantidad = function (cod_barra) {
+        window.editarCantidad = async function (cod_barra, esCombo = false) {
             let row = $(`tr[data-cod_barra='${cod_barra}']`);
-            let cantidad = parseInt(prompt('Ingrese la nueva cantidad:', row.find('.cantidad').text()));
+            let cantidadActual = parseInt(row.find('.cantidad').text());
+            let nuevaCantidad = parseInt(prompt('Ingrese la nueva cantidad:', cantidadActual));
 
-            if (isNaN(cantidad) || cantidad <= 0) {
+            if (isNaN(nuevaCantidad) || nuevaCantidad <= 0) {
                 alert('Cantidad inválida');
                 return;
             }
 
-            let precio = parseFloat(row.data('precio'));
-            let total = (cantidad * precio).toFixed(2);
-            let totalConSigno = '$' + total;
+            try {
+                let response;
+                let item;
+                if (esCombo || cod_barra.startsWith('combo_')) {
+                    cod_barra = cod_barra.replace('combo_', '');
+                    // Obtener los detalles del combo desde el servidor
+                    response = await fetch(`/combos/barcode/${cod_barra}`);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        alert(errorData.message || 'Error al verificar el stock del combo');
+                        return;
+                    }
+                    item = await response.json();
+                    // Verificar el stock de cada producto en el combo
+                    for (const producto of item.productos) {
+                        if (nuevaCantidad > producto.stock) {
+                            alert(`El producto "${producto.descripcion}" en el combo no tiene suficiente stock. No puede ingresar más de ${producto.stock} unidades`);
+                            return;
+                        }
+                    }
+                } else {
+                    // Obtener los detalles del producto desde el servidor
+                    response = await fetch(`/product/barcode/${cod_barra}`);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        alert(errorData.message || 'Error al verificar el stock del producto');
+                        return;
+                    }
+                    item = await response.json();
+                    if (nuevaCantidad > item.stock) {
+                        alert(`El producto "${item.descripcion}" no tiene suficiente stock. No puede ingresar más de ${item.stock} unidades`);
+                        return;
+                    }
+                }
 
-            row.find('.cantidad').text(cantidad);
-            row.find('.total').text(totalConSigno);
+                // Si pasa la verificación de stock, actualizar la cantidad y el total en la tabla
+                let precio = parseFloat(row.data('precio'));
+                let total = (nuevaCantidad * precio).toFixed(2);
+                let totalConSigno = '$' + total;
 
-            actualizarTotal();
+                row.find('.cantidad').text(nuevaCantidad);
+                row.find('.total').text(totalConSigno);
+
+                actualizarTotal();
+            } catch (error) {
+                console.error('Error al verificar el stock:', error);
+                alert('Error al verificar el stock');
+            }
         }
 
         window.borrarArticulo = function (button) {

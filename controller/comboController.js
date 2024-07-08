@@ -160,7 +160,7 @@ exports.getComboByBarcode = async (req, res) => {
 
         // Verificar el stock de cada producto en el combo
         for (const producto of combo.productos) {
-            if (producto.stock === 0) {
+            if (producto.stock <= 0) {
                 return res.status(400).json({ message: `El producto "${producto.descripcion}" en el combo no tiene stock` });
             }
         }
