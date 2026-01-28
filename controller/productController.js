@@ -1,4 +1,6 @@
 const Product = require('../models/product');
+const ProductHistory = require('../models/productHistory');
+const User = require('../models/user');
 const moment = require('moment');
 
 const formatMoney = (amount) => {
@@ -49,12 +51,11 @@ exports.getProductByBarcode = async (req, res) => {
 exports.createProduct = async (req, res) => {
     const { cod_barra, descripcion, stock, costo, precio_venta, fecha } = req.body;
     try {
-        // Verificar si el código de barras ya existe
         const existingProduct = await Product.findOne({ cod_barra });
         if (existingProduct) {
             return res.send(`
                 <script>
-                    alert('Ya Existe este codigo de Barras!!!');
+                    alert('Ya Existe este código de Barras!!!');
                     window.location.href = '/products';
                 </script>
             `);
@@ -63,7 +64,22 @@ exports.createProduct = async (req, res) => {
         const newProduct = new Product({ cod_barra, descripcion, stock, costo, precio_venta, fecha });
         await newProduct.save();
 
-        // Mostrar un alert y redirigir a la página de productos
+        // Suponiendo que `req.user` contiene la información del usuario autenticado
+        const username = req.user ? req.user.username : 'desconocido'; // Si no hay usuario autenticado, usar "desconocido"
+
+        const historyEntry = new ProductHistory({
+            productId: newProduct._id,
+            action: 'created',
+            username: username, // Guardar el username en lugar del userId
+            details: {
+                newValue: {
+                    descripcion: newProduct.descripcion,
+                    precio_venta: newProduct.precio_venta
+                }
+            }
+        });
+        await historyEntry.save();
+
         res.send(`
             <script>
                 alert('Producto creado exitosamente');
@@ -71,6 +87,7 @@ exports.createProduct = async (req, res) => {
             </script>
         `);
     } catch (error) {
+        console.error('Error al crear el producto:', error);
         res.status(500).send(`
             <script>
                 alert('Error al crear el producto');
@@ -79,8 +96,6 @@ exports.createProduct = async (req, res) => {
         `);
     }
 };
-
-
 // Obtener la página de edición del producto
 exports.getEditProductPage = async (req, res) => {
     try {
@@ -112,14 +127,38 @@ exports.updateProduct = async (req, res) => {
     };
 
     try {
-        // Encuentra el producto original por su código de barras actual
-        const updatedProduct = await Product.findOneAndUpdate({ cod_barra: codigoDeBarras }, updateData, { new: true });
-
-        if (!updatedProduct) {
-            return res.status(404).json({ message: 'Producto no encontrado para actualizar' });
+        const oldProduct = await Product.findOne({ cod_barra: codigoDeBarras });
+        if (!oldProduct) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
         }
 
-        res.json(updatedProduct); // Devuelve el producto actualizado como respuesta
+        const updatedProduct = await Product.findOneAndUpdate(
+            { cod_barra: codigoDeBarras },
+            updateData,
+            { new: true }
+        );
+
+        // Suponiendo que `req.user` contiene la información del usuario autenticado
+        const username = req.user ? req.user.username : 'desconocido'; // Si no hay usuario autenticado, usar "desconocido"
+
+        const historyEntry = new ProductHistory({
+            productId: updatedProduct._id,
+            action: 'Modificado',
+            username: username, // Guardar el username en lugar del userId
+            details: {
+                oldValue: {
+                    descripcion: oldProduct.descripcion,
+                    precio_venta: oldProduct.precio_venta
+                },
+                newValue: {
+                    descripcion: updatedProduct.descripcion,
+                    precio_venta: updatedProduct.precio_venta
+                }
+            }
+        });
+        await historyEntry.save();
+
+        res.json(updatedProduct);
     } catch (error) {
         console.error('Error al actualizar el producto:', error);
         res.status(500).json({ message: 'Error al actualizar el producto' });
@@ -130,12 +169,30 @@ exports.updateProduct = async (req, res) => {
 exports.deleteProductByBarcode = async (req, res) => {
     const codigoDeBarras = req.params.codigoDeBarras;
     try {
-        const deletedProduct = await Product.findOneAndDelete({ cod_barra: codigoDeBarras });
-        if (!deletedProduct) {
+        const product = await Product.findOneAndDelete({ cod_barra: codigoDeBarras });
+        if (!product) {
             return res.status(404).json({ message: 'Producto no encontrado' });
         }
-        res.status(200).end(); // Enviar una respuesta 200 sin contenido
+
+        // Suponiendo que `req.user` contiene la información del usuario autenticado
+        const username = req.user ? req.user.username : 'desconocido'; // Si no hay usuario autenticado, usar "desconocido"
+
+        const historyEntry = new ProductHistory({
+            productId: product._id,
+            action: 'deleted',
+            username: username, // Guardar el username en lugar del userId
+            details: {
+                oldValue: {
+                    descripcion: product.descripcion,
+                    precio_venta: product.precio_venta
+                }
+            }
+        });
+        await historyEntry.save();
+
+        res.status(200).end();
     } catch (error) {
+        console.error('Error al eliminar el producto:', error);
         res.status(500).json({ message: 'Error al eliminar el producto' });
     }
 };
@@ -194,5 +251,28 @@ exports.searchProduct = async (req, res) => {
     } catch (error) {
         console.error('Error al buscar productos:', error);
         res.status(500).json({ message: 'Error al buscar productos' });
+    }
+};
+
+
+//-----------------------------------------------------------------------------------------------------HISTORIAL DE PRODUCTOS--------------------------------------------------// productController.js
+exports.getProductHistory = async (req, res) => {
+    const codigoDeBarras = req.params.codigoDeBarras;
+    try {
+        // Buscar el producto por su código de barras
+        const product = await Product.findOne({ cod_barra: codigoDeBarras });
+        if (!product) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+
+        // Obtener el historial del producto
+        const history = await ProductHistory.find({ productId: product._id })
+            .sort({ timestamp: -1 });
+
+        // Renderizar la vista con los datos del historial y del producto
+        res.render('productHistory', { product, history });
+    } catch (error) {
+        console.error('Error al obtener el historial del producto:', error);
+        res.status(500).json({ message: 'Error al obtener el historial del producto' });
     }
 };

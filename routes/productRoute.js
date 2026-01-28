@@ -18,5 +18,5 @@ router.put('/products/:codigoDeBarras', productController.updateProduct);
 // Ruta para buscar un producto por código de barras
 router.get('/product/barcode/:cod_barra', productController.getProductByBarcode);
 
-
+router.get('/productHistory/:codigoDeBarras', productController.getProductHistory);
 module.exports = router;

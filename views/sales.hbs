@@ -147,7 +147,7 @@
                         </tr>
                     </thead>
                     <tbody id="comboList">
-                        <!-- Aquí se agregarán los combos disponibles -->
+                        
                     </tbody>
                 </table>
             </div>
@@ -393,7 +393,7 @@
                 let productosDescripcion = combo.productos.map(producto => producto.descripcion).join(', ');
                 let tbody = $('#productosEncontrados');
                 let row = `
-            <tr data-cod_barra="${comboCodBarra}">
+            <tr data-cod_barra="${comboCodBarra}" data-precio="${comboPrecio.replace('$', '')}">
                 <td class="cantidad">1</td>
                 <td class="cod_barra">${comboCodBarra}</td>
                 <td class="descripcion">${productosDescripcion}</td>
@@ -472,6 +472,7 @@
 
                 row.find('.cantidad').text(nuevaCantidad);
                 row.find('.total').text(totalConSigno);
+                
 
                 actualizarTotal();
             } catch (error) {
