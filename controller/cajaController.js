@@ -226,7 +226,7 @@ exports.cerrarCaja = async (req, res) => {
             retiro_parcial_transferencia: datosCaja.retiro_parcial_transferencia,
             total_transferencia: datosCaja.total_transferencia,
             total_dinero_en_caja: totalDineroEnCaja, // Ajustar total_dinero_en_caja
-            fecha_cierre: moment().format('dddd, D MMMM YYYY, HH:mm:ss')
+            fecha_cierre: new Date()
         };
 
 

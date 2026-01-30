@@ -125,9 +125,9 @@ exports.createSale = async (req, res) => {
         // Actualizar la caja solo si la venta no ha sido procesada
         const caja = await Caja.findOne().sort({ fecha_apertura: -1 }).exec();
 
-        if (!caja ) {
-        console.error('No se encontró una caja abierta');
-        return res.status(500).send(`
+        if (!caja) {
+            console.error('No se encontró una caja abierta');
+            return res.status(500).send(`
             <script>
                 alert('No se encontró una caja abierta');
                 window.location.href = '/sales';
@@ -285,71 +285,64 @@ exports.anularVenta = async (req, res) => {
 
         const venta = await VentaModel.findOne({ fac_num });
 
-
         if (!venta) {
             return res.status(404).json({ message: 'Venta no encontrada' });
         }
 
-        // Calcular el tiempo transcurrido en horas desde la creación de la venta
-        const horasTranscurridas = Math.abs(new Date() - venta.createdAt) / 36e5;
+        // 🔹 Buscar la última caja
+        const caja = await Caja.findOne().sort({ fecha_apertura: -1 });
 
-        if (horasTranscurridas > 24) {
-            return res.status(403).json({ message: 'No se puede anular la venta después de 24 horas' });
+        if (!caja) {
+            return res.status(500).json({ message: 'No se encontró ninguna caja' });
         }
 
-        // Obtener los productos vendidos de la descripción
-        const descripcionProductos = venta.descripcion.split(',').map(item => item.trim());
-
-        // Actualizar el stock del producto
-        for (const descripcionProducto of descripcionProductos) {
-            const producto = await Product.findOne({ descripcion: descripcionProducto });
-            if (producto) {
-                // Aquí asumo que el campo `cantidad` de la venta representa la cantidad vendida de ese producto
-                producto.stock += venta.cantidad;
-                await producto.save();
-            }
-        }
-        // Actualizar la caja
-        const cajaAbierta = await Caja.findOne().sort({ fecha_apertura: -1 });
-
-        if (!cajaAbierta) {
-            return res.status(500).json({ message: 'No se encontró una caja abierta.' });
-        }
-
-        if (venta.tipo_pago === 'Efectivo') {
-            if (cajaAbierta.total_ventas_dia - venta.total < 0) {
-                return res.send(`
+        // 🔴 VALIDACIÓN CLAVE: si la caja está cerrada, no se puede anular
+        if (caja.estado === 'CERRADA') {
+            return res.send(`
                 <script>
-                    alert('No se puede anular la venta porque no hay suficiente ventas en el dia');
+                    alert('No se puede anular una venta de una caja cerrada');
                     window.location.href = '/viewSales';
                 </script>
-                `);
-            }
-            cajaAbierta.total_ventas_dia -= venta.total;
-            cajaAbierta.total_final -= venta.total;
-        } else if (venta.tipo_pago === 'Transferencia') {
-            if (cajaAbierta.total_transferencia - venta.total < 0) {
-                return res.send(`
-                    <script>
-                        alert('No se puede anular la venta porque las transferencias quedarían en negativo');
-                        window.location.href = '/viewSales';
-                    </script>
-                `);
-            }
-            cajaAbierta.total_transferencia -= venta.total;
-            cajaAbierta.total_final -= venta.total;
+            `);
         }
-        await cajaAbierta.save();
 
-        // Eliminar la venta de la base de datos
+        // 🔹 Reponer stock usando items (NO la descripción)
+        for (const item of venta.items) {
+            if (!item.cod_barra.startsWith('combo_')) {
+                const producto = await Product.findOne({ cod_barra: item.cod_barra });
+                if (producto) {
+                    producto.stock += item.cantidad;
+                    await producto.save();
+                }
+            }
+        }
+
+        // 🔹 Actualizar caja (SIN VALIDAR NEGATIVOS)
+        if (venta.tipo_pago === 'Efectivo') {
+            caja.total_ventas_dia -= venta.total;
+        } else {
+            caja.t_transferencia -= venta.total;
+        }
+
+        caja.total_final = caja.apertura + caja.total_ventas_dia - caja.cierre_parcial;
+        await caja.save();
+
+        // 🔹 Eliminar venta
         await VentaModel.deleteOne({ fac_num });
 
-        res.redirect('/viewSales'); // Redirigir de nuevo a la lista de ventas
+        res.send(`
+            <script>
+                alert('Venta anulada correctamente');
+                window.location.href = '/viewSales';
+            </script>
+        `);
+
     } catch (error) {
         console.error('Error al anular la venta:', error);
-        res.status(500).json({ message: 'Error al anular la venta', error });
+        res.status(500).json({ message: 'Error al anular la venta' });
     }
 };
+
 
 exports.renderSaleViews = async (req, res) => {
     try {
