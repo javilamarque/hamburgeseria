@@ -319,9 +319,15 @@ exports.anularVenta = async (req, res) => {
 
         // 🔹 Actualizar caja (SIN VALIDAR NEGATIVOS)
         if (venta.tipo_pago === 'Efectivo') {
-            caja.total_ventas_dia -= venta.total;
+            caja.total_ventas_dia = Math.max(
+                0,
+                caja.total_ventas_dia - venta.total
+            );
         } else {
-            caja.t_transferencia -= venta.total;
+            caja.t_transferencia = Math.max(
+                0,
+                caja.t_transferencia - venta.total
+            );
         }
 
         caja.total_final = caja.apertura + caja.total_ventas_dia - caja.cierre_parcial;
