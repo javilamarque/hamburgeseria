@@ -27,9 +27,10 @@
     </div>
 
     <div class="mt-4 mb-3 text-center">
-        <button id="cancelar-btn" class="btn btn-danger"> <img src="/icons/cancelar.png" alt=""> Cancelar</button>
+        <button id="cancelar-btn" class="btn btn-danger"> <img src="/icons/cancelar.png" alt=""> Atrás</button>
         <button id="agregar-items-btn" class="btn btn-success ms-2">Agregar Items</button>
-        <button id="guardar-btn" class="btn btn-primary ms-2"> <img src="/icons/guardar-el-archivo.png" alt=""> Guardar</button>
+        <button id="guardar-btn" class="btn btn-primary ms-2"> <img src="/icons/guardar-el-archivo.png" alt="">
+            Guardar</button>
     </div>
 </div>
 
@@ -158,7 +159,7 @@
                     productos.push({
                         descripcion: $(this).val(),
 
-                        codigoBarra: $(this).closest('.row').find('.cod_barra').val() 
+                        codigoBarra: $(this).closest('.row').find('.cod_barra').val()
                     });
                 }
             });
@@ -191,11 +192,11 @@
                         alert('Error al guardar el combo');
                         console.error(xhr, status, error);
                     }
-                }    
+                }
             });
         });
 
-        
+
     });
 </script>
 

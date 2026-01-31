@@ -56,7 +56,6 @@ exports.createSale = async (req, res) => {
 
     try {
         if (!items || items.length === 0) {
-            console.error('No se recibieron ítems');
             return res.status(400).json({ message: 'Datos de venta no válidos' });
         }
 
@@ -68,99 +67,136 @@ exports.createSale = async (req, res) => {
             total: parseFloat(item.total.replace('$', ''))
         }));
 
-        if (processedItems.some(item => isNaN(item.cantidad) || isNaN(item.precio) || isNaN(item.total))) {
-            console.error('Datos de ítems inválidos:', processedItems);
+        if (processedItems.some(i => isNaN(i.cantidad) || isNaN(i.precio) || isNaN(i.total))) {
             return res.status(400).json({ message: 'Datos de venta no válidos' });
         }
 
+        // =================================================
+        // 1️⃣ AGRUPAR STOCK NECESARIO (productos + combos)
+        // =================================================
+        const stockNecesario = {}; // { cod_barra: cantidadTotal }
 
+        for (const item of processedItems) {
 
+            // 🔹 COMBOS
+            if (item.cod_barra.startsWith('combo_')) {
+                const comboCodigoBarra = item.cod_barra.split('_')[1];
+                const combo = await Combo
+                    .findOne({ codigoBarra: comboCodigoBarra })
+                    .populate('productos');
+
+                if (!combo) {
+                    return res.status(404).json({
+                        message: `Combo con código ${comboCodigoBarra} no encontrado`
+                    });
+                }
+
+                for (const prod of combo.productos) {
+                    if (!stockNecesario[prod.cod_barra]) {
+                        stockNecesario[prod.cod_barra] = 0;
+                    }
+                    stockNecesario[prod.cod_barra] += item.cantidad;
+                }
+
+            }
+            // 🔹 PRODUCTO NORMAL
+            else {
+                if (!stockNecesario[item.cod_barra]) {
+                    stockNecesario[item.cod_barra] = 0;
+                }
+                stockNecesario[item.cod_barra] += item.cantidad;
+            }
+        }
+
+        // ===============================
+        // 2️⃣ VALIDAR STOCK TOTAL
+        // ===============================
+        for (const cod_barra in stockNecesario) {
+            const producto = await Product.findOne({ cod_barra });
+
+            if (!producto) {
+                return res.status(404).json({
+                    message: `Producto con código ${cod_barra} no encontrado`
+                });
+            }
+
+            if (producto.stock < stockNecesario[cod_barra]) {
+                return res.send(`
+                    <script>
+                        alert('Stock insuficiente para ${producto.descripcion}. Disponible: ${producto.stock}');
+                        window.location.href = '/sales';
+                    </script>
+                `);
+            }
+        }
+
+        // ===============================
+        // 3️⃣ CREAR Y GUARDAR LA VENTA
+        // ===============================
         const nuevaVenta = new VentaModel({
-            descripcion: processedItems.map(item => item.descripcion).join(', '),
+            descripcion: processedItems.map(i => i.descripcion).join(', '),
             total: ventaTotal,
             f_factura: new Date(),
             vendedor,
             tipo_pago: pago,
-            cantidad: processedItems.reduce((acc, item) => acc + item.cantidad, 0),
-            procesada: false, // Inicialmente no procesada
-            items: processedItems // Aquí agregamos los items
+            cantidad: processedItems.reduce((acc, i) => acc + i.cantidad, 0),
+            procesada: false,
+            items: processedItems
         });
 
         await nuevaVenta.save();
 
-        for (let item of processedItems) {
-            if (item.cod_barra.startsWith('combo_')) {
-                const comboCodigoBarra = item.cod_barra.split('_')[1];
-                const combo = await Combo.findOne({ codigoBarra: comboCodigoBarra }).populate('productos');
-
-                if (!combo) {
-                    console.error(`Combo con ID ${comboCodigoBarra} no encontrado`);
-                    return res.status(404).json({ message: `Combo con ID ${comboCodigoBarra} no encontrado` });
-                }
-
-                for (let product of combo.productos) {
-                    const productInDb = await Product.findOne({ cod_barra: product.cod_barra });
-
-                    if (!productInDb) {
-                        console.error(`Producto con código ${product.cod_barra} no encontrado`);
-                        return res.status(404).json({ message: `Producto con código ${product.cod_barra} no encontrado` });
-                    }
-
-                    productInDb.stock -= item.cantidad;
-                    await productInDb.save();
-                }
-            } else {
-                const product = await Product.findOne({ cod_barra: item.cod_barra });
-
-                if (!product) {
-                    console.error(`Producto con código ${item.cod_barra} no encontrado`);
-                    return res.status(404).json({ message: `Producto con código ${item.cod_barra} no encontrado` });
-                }
-
-                product.stock -= item.cantidad;
-                await product.save();
-            }
+        // ===============================
+        // 4️⃣ DESCONTAR STOCK (UNA VEZ)
+        // ===============================
+        for (const cod_barra in stockNecesario) {
+            await Product.findOneAndUpdate(
+                { cod_barra },
+                { $inc: { stock: -stockNecesario[cod_barra] } }
+            );
         }
 
-        // Actualizar la caja solo si la venta no ha sido procesada
-        const caja = await Caja.findOne().sort({ fecha_apertura: -1 }).exec();
+        // ===============================
+        // 5️⃣ ACTUALIZAR CAJA
+        // ===============================
+        const caja = await Caja.findOne().sort({ fecha_apertura: -1 });
 
         if (!caja) {
-            console.error('No se encontró una caja abierta');
-            return res.status(500).send(`
-            <script>
-                alert('No se encontró una caja abierta');
-                window.location.href = '/sales';
-            </script>
-        `);
+            return res.send(`
+                <script>
+                    alert('No se encontró una caja abierta');
+                    window.location.href = '/sales';
+                </script>
+            `);
         }
 
         if (!nuevaVenta.procesada) {
             if (pago === 'Mercado Pago') {
                 caja.t_transferencia += ventaTotal;
-            } else if (pago === 'Efectivo') {
+            } else {
                 caja.total_ventas_dia += ventaTotal;
             }
 
             caja.total_final = caja.apertura + caja.total_ventas_dia - caja.cierre_parcial;
             await caja.save();
 
-            // Marcar la venta como procesada
             nuevaVenta.procesada = true;
             await nuevaVenta.save();
         }
 
-        res.send(
-            `<script>
+        res.send(`
+            <script>
                 alert('Venta creada exitosamente');
                 window.location.href = '/sales';
-            </script>`
-        );
+            </script>
+        `);
+
     } catch (error) {
         console.error('Error al crear la venta:', error);
         res.status(500).json({ message: 'Error al crear la venta' });
     }
 };
+
 
 
 exports.addItemToInvoice = async (req, res) => {
